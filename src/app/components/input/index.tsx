@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { RegisterOptions, UseFormRegister } from 'react-hook-form'
 
 interface InputProps {
@@ -19,6 +18,7 @@ export function Input({ name, placeholder, type, register, rules, error }: Input
                 type={type}
                 {...register(name, rules)}
                 id={name}
+                style={{ color: 'black' }}
             />
             {error && <p className='my-1 text-red-500'>{error}</p>}
         </div>

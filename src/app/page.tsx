@@ -14,7 +14,7 @@ export default function Dashboard() {
     if (!isAuthenticated) {
       router.push('/login');
     }
-  }, []);
+  }, [isAuthenticated]);
 
   return (
     <SidebarAndHeader />
