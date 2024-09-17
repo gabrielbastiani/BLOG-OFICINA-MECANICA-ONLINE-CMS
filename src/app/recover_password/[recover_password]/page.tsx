@@ -1,29 +1,31 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
-import logoImg from '../../assets/LogoBuilderWhite.webp'
-import { Container } from '../components/container'
-import { Input } from '../components/input'
+import logoImg from '../../../assets/LogoBuilderWhite.webp'
+import { Container } from '../../components/container'
+import { Input } from '../../components/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { setupAPIClient } from '../../services/api'
-import { toast } from 'react-toastify'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { LoadingRequest } from '../../components/loadingRequest'
 import ReCAPTCHA from "react-google-recaptcha";
-import { useRef, useState } from 'react'
-import { LoadingRequest } from '../components/loadingRequest'
+import { toast } from 'react-toastify'
+import { setupAPIClient } from '@/services/api'
 
-const schema = z.object({
-    name: z.string().nonempty("O campo nome é obrigatório"),
-    email: z.string().email("Insira um email válido").nonempty("O campo email é obrigatório"),
-    password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres").nonempty("O campo senha é obrigatório")
+const passwordSchema = z.object({
+    password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+    confirmPassword: z.string().min(6, 'Confirmação de senha deve ter pelo menos 6 caracteres'),
+}).refine(data => data.password === data.confirmPassword, {
+    message: 'As senhas não coincidem',
+    path: ['confirmPassword'], // Indica onde a mensagem de erro deve ser exibida
 });
 
-type FormData = z.infer<typeof schema>
+type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-export default function Register() {
+export default function RecoverPassword({ params }: { params: { recover_password: string } }) {
 
     const router = useRouter()
 
@@ -31,29 +33,28 @@ export default function Register() {
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const captchaRef = useRef<ReCAPTCHA | null>(null);
 
-    const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-        resolver: zodResolver(schema),
-        mode: "onChange"
+    const { register, handleSubmit, formState: { errors } } = useForm<PasswordFormValues>({
+        resolver: zodResolver(passwordSchema),
     });
 
     const onChangeCaptcha = (token: string | null) => {
         setCaptchaToken(token);
     };
 
-    async function onSubmit(data: FormData) {
-
-        setLoading(true);
+    async function onSubmit(data: PasswordFormValues) {
 
         if (!captchaToken) {
             toast.error("Por favor, verifique o reCAPTCHA.");
             return;
         }
 
+        setLoading(true);
+
         try {
             const apiClient = setupAPIClient();
-            await apiClient.post('/user/create', { name: data?.name, email: data?.email, password: data?.password });
+            await apiClient.put(`/user/recovery_password?passwordRecoveryUser_id=${params?.recover_password}`, { password: data?.confirmPassword });
 
-            toast.success('Cadastro feito com sucesso!');
+            toast.success('Senha atualizada com sucesso!');
 
             setLoading(false);
 
@@ -63,7 +64,9 @@ export default function Register() {
             console.log(error.response.data);
             toast.error('Erro ao cadastrar!');
         }
+
     }
+
 
     return (
         <>
@@ -87,20 +90,10 @@ export default function Register() {
                         >
                             <div className='mb-3'>
                                 <Input
-                                    type="text"
-                                    placeholder="Digite seu nome completo..."
-                                    name="name"
-                                    error={errors.name?.message}
-                                    register={register}
-                                />
-                            </div>
-
-                            <div className='mb-3'>
-                                <Input
-                                    type="email"
-                                    placeholder="Digite seu email..."
-                                    name="email"
-                                    error={errors.email?.message}
+                                    type="password"
+                                    placeholder="Digite a nova senha..."
+                                    name="confirmPassword"
+                                    error={errors.password?.message}
                                     register={register}
                                 />
                             </div>
@@ -108,9 +101,9 @@ export default function Register() {
                             <div className='mb-3'>
                                 <Input
                                     type="password"
-                                    placeholder="Digite sua senha..."
+                                    placeholder="Digite novamente a senha..."
                                     name="password"
-                                    error={errors.password?.message}
+                                    error={errors.confirmPassword?.message}
                                     register={register}
                                 />
                             </div>
@@ -127,9 +120,13 @@ export default function Register() {
                                 type='submit'
                                 className='bg-red-600 w-full rounded-md text-white h-10 font-medium'
                             >
-                                Acessar
+                                Solicitar
                             </button>
                         </form>
+
+                        <Link href="/register">
+                            Ainda não possui uma conta? Cadastre-se
+                        </Link>
 
                         <Link href="/login">
                             Já possui uma conta? Faça o login!

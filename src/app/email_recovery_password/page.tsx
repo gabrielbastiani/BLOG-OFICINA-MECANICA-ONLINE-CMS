@@ -7,23 +7,22 @@ import { Input } from '../components/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { setupAPIClient } from '../../services/api'
-import { toast } from 'react-toastify'
+import { AuthContext } from '../../contexts/AuthContext'
+import { useContext, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import ReCAPTCHA from "react-google-recaptcha";
-import { useRef, useState } from 'react'
 import { LoadingRequest } from '../components/loadingRequest'
+import ReCAPTCHA from "react-google-recaptcha";
+import { toast } from 'react-toastify'
+import { setupAPIClient } from '@/services/api'
 
 const schema = z.object({
-    name: z.string().nonempty("O campo nome é obrigatório"),
     email: z.string().email("Insira um email válido").nonempty("O campo email é obrigatório"),
-    password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres").nonempty("O campo senha é obrigatório")
-});
+})
 
 type FormData = z.infer<typeof schema>
 
-export default function Register() {
+export default function EmailRecoveryPassword() {
 
     const router = useRouter()
 
@@ -42,18 +41,20 @@ export default function Register() {
 
     async function onSubmit(data: FormData) {
 
-        setLoading(true);
-
         if (!captchaToken) {
             toast.error("Por favor, verifique o reCAPTCHA.");
             return;
         }
 
+        setLoading(true);
+
+        const email = data?.email;
+
         try {
             const apiClient = setupAPIClient();
-            await apiClient.post('/user/create', { name: data?.name, email: data?.email, password: data?.password });
+            await apiClient.put(`/user/email_recovery_password`, { email: email });
 
-            toast.success('Cadastro feito com sucesso!');
+            toast.success(`Email enviado para o endereço "${email}`);
 
             setLoading(false);
 
@@ -61,9 +62,11 @@ export default function Register() {
 
         } catch (error) {/* @ts-ignore */
             console.log(error.response.data);
-            toast.error('Erro ao cadastrar!');
+            toast.error('Erro ao enviar o email!');
         }
+
     }
+
 
     return (
         <>
@@ -87,30 +90,10 @@ export default function Register() {
                         >
                             <div className='mb-3'>
                                 <Input
-                                    type="text"
-                                    placeholder="Digite seu nome completo..."
-                                    name="name"
-                                    error={errors.name?.message}
-                                    register={register}
-                                />
-                            </div>
-
-                            <div className='mb-3'>
-                                <Input
                                     type="email"
                                     placeholder="Digite seu email..."
                                     name="email"
                                     error={errors.email?.message}
-                                    register={register}
-                                />
-                            </div>
-
-                            <div className='mb-3'>
-                                <Input
-                                    type="password"
-                                    placeholder="Digite sua senha..."
-                                    name="password"
-                                    error={errors.password?.message}
                                     register={register}
                                 />
                             </div>
@@ -130,6 +113,10 @@ export default function Register() {
                                 Acessar
                             </button>
                         </form>
+
+                        <Link href="/register">
+                            Ainda não possui uma conta? Cadastre-se
+                        </Link>
 
                         <Link href="/login">
                             Já possui uma conta? Faça o login!

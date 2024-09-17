@@ -25,13 +25,7 @@ type FormData = z.infer<typeof schema>
 export default function Login() {
 
     const router = useRouter()
-    const { signIn, isAuthenticated } = useContext(AuthContext);
-
-    useEffect(() => {
-        if (isAuthenticated === true) {
-            router.push('/');
-        }
-    }, [isAuthenticated]);
+    const { signIn } = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -136,6 +130,10 @@ export default function Login() {
 
                         <Link href="/register">
                             Ainda não possui uma conta? Cadastre-se
+                        </Link>
+
+                        <Link href="/email_recovery_password">
+                            Recupere sua senha!
                         </Link>
 
                     </div>
