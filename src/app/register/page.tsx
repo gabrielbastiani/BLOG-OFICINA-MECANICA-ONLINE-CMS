@@ -62,6 +62,7 @@ export default function Register() {
         } catch (error) {/* @ts-ignore */
             console.log(error.response.data);
             toast.error('Erro ao cadastrar!');
+            setLoading(false);
         }
     }
 

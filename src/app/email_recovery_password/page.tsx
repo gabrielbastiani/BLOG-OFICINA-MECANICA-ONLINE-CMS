@@ -52,7 +52,7 @@ export default function EmailRecoveryPassword() {
 
         try {
             const apiClient = setupAPIClient();
-            await apiClient.put(`/user/email_recovery_password`, { email: email });
+            await apiClient.post(`/user/email_recovery_password`, { email: email });
 
             toast.success(`Email enviado para o endereço "${email}`);
 
@@ -63,6 +63,7 @@ export default function EmailRecoveryPassword() {
         } catch (error) {/* @ts-ignore */
             console.log(error.response.data);
             toast.error('Erro ao enviar o email!');
+            setLoading(false);
         }
 
     }
