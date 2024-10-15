@@ -1,5 +1,5 @@
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { useContext, useState } from "react";
+import { ReactNode, useContext, useState } from "react";
 import clsx from "clsx";
 import { ArrowBendDoubleUpLeft, CaretRight } from "phosphor-react";
 import Image from "next/image";
@@ -8,7 +8,11 @@ import { AuthContext } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { FiLogIn, FiUser } from "react-icons/fi";
 
-export function SidebarAndHeader() {
+interface Content {
+    children: ReactNode;
+}
+
+export function SidebarAndHeader({ children }: Content) {
 
     const { isAuthenticated, loadingAuth } = useContext(AuthContext);
     const [isSideBarOpen, setIsSideBarOpen] = useState(true);
@@ -72,7 +76,11 @@ export function SidebarAndHeader() {
                             </div>
                         </Link>
                     )}
+
                 </div>
+
+                {children}
+
             </div>
         </Collapsible.Root>
     )

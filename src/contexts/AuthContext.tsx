@@ -17,6 +17,7 @@ type UserProps = {
     id: string;
     name: string;
     email: string;
+    image_user?: string;
 }
 
 type SignInProps = {
@@ -87,12 +88,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 try {
                     const response = await api.get(`/user/me?user_id=${userid}`);
 
-                    const { id, name, email } = response.data;
+                    const { id, name, email, image_user } = response.data;
 
                     setUser({
                         id,
                         name,
-                        email
+                        email,
+                        image_user
                     });
 
                 } catch (error) {

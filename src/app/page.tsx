@@ -5,6 +5,10 @@ import { SidebarAndHeader } from "./components/sidebarAndHeader";
 export default function Dashboard() {
 
   return (
-    <SidebarAndHeader />
+    <SidebarAndHeader children={
+      <section>
+        <h1>Dashboard</h1>
+      </section>
+    } />
   );
 }
