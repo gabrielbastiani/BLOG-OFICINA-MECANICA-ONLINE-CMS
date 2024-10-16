@@ -7,13 +7,16 @@ interface InputProps {
     register: UseFormRegister<any>;
     error?: string;
     rules?: RegisterOptions;
+    styles?: string;
+    value?: string;
 }
 
-export function Input({ name, placeholder, type, register, rules, error }: InputProps) {
+export function Input({ name, placeholder, type, register, rules, error, styles, value }: InputProps) {
     return (
         <div>
             <input
-                className="w-full border-2 rounded-md h-11 px-2"
+                className={styles}
+                defaultValue={value}
                 placeholder={placeholder}
                 type={type}
                 {...register(name, rules)}

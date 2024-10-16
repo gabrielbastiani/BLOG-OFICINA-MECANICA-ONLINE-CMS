@@ -5,12 +5,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --backgroundButton: rgb(249 115 22);
+  --hoverButtonBackground: rgb(234 88 12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --backgroundButton: rgb(249 115 22);
+    --hoverButtonBackground: rgb(234 88 12);
   }
 }
 

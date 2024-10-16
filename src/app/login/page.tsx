@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { AuthContext } from '../../contexts/AuthContext'
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LoadingRequest } from '../components/loadingRequest'
@@ -24,7 +24,7 @@ type FormData = z.infer<typeof schema>
 
 export default function Login() {
 
-    const router = useRouter()
+    const router = useRouter();
     const { signIn } = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
@@ -95,6 +95,7 @@ export default function Login() {
                         >
                             <div className='mb-3'>
                                 <Input
+                                    styles='w-full border-2 rounded-md h-11 px-2'
                                     type="email"
                                     placeholder="Digite seu email..."
                                     name="email"
@@ -105,6 +106,7 @@ export default function Login() {
 
                             <div className='mb-3'>
                                 <Input
+                                    styles='w-full border-2 rounded-md h-11 px-2'
                                     type="password"
                                     placeholder="Digite sua senha..."
                                     name="password"

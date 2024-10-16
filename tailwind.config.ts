@@ -11,6 +11,8 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        backgroundButton: "var(--backgroundButton)",
+        hoverButtonBackground: "var(--hoverButtonBackground)"
       },
       keyframes:{
         slideIn:{

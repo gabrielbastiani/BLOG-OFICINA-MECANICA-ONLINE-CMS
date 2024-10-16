@@ -88,6 +88,7 @@ export default function Register() {
                         >
                             <div className='mb-3'>
                                 <Input
+                                    styles='w-full border-2 rounded-md h-11 px-2'
                                     type="text"
                                     placeholder="Digite seu nome completo..."
                                     name="name"
@@ -98,6 +99,7 @@ export default function Register() {
 
                             <div className='mb-3'>
                                 <Input
+                                    styles='w-full border-2 rounded-md h-11 px-2'
                                     type="email"
                                     placeholder="Digite seu email..."
                                     name="email"
@@ -108,6 +110,7 @@ export default function Register() {
 
                             <div className='mb-3'>
                                 <Input
+                                    styles='w-full border-2 rounded-md h-11 px-2'
                                     type="password"
                                     placeholder="Digite sua senha..."
                                     name="password"
