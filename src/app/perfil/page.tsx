@@ -12,6 +12,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TitlePage } from "../components/titlePage";
+import { Section } from "../components/section";
 
 const schema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
@@ -99,7 +100,7 @@ export default function Perfil() {
     return (
         <SidebarAndHeader
             children={
-                <section className="p-4 md:p-10">
+                <Section>
 
                     <TitlePage title="PERFIL" />
 
@@ -176,7 +177,7 @@ export default function Perfil() {
                         {loading ? "Saindo..." : "Sair da conta"}
                     </button>
 
-                </section>
+                </Section>
             }
         />
     );

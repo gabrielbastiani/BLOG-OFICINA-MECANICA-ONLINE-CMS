@@ -1,5 +1,5 @@
 import * as Collapsible from "@radix-ui/react-collapsible";
-import { ReactNode, useContext, useState } from "react";
+import { ReactNode, useContext, useEffect, useState } from "react";
 import clsx from "clsx";
 import { ArrowBendDoubleUpLeft, CaretRight } from "phosphor-react";
 import Image from "next/image";
@@ -7,15 +7,25 @@ import logo from '../../../assets/LogoBuilderWhite.webp';
 import { AuthContext } from "@/contexts/AuthContext";
 import Link from "next/link";
 import { FiLogIn, FiUser } from "react-icons/fi";
+import { useRouter } from "next/router";
+
 
 interface Content {
     children: ReactNode;
 }
 
 export function SidebarAndHeader({ children }: Content) {
-
     const { isAuthenticated, loadingAuth } = useContext(AuthContext);
     const [isSideBarOpen, setIsSideBarOpen] = useState(true);
+
+    const [currentRoute, setCurrentRoute] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const { pathname } = window.location;
+            setCurrentRoute(pathname);
+        }
+    }, []);
 
     return (
         <Collapsible.Root
@@ -34,13 +44,24 @@ export function SidebarAndHeader({ children }: Content) {
                     <nav className="flex mx-2 flex-col gap-8 text-slate-100">
                         <div className="flex flex-col gap-2 ml-2">
                             <div className="text-white font-semibold uppercase mb-2 ml-2 mt-3">
-                                <Image src={logo} width={120} alt="logo" />
+                                <Link href="/">
+                                    <Image src={logo} width={120} alt="logo" />
+                                </Link>
                             </div>
                         </div>
                         <section className="flex flex-col gap-px">
-                            {/* <LinkContent to="/">Clientes</LinkContent>
-                        <LinkContent to="/create">Cadastrar clientes</LinkContent>
-                        <LinkContent to="/about">Sobre</LinkContent> */}
+                            <Link href="/perfil" className={clsx({
+                                'bg-activeLink': currentRoute === "/perfil", // Verifica se a rota atual é "/"
+                                'text-white': currentRoute !== "/perfil"
+                            })}>
+                                Perfil
+                            </Link>
+                            <Link href="/" className={clsx({
+                                'bg-activeLink': currentRoute === "/", // Verifica se a rota atual é "/"
+                                'text-white': currentRoute !== "/"
+                            })}>
+                                Dashboard
+                            </Link>
                         </section>
                     </nav>
                 </div>

@@ -7,6 +7,7 @@
   --foreground: #171717;
   --backgroundButton: rgb(249 115 22);
   --hoverButtonBackground: rgb(234 88 12);
+  --activeLink: rgba(234, 90, 12, 0.644);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +16,7 @@
     --foreground: #ededed;
     --backgroundButton: rgb(249 115 22);
     --hoverButtonBackground: rgb(234 88 12);
+    --activeLink: rgba(234, 90, 12, 0.644);
   }
 }
 

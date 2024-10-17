@@ -12,7 +12,8 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         backgroundButton: "var(--backgroundButton)",
-        hoverButtonBackground: "var(--hoverButtonBackground)"
+        hoverButtonBackground: "var(--hoverButtonBackground)",
+        activeLink: "var(--activeLink)"
       },
       keyframes:{
         slideIn:{
