@@ -4,6 +4,7 @@ import { createContext, ReactNode, useState, useEffect } from 'react';
 import { api } from '../services/apiClient';
 import { toast } from 'react-toastify';
 import { useCookies } from 'react-cookie';
+import { useRouter } from 'next/navigation';
 
 type AuthContextData = {
     user?: UserProps;
@@ -32,6 +33,8 @@ type AuthProviderProps = {
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
+
+    const router = useRouter();
 
     const [cookies, setCookie, removeCookie] = useCookies(['@cmsblog.token']);
     const [cookiesId, setCookieId, removeCookieId] = useCookies(['@idUser']);
@@ -114,6 +117,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             removeCookieId('@idUser', { path: '/' });
             setUser(undefined);
             toast.success('Usuário deslogado com sucesso!');
+            router.push("/login");
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
         } catch (error) {
             toast.error("OPS... Erro ao deslogar");
         }

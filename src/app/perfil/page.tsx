@@ -12,7 +12,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TitlePage } from "../components/titlePage";
-import { useRouter } from "next/navigation";
 
 const schema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
@@ -27,12 +26,6 @@ type FormData = z.infer<typeof schema>;
 export default function Perfil() {
 
     const { user, signOut } = useContext(AuthContext);
-    const router = useRouter();
-
-    function sign_out() {
-        signOut();
-        router.push("/login");
-    }
 
     const [avatarUrl, setAvatarUrl] = useState(
         user?.image_user ? `http://localhost:3333/files/${user.image_user}` : ""
@@ -169,14 +162,14 @@ export default function Perfil() {
                                 className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
                                 disabled={loading}
                             >
-                                {loading ? "Salvando..." : "Salvar todas as alterações"}
+                                {loading ? "Salvando..." : "Salvar alterações"}
                             </button>
 
                         </form>
                     </div>
 
                     <button
-                        onClick={() => sign_out()}
+                        onClick={signOut}
                         className="mt-24 w-full md:w-80 px-6 py-3 bg-red-600 text-white rounded hover:bg-hoverButtonBackground transition duration-300"
                         disabled={loading}
                     >

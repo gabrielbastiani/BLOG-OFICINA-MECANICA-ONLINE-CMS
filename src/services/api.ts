@@ -7,6 +7,9 @@ function signOut() {
         let remove_cookie_user = new Cookies();
         remove_cookie_user.remove('@cmsblog.token', { path: '/' });
         toast.success('Usuario deslogado com sucesso!');
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
     } catch (error) {
         toast.error("OPS... Erro ao deslogar");
     }
