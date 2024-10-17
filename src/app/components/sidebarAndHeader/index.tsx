@@ -51,13 +51,13 @@ export function SidebarAndHeader({ children }: Content) {
                         </div>
                         <section className="flex flex-col gap-px">
                             <Link href="/perfil" className={clsx({
-                                'bg-activeLink': currentRoute === "/perfil", // Verifica se a rota atual é "/"
+                                'bg-activeLink rounded p-2 mb-3': currentRoute === "/perfil", // Verifica se a rota atual é "/"
                                 'text-white': currentRoute !== "/perfil"
                             })}>
                                 Perfil
                             </Link>
                             <Link href="/" className={clsx({
-                                'bg-activeLink': currentRoute === "/", // Verifica se a rota atual é "/"
+                                'bg-activeLink rounded p-2 mb-3': currentRoute === "/", // Verifica se a rota atual é "/"
                                 'text-white': currentRoute !== "/"
                             })}>
                                 Dashboard
