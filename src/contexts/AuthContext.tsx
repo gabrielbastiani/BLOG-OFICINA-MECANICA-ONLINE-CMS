@@ -12,6 +12,7 @@ type AuthContextData = {
     loadingAuth?: boolean;
     signIn: (credentials: SignInProps) => Promise<boolean>;
     signOut: () => void;
+    updateUser: (newUserData: Partial<UserProps>) => void;
 }
 
 type UserProps = {
@@ -19,6 +20,7 @@ type UserProps = {
     name: string;
     email: string;
     image_user?: string;
+    role?: string;
 }
 
 type SignInProps = {
@@ -82,6 +84,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
     }
 
+    const updateUser = (newUserData: Partial<UserProps>) => {
+        if (user) {
+            setUser({
+                ...user,
+                ...newUserData,
+            });
+        }
+    };
+
     useEffect(() => {
         let token = cookies['@cmsblog.token'];
         let userid = cookiesId['@idUser'];
@@ -91,13 +102,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
                 try {
                     const response = await api.get(`/user/me?user_id=${userid}`);
 
-                    const { id, name, email, image_user } = response.data;
+                    const { id, name, email, image_user, role } = response.data;
 
                     setUser({
                         id,
                         name,
                         email,
-                        image_user
+                        image_user,
+                        role
                     });
 
                 } catch (error) {
@@ -127,7 +139,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, loadingAuth, signIn, signOut }}>
+        <AuthContext.Provider value={{ user, isAuthenticated, loadingAuth, signIn, signOut, updateUser }}>
             {children}
         </AuthContext.Provider>
     )
