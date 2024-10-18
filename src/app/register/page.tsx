@@ -131,7 +131,7 @@ export default function Register() {
                                 type='submit'
                                 className='bg-red-600 w-full rounded-md text-white h-10 font-medium'
                             >
-                                Acessar
+                                Cadastrar
                             </button>
                         </form>
 
