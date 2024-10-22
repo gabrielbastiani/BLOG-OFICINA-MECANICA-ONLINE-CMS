@@ -53,9 +53,9 @@ export function SidebarAndHeader({ children }: Content) {
                             </Link>
 
                             {user?.role === 'SUPER_ADMIN' ? (
-                                <Link href="/users" className={clsx({
-                                    'bg-activeLink rounded p-2 mb-2': currentRoute === "/users",
-                                    'text-white p-2 mb-2': currentRoute !== "/users"
+                                <Link href="/user/all_users" className={clsx({
+                                    'bg-activeLink rounded p-2 mb-2': currentRoute === "/user/all_users",
+                                    'text-white p-2 mb-2': currentRoute !== "/user/all_users"
                                 })}>
                                     Usuários
                                 </Link>

@@ -3,9 +3,9 @@ import type { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
 
 const PUBLIC_ROUTES = ['/login', '/register', '/recovery_password'];
-const PROTECTED_ROUTES = ['/', '/profile', '/users']; // Rotas que requerem autenticação
+const PROTECTED_ROUTES = ['/', '/profile', '/user/all_users']; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
-  SUPER_ADMIN: ['/', '/profile', '/users'], // Exemplo de rotas restritas para SUPER_ADMIN
+  SUPER_ADMIN: ['/', '/profile', '/user/all_users'], // Exemplo de rotas restritas para SUPER_ADMIN
   ADMIN: ['/', '/profile'], // Exemplo de rotas para ADMIN
   EMPLOYEE: ['/', '/profile'], // Exemplo de rotas para EMPLOYEE
 };
@@ -54,5 +54,5 @@ function hasAccessToRoute(userRole: string, pathname: string): boolean {/* @ts-i
 }
 
 export const config = {
-  matcher: ['/', '/profile', '/login', '/register', '/recovery_password', '/users'],
+  matcher: ['/', '/profile', '/login', '/register', '/recovery_password', '/user/all_users'],
 };
