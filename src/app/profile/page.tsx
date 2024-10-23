@@ -199,7 +199,7 @@ export default function Profile() {
                             type="text"
                             placeholder="Digite seu nome completo..."
                             name="name"
-                            value={user?.name}  // Use defaultValue ao invés de value
+                            value={user?.name}
                             error={errors.name?.message}
                             register={register}
                         />
@@ -209,7 +209,7 @@ export default function Profile() {
                             type="email"
                             placeholder="Digite seu email..."
                             name="email"
-                            value={user?.email}  // Use defaultValue
+                            value={user?.email}
                             error={errors.email?.message}
                             register={register}
                         />
@@ -226,7 +226,7 @@ export default function Profile() {
 
                 <button
                     onClick={signOut}
-                    className="mt-24 w-full md:w-80 px-6 py-3 bg-red-600 text-white rounded hover:bg-hoverButtonBackground transition duration-300"
+                    className="mb-16 mt-24 w-full md:w-80 px-6 py-3 bg-red-600 text-white rounded hover:bg-hoverButtonBackground transition duration-300"
                     disabled={loading}
                 >
                     {loading ? "Saindo..." : "Sair da conta"}

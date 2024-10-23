@@ -35,7 +35,7 @@ export function SidebarAndHeader({ children }: Content) {
                     <ArrowBendDoubleUpLeft className="h-7 w-7 mt-8" />
                 </Collapsible.Trigger>
 
-                <div className='flex-1 flex flex-col h-full gap-8 w-[220px] transition-opacity group-data-[state=open]:opacity-100 group-data-[state=closed]:opacity-0 duration-200 max-h-screen overflow-hidden'>
+                <div className='flex-1 flex flex-col h-full gap-8 w-[220px] transition-opacity group-data-[state=open]:opacity-100 group-data-[state=closed]:opacity-0 duration-200 max-h-screen'>
                     <nav className="flex mx-2 flex-col gap-8 text-slate-100">
                         <div className="flex flex-col gap-2 ml-2">
                             <div className="text-white font-semibold uppercase mb-2 ml-2 mt-3">

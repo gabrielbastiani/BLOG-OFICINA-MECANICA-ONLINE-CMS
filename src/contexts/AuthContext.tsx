@@ -44,7 +44,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
     const isAuthenticated = !!user;
 
-
     async function signIn({ email, password }: SignInProps): Promise<boolean> {
         setLoadingAuth(true);
         try {
@@ -74,10 +73,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             return true;
 
         } catch (err) {
-            toast.error("Erro ao acessar, confirmou seu cadastro em seu email?");
+            toast.error("Erro ao acessar");
             /* @ts-ignore */
             toast.error(`${err.response.data.error}`);
-            console.log("Erro ao acessar, confirmou seu cadastro em seu email? ", err);
+            console.log("Erro ao acessar", err);
             return false;
         } finally {
             setLoadingAuth(false);

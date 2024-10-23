@@ -1,6 +1,7 @@
 "use client";
 
 import { notFound } from 'next/navigation';
+import Modal from 'react-modal';
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "@/contexts/AuthContext";
 import { setupAPIClient } from "@/services/api";
@@ -13,6 +14,7 @@ import { SidebarAndHeader } from "../../components/sidebarAndHeader";
 import { Section } from "../../components/section";
 import { TitlePage } from "../../components/titlePage";
 import { FaTrashAlt } from 'react-icons/fa';
+import { ModalDeleteUser } from '@/app/components/popups/ModalDeleteUser';
 
 interface UsersProps {
     name: string;
@@ -40,6 +42,9 @@ export default function All_users() {
     // Estado para controlar qual campo está sendo editado
     const [editingUser, setEditingUser] = useState<{ id: string, field: string } | null>(null);
     const [editedValue, setEditedValue] = useState<string>("");
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [userId, setUserId] = useState<string>("");
 
     const filteredUsers = users.filter((item) => item.role !== "SUPER_ADMIN");
 
@@ -137,6 +142,17 @@ export default function All_users() {
         return notFound();
     }
 
+    function handleCloseModalDelete() {
+        setModalVisible(false);
+    }
+
+    async function handleOpenModalDelete(id: string) {
+        setModalVisible(true);
+        setUserId(id);
+    }
+
+    Modal.setAppElement('#root');
+
 
     return (
         <>
@@ -171,7 +187,12 @@ export default function All_users() {
                                             <p className="text-sm md:text-base">{item.name}</p>
                                         </div>
                                         <div className="ml-auto mt-3 md:mt-0">
-                                            <FaTrashAlt size={24} color="red" className="cursor-pointer hover:scale-110 transition-transform" />
+                                            <FaTrashAlt
+                                                size={24}
+                                                color="red"
+                                                className="cursor-pointer hover:scale-110 transition-transform"
+                                                onClick={() => handleOpenModalDelete(item.id)}
+                                            />
                                         </div>
                                     </div>
 
@@ -193,7 +214,7 @@ export default function All_users() {
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <span onClick={() => handleEdit(item.id, "status", item.status)} className="cursor-pointer text-blue-500 hover:underline">
+                                                    <span onClick={() => handleEdit(item.id, "status", item.status)} className="cursor-pointer text-backgroundButton hover:underline">
                                                         {item.status}
                                                     </span>
                                                 )}
@@ -221,7 +242,7 @@ export default function All_users() {
                                                         ))}
                                                     </select>
                                                 ) : (
-                                                    <span onClick={() => handleEdit(item.id, "role", item.role)} className="cursor-pointer text-blue-500 hover:underline">
+                                                    <span onClick={() => handleEdit(item.id, "role", item.role)} className="cursor-pointer text-backgroundButton hover:underline">
                                                         {item.role === "SUPER_ADMIN"
                                                             ? "Super administrador"
                                                             : item.role === "ADMIN"
@@ -281,6 +302,13 @@ export default function All_users() {
                         </div>
                     </Section>
                 </SidebarAndHeader>
+            )}
+            {modalVisible && (
+                <ModalDeleteUser
+                    isOpen={modalVisible}
+                    onRequestClose={handleCloseModalDelete}
+                    delete_user={userId}
+                />
             )}
         </>
     );
