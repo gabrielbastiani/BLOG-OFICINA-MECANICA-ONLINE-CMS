@@ -7,9 +7,10 @@ interface DeleteProps {
     isOpen: boolean;
     onRequestClose: () => void;
     delete_user: string;
+    onUserDeleted: (userId: string) => void;
 }
 
-export function ModalDeleteUser({ isOpen, onRequestClose, delete_user }: DeleteProps) {
+export function ModalDeleteUser({ isOpen, onRequestClose, delete_user, onUserDeleted }: DeleteProps) {
 
     const customStyles = {
         content: {
@@ -31,7 +32,7 @@ export function ModalDeleteUser({ isOpen, onRequestClose, delete_user }: DeleteP
             await apiClient.delete(`/user/delete_user?user_id=${delete_user}`);
 
             toast.success(`Usuário deletado com sucesso.`);
-
+            onUserDeleted(delete_user);
             onRequestClose();
 
         } catch (error) {

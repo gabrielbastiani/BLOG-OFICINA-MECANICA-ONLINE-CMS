@@ -8,13 +8,14 @@ import { setupAPIClient } from "@/services/api";
 import Image from "next/image";
 import { MdNotInterested } from "react-icons/md";
 import { toast } from "react-toastify";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { LoadingRequest } from "../../components/loadingRequest";
 import { SidebarAndHeader } from "../../components/sidebarAndHeader";
 import { Section } from "../../components/section";
 import { TitlePage } from "../../components/titlePage";
 import { FaTrashAlt } from 'react-icons/fa';
 import { ModalDeleteUser } from '@/app/components/popups/ModalDeleteUser';
+import { Pagination } from '@/app/components/pagination';
 
 interface UsersProps {
     name: string;
@@ -23,6 +24,7 @@ interface UsersProps {
     image_user: string;
     status: string;
     role: string;
+    email: string;
 }
 
 const statusOptions = ["Disponivel", "Indisponivel"];
@@ -48,7 +50,6 @@ export default function All_users() {
 
     const filteredUsers = users.filter((item) => item.role !== "SUPER_ADMIN");
 
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     // Pegando a página da URL (ou 1, por padrão)
@@ -82,11 +83,6 @@ export default function All_users() {
 
         fetchUsers();
     }, [user, currentPage]);
-
-    const handlePageChange = (page: number) => {
-        if (page < 1 || page > totalPages) return;
-        router.push(`/user/all_users?page=${page}`);
-    };
 
     // Função para iniciar a edição
     const handleEdit = (id: string, field: string, currentValue: string) => {
@@ -144,6 +140,10 @@ export default function All_users() {
 
     function handleCloseModalDelete() {
         setModalVisible(false);
+    }
+
+    function handleUserDeleted(userId: string) {
+        setUsers((prevUsers) => prevUsers.filter(user => user.id !== userId));
     }
 
     async function handleOpenModalDelete(id: string) {
@@ -255,51 +255,18 @@ export default function All_users() {
                                             </p>
                                         </div>
                                     </div>
+                                    <p className='mb-3 md:mb-0 md:mr-5'>Email: <span className="text-backgroundButton">{item.email}</span></p>
                                 </div>
                             ))
                         ) : (
                             <p className="text-center">Nenhum usuário encontrado.</p>
                         )}
 
-                        {/* Controles de paginação */}
-                        <div className="flex justify-center mt-6">
-                            <button
-                                className="px-4 py-2 bg-foreground rounded-md mr-2 text-black disabled:opacity-50"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={currentPage === 1}
-                            >
-                                Anterior
-                            </button>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                        />
 
-                            {(() => {
-                                const maxVisiblePages = 10;
-                                const startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-                                const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-                                const adjustedStartPage = Math.max(1, endPage - maxVisiblePages + 1);
-
-                                return [...Array(endPage - adjustedStartPage + 1)].map((_, i) => {
-                                    const pageNumber = adjustedStartPage + i;
-                                    return (
-                                        <button
-                                            key={pageNumber}
-                                            className={`px-4 py-2 mx-1 rounded-md ${currentPage === pageNumber ? "bg-backgroundButton text-white" : "bg-activeLink text-black"
-                                                }`}
-                                            onClick={() => handlePageChange(pageNumber)}
-                                        >
-                                            {pageNumber}
-                                        </button>
-                                    );
-                                });
-                            })()}
-
-                            <button
-                                className="px-4 py-2 bg-foreground rounded-md ml-2 text-black disabled:opacity-50"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={currentPage === totalPages}
-                            >
-                                Próximo
-                            </button>
-                        </div>
                     </Section>
                 </SidebarAndHeader>
             )}
@@ -308,6 +275,7 @@ export default function All_users() {
                     isOpen={modalVisible}
                     onRequestClose={handleCloseModalDelete}
                     delete_user={userId}
+                    onUserDeleted={handleUserDeleted}
                 />
             )}
         </>

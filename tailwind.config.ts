@@ -13,25 +13,27 @@ const config: Config = {
         foreground: "var(--foreground)",
         backgroundButton: "var(--backgroundButton)",
         hoverButtonBackground: "var(--hoverButtonBackground)",
-        activeLink: "var(--activeLink)"
+        activeLink: "var(--activeLink)",
       },
-      keyframes:{
-        slideIn:{
+      keyframes: {
+        slideIn: {
           from: { width: "0" },
-          to: { width: 'var(--radix-collapsible-content-width)' }
+          to: { width: "var(--radix-collapsible-content-width)" },
         },
-        slideOut:{
-          from: { width: 'var(--radix-collapsible-content-width)' },
-          to: { width: "0" }
-        }
+        slideOut: {
+          from: { width: "var(--radix-collapsible-content-width)" },
+          to: { width: "0" },
+        },
       },
-      animation:{
-        slideIn: 'slideIn 0.28s',
-        slideOut: 'slideOut 0.28s',
-      }
+      animation: {
+        slideIn: "slideIn 0.28s",
+        slideOut: "slideOut 0.28s",
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true }),
+  ],
 };
 
 export default config;

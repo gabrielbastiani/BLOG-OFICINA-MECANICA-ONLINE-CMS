@@ -27,15 +27,15 @@ export function SidebarAndHeader({ children }: Content) {
     return (
         <Collapsible.Root
             defaultOpen
-            className="h-screen w-screen bg-gray-950 text-slate-100 flex"
+            className="h-screen w-screen bg-gray-950 text-slate-100 flex overflow-hidden"
             onOpenChange={setIsSideBarOpen}
         >
-            <Collapsible.Content className="bg-gray-950 flex-shrink-0 border-r border-slate-600 h-screen relative group overflow-hidden data-[state=open]:animate-slideIn data-[state=closed]:animate-slideOut">
+            <Collapsible.Content className="bg-gray-950 flex-shrink-0 border-r border-slate-600 h-full relative group overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-200">
                 <Collapsible.Trigger className='absolute h-7 right-4 z-[99] text-white hover:scale-105 duration-200 inline-flex items-center justify-center'>
                     <ArrowBendDoubleUpLeft className="h-7 w-7 mt-8" />
                 </Collapsible.Trigger>
 
-                <div className='flex-1 flex flex-col h-full gap-8 w-[220px] transition-opacity group-data-[state=open]:opacity-100 group-data-[state=closed]:opacity-0 duration-200 max-h-screen'>
+                <div className='flex-1 flex flex-col h-full gap-8 w-[220px]'>
                     <nav className="flex mx-2 flex-col gap-8 text-slate-100">
                         <div className="flex flex-col gap-2 ml-2">
                             <div className="text-white font-semibold uppercase mb-2 ml-2 mt-3">
@@ -65,7 +65,7 @@ export function SidebarAndHeader({ children }: Content) {
                 </div>
             </Collapsible.Content>
 
-            <div className="flex-1 flex flex-col max-h-screen">
+            <div className="flex-1 flex flex-col overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-200">
                 <div
                     id='header'
                     className='flex items-center gap-4 leading-tight relative border-b border-slate-600 transition-all duration-200 py-[1.125rem] px-6 justify-between'
@@ -79,7 +79,7 @@ export function SidebarAndHeader({ children }: Content) {
                         <CaretRight className='w-5 h-5' />
                     </Collapsible.Trigger>
 
-                    <h1 className='text-white font-bold'>CMS Blog Builder - Seu Negócio Online</h1>
+                    <h1 className='text-white font-bold'>CMS Blog - Builder Seu Negócio Online</h1>
 
                     {!loadingAuth && isAuthenticated ? (
                         <Link href="/profile">
@@ -106,7 +106,9 @@ export function SidebarAndHeader({ children }: Content) {
                         </Link>
                     )}
                 </div>
-                {children}
+                <div className="flex-1 overflow-y-auto scrollbar">
+                    {children}
+                </div>
             </div>
         </Collapsible.Root>
     );
