@@ -43,7 +43,7 @@ export function ModalDeleteUser({ isOpen, onRequestClose, delete_user, onUserDel
                 console.error(error);
                 toast.error('Erro desconhecido.');
             }
-        }
+        } 
     }
 
 

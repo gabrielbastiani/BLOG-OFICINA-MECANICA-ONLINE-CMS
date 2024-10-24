@@ -67,6 +67,7 @@ export default function Login() {
 
         } catch (error) {
             console.error(error);
+        } finally {
             setLoading(false);
         }
 
@@ -130,10 +131,6 @@ export default function Login() {
                                 Acessar
                             </button>
                         </form>
-
-                        <Link href="/register">
-                            Ainda não possui uma conta? Cadastre-se
-                        </Link>
 
                         <Link href="/email_recovery_password">
                             Recupere sua senha!

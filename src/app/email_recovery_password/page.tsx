@@ -60,12 +60,17 @@ export default function EmailRecoveryPassword() {
 
             router.push('/login');
 
-        } catch (error) {/* @ts-ignore */
-            console.log(error.response.data);
-            toast.error('Erro ao enviar o email!');
+        } catch (error) {
+            if (error instanceof Error && 'response' in error && error.response) {
+                console.log((error as any).response.data);
+                toast.error('Ops erro ao enviar email ao usuario.');
+            } else {
+                console.error(error);
+                toast.error('Erro desconhecido.');
+            }
+        } finally {
             setLoading(false);
         }
-
     }
 
 

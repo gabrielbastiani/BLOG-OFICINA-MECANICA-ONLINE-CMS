@@ -52,15 +52,45 @@ export function SidebarAndHeader({ children }: Content) {
                                 Dashboard
                             </Link>
 
-                            {user?.role === 'SUPER_ADMIN' ? (
-                                <Link href="/user/all_users" className={clsx({
-                                    'bg-activeLink rounded p-2 mb-2': currentRoute === "/user/all_users",
-                                    'text-white p-2 mb-2': currentRoute !== "/user/all_users"
-                                })}>
-                                    Usuários
-                                </Link>
-                            ) : null}
+                            {user?.role === 'SUPER_ADMIN' && (
+                                <Collapsible.Root className="flex flex-col" defaultOpen>
+                                    <Collapsible.Trigger asChild>
+                                        <button
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center', {
+                                                'bg-activeLink rounded': currentRoute?.includes("/user"),
+                                                'text-white': !currentRoute?.includes("/user")
+                                            })}
+                                        >
+                                            Usuários
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': currentRoute?.includes("/user"),
+                                                'rotate-0': !currentRoute?.includes("/user")
+                                            })} />
+                                        </button>
+                                    </Collapsible.Trigger>
+
+                                    {/* O Radix cuida da transição automaticamente */}
+                                    <Collapsible.Content
+                                        className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+                                    >
+                                        <Link href="/user/all_users" className={clsx({
+                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/all_users",
+                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/user/all_users"
+                                        })}>
+                                            Todos os Usuários
+                                        </Link>
+
+                                        <Link href="/user/add_user" className={clsx({
+                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/add_user",
+                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/user/add_user"
+                                        })}>
+                                            Adicionar Novo Usuário
+                                        </Link>
+                                    </Collapsible.Content>
+                                </Collapsible.Root>
+                            )}
                         </section>
+
                     </nav>
                 </div>
             </Collapsible.Content>
@@ -96,7 +126,6 @@ export function SidebarAndHeader({ children }: Content) {
                                     <FiUser cursor="pointer" size={24} color="var(--foreground)" />
                                 )}
                             </div>
-
                         </Link>
                     ) : (
                         <Link href="/login">

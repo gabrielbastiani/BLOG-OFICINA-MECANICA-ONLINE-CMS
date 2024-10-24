@@ -26,6 +26,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Profile() {
+    
     const { user, signOut, updateUser } = useContext(AuthContext);
 
     const [avatarUrl, setAvatarUrl] = useState(

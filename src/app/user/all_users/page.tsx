@@ -63,12 +63,8 @@ export default function All_users() {
 
         async function fetchUsers() {
             try {
-
                 setLoading(true);
-
                 if (!user) return;
-
-                // Fazer requisição de usuários paginados
                 const response = await apiClient.get(`/user/all_users?page=${currentPage}`);
 
                 setUsers(response.data.users);
