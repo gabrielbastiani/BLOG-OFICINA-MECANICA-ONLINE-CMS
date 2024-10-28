@@ -7,6 +7,8 @@ import { TitlePage } from "@/app/components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import Modal from 'react-modal';
+import { ModalDeleteFormContact } from "@/app/components/popups/ModalDeleteFormContact";
 
 interface ContactsProps {
     id: string;
@@ -28,6 +30,11 @@ export default function All_contacts() {
     const [limit, setLimit] = useState(Number(searchParams.get("limit")) || 5);
     const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
     const [orderDirection, setOrderDirection] = useState("desc");
+
+    const [modalVisible, setModalVisible] = useState(false);
+    const [contacts_form, setContacts_form] = useState<string[]>([]);
+
+    console.log(contacts_form)
 
     useEffect(() => {
         fetchFormContacts();
@@ -111,16 +118,25 @@ export default function All_contacts() {
         setOrderDirection("desc");
         setLimit(5);
         setCurrentPage(1);
-        router.replace(""); // Limpa a URL para valores padrão
+        router.replace("");
         fetchFormContacts();
     }
 
-    async function handleDeleteContacts(contactIds: string[]) {
-        setSelectedContacts([]); // Limpa a seleção após deletar
-        fetchFormContacts(); // Atualiza a lista de contatos
+    function handleCloseModalDelete() {
+        setModalVisible(false);
     }
 
+    function handleDeleteContacts() {
+        if (selectedContacts.length === 0) {
+            alert("Nenhum contato selecionado.");
+            return;
+        }
+        setContacts_form(selectedContacts);
+        setModalVisible(true);
+    }
     
+
+    Modal.setAppElement('#root');
 
 
     return (
@@ -174,19 +190,17 @@ export default function All_contacts() {
                                     <option value="desc">Mais recentes</option>
                                 </select>
                                 {selectedContacts.length > 0 && (
-                                    <div className="mb-4 flex justify-end">
+                                    <div className="flex justify-end items-center ml-4">
                                         <button
-                                            onClick={() => handleDeleteContacts(selectedContacts)}
+                                            onClick={handleDeleteContacts} // Remove a passagem do parâmetro diretamente
                                             className="p-2 bg-red-500 text-white rounded"
                                         >
                                             Deletar {selectedContacts.length} contato(s)
                                         </button>
                                     </div>
                                 )}
-
                             </div>
                         </div>
-
                         {/* Tabela de contatos */}
                         <div className="overflow-x-auto">
                             <table className="border rounded min-w-full table-auto">
@@ -265,6 +279,15 @@ export default function All_contacts() {
                         </div>
                     </Section>
                 </SidebarAndHeader>
+            )}
+            {modalVisible && (
+                <ModalDeleteFormContact
+                    isOpen={modalVisible}
+                    onRequestClose={handleCloseModalDelete}
+                    form_contact_ids={contacts_form}
+                    refresh_list={() => setSelectedContacts([])}
+                    new_list={() => fetchFormContacts()}
+                />
             )}
         </>
     );
