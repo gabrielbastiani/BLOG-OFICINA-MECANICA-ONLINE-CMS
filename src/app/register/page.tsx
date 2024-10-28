@@ -35,15 +35,11 @@ export default function Register() {
 
     useEffect(() => {
         const apiClient = setupAPIClient();
-
         async function fetch_super_user() {
             try {
                 setLoading(true);
-
-                const response = await apiClient.get(`/user/all_users`);
-
-                setSuperAdmin(response.data.super);
-
+                const response = await apiClient.get(`/user/publicSuper_user`);
+                setSuperAdmin(response.data);
             } catch (error) {
                 console.log(error);
             } finally {

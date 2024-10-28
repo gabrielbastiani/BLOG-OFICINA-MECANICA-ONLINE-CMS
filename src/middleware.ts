@@ -11,14 +11,16 @@ const PROTECTED_ROUTES = [
   '/',
   '/user/profile',
   '/user/all_users',
-  '/user/add_user'
+  '/user/add_user',
+  '/contacts_form/all_contacts'
 ]; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
   SUPER_ADMIN: [
     '/',
     '/user/profile',
     '/user/all_users',
-    '/user/add_user'
+    '/user/add_user',
+    '/contacts_form/all_contacts'
   ], // Exemplo de rotas restritas para SUPER_ADMIN
   ADMIN: [
     '/',
@@ -81,6 +83,7 @@ export const config = {
     '/register',
     '/recovery_password',
     '/user/all_users',
-    '/user/add_user'
+    '/user/add_user',
+    '/contacts_form/all_contacts'
   ]
 };

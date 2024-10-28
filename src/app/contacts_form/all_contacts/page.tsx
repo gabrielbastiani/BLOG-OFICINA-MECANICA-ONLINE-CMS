@@ -213,7 +213,6 @@ export default function All_contacts() {
                                         <tr
                                             key={contact.id}
                                             className="border-b cursor-pointer"
-                                            onClick={() => router.push(`contacts_form/all_contacts/${contact.id}`)}
                                         >
                                             <td className="w-2 p-3">
                                                 <input
@@ -222,9 +221,15 @@ export default function All_contacts() {
                                                     onChange={() => handleSelectContact(contact.id)}
                                                 />
                                             </td>
-                                            <td className="text-left">{contact.name_user}</td>
-                                            <td className="text-left">{contact.email_user}</td>
-                                            <td className="text-left">{new Date(contact.created_at).toLocaleDateString()}</td>
+                                            <td
+                                                className="text-left"
+                                                onClick={() => router.push(`/contacts_form/all_contacts/${contact.id}`)}>{contact.name_user}</td>
+                                            <td
+                                                className="text-left"
+                                                onClick={() => router.push(`/contacts_form/all_contacts/${contact.id}`)}>{contact.email_user}</td>
+                                            <td
+                                                className="text-left"
+                                                onClick={() => router.push(`/contacts_form/all_contacts/${contact.id}`)}>{new Date(contact.created_at).toLocaleDateString()}</td>
                                         </tr>
                                     ))}
                                 </tbody>
