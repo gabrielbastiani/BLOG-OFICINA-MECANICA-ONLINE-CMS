@@ -1,6 +1,5 @@
 "use client";
 
-import { LoadingRequest } from "@/app/components/loadingRequest";
 import { Section } from "@/app/components/section";
 import { SidebarAndHeader } from "@/app/components/sidebarAndHeader";
 import { TitlePage } from "@/app/components/titlePage";
@@ -17,7 +16,6 @@ interface ContactsProps {
 
 export default function All_contacts() {
 
-    const [loading, setLoading] = useState(false);
     const [contacts, setContacts] = useState<ContactsProps[]>([]);
     const [totalPages, setTotalPages] = useState(1);
 
@@ -25,7 +23,6 @@ export default function All_contacts() {
 
     async function fetchContacts({ page, limit, search, orderBy, orderDirection }: any) {
         try {
-            /* setLoading(true); */
             const response = await apiClient.get(`/contacts_form/all_contacts`, {
                 params: { page, limit, search, orderBy, orderDirection }
             });
@@ -33,35 +30,29 @@ export default function All_contacts() {
             setTotalPages(response.data.totalPages);
         } catch (error) {
             console.log(error);
-        } finally {
-            /* setLoading(false); */
         }
     }
 
 
     return (
-        <>
-            {loading ? (
-                <LoadingRequest />
-            ) : (
-                <SidebarAndHeader>
-                    <Section>
-                        <TitlePage title="TODOS OS CONTATOS" />
-                        <DataTable
-                            data={contacts}
-                            columns={[
-                                { key: "name_user", label: "Nome" },
-                                { key: "email_user", label: "Email" },
-                                { key: "created_at", label: "Data de Criação" }
-                            ]}
-                            totalPages={totalPages}
-                            onFetchData={fetchContacts}
-                            url_item_router="/contacts_form/all_contacts"
-                            url_delete_data="/form_contact/delete_form_contatct"
-                        />
-                    </Section>
-                </SidebarAndHeader>
-            )}
-        </>
+        <SidebarAndHeader>
+            <Section>
+                <TitlePage title="TODOS OS CONTATOS" />
+                <DataTable
+                    data={contacts}
+                    columns={[
+                        { key: "name_user", label: "Nome" },
+                        { key: "email_user", label: "Email" },
+                        { key: "created_at", label: "Data de Criação" }
+                    ]}
+                    totalPages={totalPages}
+                    onFetchData={fetchContacts}
+                    url_item_router="/contacts_form/all_contacts"
+                    url_delete_data="/form_contact/delete_form_contatct"
+                    table_data="form_contact"
+                    name_file_export="Contatos"
+                />
+            </Section>
+        </SidebarAndHeader>
     );
 }

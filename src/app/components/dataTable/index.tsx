@@ -5,6 +5,8 @@ import { setupAPIClient } from "@/services/api";
 import { toast } from "react-toastify";
 
 interface DataTableProps<T extends { id: string }> {
+    name_file_export: string;
+    table_data: string;
     url_item_router: string;
     url_delete_data: string;
     data: T[];
@@ -14,6 +16,8 @@ interface DataTableProps<T extends { id: string }> {
 }
 
 function DataTable<T extends { id: string }>({
+    name_file_export,
+    table_data,
     url_item_router,
     url_delete_data,
     data,
@@ -21,7 +25,7 @@ function DataTable<T extends { id: string }>({
     totalPages,
     onFetchData,
 }: DataTableProps<T>) {
-    
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -34,16 +38,19 @@ function DataTable<T extends { id: string }>({
     const [selectdData, setSelectdData] = useState<string[]>([]);
 
     useEffect(() => {
+        updateUrlParams();
         onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
     }, [currentPage, limit, orderBy, orderDirection, search]);
 
+
     function updateUrlParams() {
-        const params = new URLSearchParams();
-        params.set("page", currentPage.toString());
-        params.set("limit", limit.toString());
-        if (search) params.set("search", search);
-        if (orderBy) params.set("orderBy", orderBy);
-        params.set("orderDirection", orderDirection);
+        const params = new URLSearchParams({
+            page: currentPage.toString(),
+            limit: limit.toString(),
+            search,
+            orderBy,
+            orderDirection
+        });
         router.replace(`?${params.toString()}`);
     }
 
@@ -95,7 +102,7 @@ function DataTable<T extends { id: string }>({
         return pages;
     };
 
-    async function handleDeleteContacts() {
+    async function handleDelete() {
         if (selectdData.length === 0) {
             alert("Nenhum dado selecionado.");
             return;
@@ -156,6 +163,51 @@ function DataTable<T extends { id: string }>({
         return new Date(value).toLocaleDateString();
     };
 
+    const [selectedColumns, setSelectedColumns] = useState<{ [key: string]: boolean }>(
+        columns.reduce((acc, column) => {
+            acc[column.key as string] = false; // Inicializa como false
+            return acc;
+        }, {} as { [key: string]: boolean })
+    );
+
+    const selectedKeys: string[] = Object.keys(selectedColumns).filter(key => selectedColumns[key]);
+
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const handleOpenExportData = () => setIsModalOpen(true);
+    const handleCloseModalExportData = () => setIsModalOpen(false);
+    const [format_file, setFormat_file] = useState("xlsx");
+
+    function handleFormatChange(e: React.ChangeEvent<HTMLSelectElement>) {
+        setFormat_file(e.target.value);
+    }
+
+    const handleExportData = async () => {
+        const apiClient = setupAPIClient();
+        try {
+            const response = await apiClient.post('/export_data', {
+                tableName: table_data,
+                columns: selectedKeys,
+                format: format_file,
+            }, { responseType: 'blob' }); // Ajuste aqui para receber o blob
+
+            // Crie um URL para o blob retornado
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+
+            // Crie um link para download e clique nele
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${name_file_export}.${format_file}`; // Nome do arquivo
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a); // Remova o link do DOM
+
+            toast.success("Dados exportados com sucesso");
+        } catch (error) {
+            console.error(error);
+            toast.error("Erro ao exportar os dados");
+        }
+    };
+
 
     return (
         <div>
@@ -197,14 +249,73 @@ function DataTable<T extends { id: string }>({
                     {selectdData.length > 0 && (
                         <div className="flex justify-end items-center ml-4">
                             <button
-                                onClick={handleDeleteContacts}
+                                onClick={handleDelete}
                                 className="p-2 bg-red-500 text-white rounded"
                             >
-                                Deletar {selectdData.length} contato(s)
+                                Deletar {selectdData.length} dado(s)
                             </button>
                         </div>
                     )}
-
+                    <div className="flex justify-end items-center ml-4">
+                        <button
+                            onClick={handleOpenExportData}
+                            className="p-2 bg-buttonAlternative text-white rounded"
+                        >
+                            Exportar dados
+                        </button>
+                    </div>
+                    {isModalOpen && (
+                        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
+                                <button
+                                    onClick={handleCloseModalExportData}
+                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                                >
+                                    <AiOutlineClose size={24} color="black" />
+                                </button>
+                                <h2 className="mb-4 text-black">Selecione os dados a serem exportados</h2>
+                                <div>
+                                    {columns.map((column) => (
+                                        <div key={String(column.key)} className="flex items-center mb-2">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedColumns[column.key as string]}
+                                                onChange={() =>
+                                                    setSelectedColumns((prev) => ({
+                                                        ...prev,
+                                                        [column.key as string]: !prev[column.key as string],
+                                                    }))
+                                                }
+                                            />
+                                            <label className="ml-2 text-black">{column.label}</label>
+                                        </div>
+                                    ))}
+                                    <select
+                                        value={format_file}
+                                        onChange={handleFormatChange}
+                                        className="border p-2 rounded text-black"
+                                    >
+                                        <option value="xlsx">Excel XLSX</option>
+                                        <option value="csv">Excel CSV</option>
+                                    </select>
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        onClick={handleCloseModalExportData}
+                                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 mr-2"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={handleExportData} // Adicione a lógica para aplicar a seleção se necessário
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {/* Modal de confirmação de exclusão */}
                     {modalVisible && (
                         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">

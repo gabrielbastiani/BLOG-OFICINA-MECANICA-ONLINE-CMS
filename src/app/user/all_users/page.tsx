@@ -54,7 +54,6 @@ export default function All_users() {
 
     const searchParams = useSearchParams();
 
-    // Pegando a página da URL (ou 1, por padrão)
     useEffect(() => {
         const page = Number(searchParams.get("page")) || 1;
         setCurrentPage(page);
