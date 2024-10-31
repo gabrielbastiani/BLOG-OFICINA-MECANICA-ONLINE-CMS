@@ -6,16 +6,69 @@ import Image from "next/image";
 import logo from '../../../assets/LogoBuilderWhite.webp';
 import { AuthContext } from "@/contexts/AuthContext";
 import Link from "next/link";
-import { FiLogIn, FiUser } from "react-icons/fi";
+import { FiLogIn, FiUser, FiBell, FiCheck, FiX } from "react-icons/fi";
+import { setupAPIClient } from "@/services/api";
 
 interface Content {
     children: ReactNode;
 }
 
+interface Notification {
+    id: string;
+    message: string;
+    date: string;
+    href?: string;
+    read: boolean;
+}
+
 export function SidebarAndHeader({ children }: Content) {
+
     const { isAuthenticated, loadingAuth, user } = useContext(AuthContext);
+
     const [isSideBarOpen, setIsSideBarOpen] = useState(true);
     const [currentRoute, setCurrentRoute] = useState<string | null>(null);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [showNotifications, setShowNotifications] = useState(false);
+
+    console.log(notifications)
+
+    const apiClient = setupAPIClient();
+    
+    useEffect(() => {
+        fetchNotifications();
+    }, []);
+
+    const fetchNotifications = async () => {
+        try {
+            const response = await apiClient.get(`/user/notifications`);
+            console.log(response.data)
+            setNotifications(response.data);
+        } catch (error) {
+            console.error("Erro ao buscar notificações:", error);
+        }
+    };
+
+    const markAsRead = async (id: string) => {
+        try {
+            await apiClient.post(`/notifications/mark-read`, { id: id });
+            setNotifications((prev) =>
+                prev.map((notification) =>
+                    notification.id === id ? { ...notification, read: true } : notification
+                )
+            );
+        } catch (error) {
+            console.error("Erro ao marcar notificação como lida:", error);
+        }
+    };
+
+    const markAllAsRead = async () => {
+        try {
+            await apiClient.post(`/notifications/mark-all-read`);
+            setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })));
+        } catch (error) {
+            console.error("Erro ao marcar todas as notificações como lidas:", error);
+        }
+    };
 
     useEffect(() => {
         if (typeof window !== "undefined") {
@@ -176,6 +229,47 @@ export function SidebarAndHeader({ children }: Content) {
 
                     <h1 className='text-white font-bold'>CMS Blog - Builder Seu Negócio Online</h1>
 
+                    <div className="relative">
+                        <FiBell
+                            size={24}
+                            className="text-white cursor-pointer"
+                            onClick={() => setShowNotifications(!showNotifications)}
+                        />
+                        {notifications.some((n) => !n.read) && (
+                            <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
+                        )}
+                    </div>
+
+                    {showNotifications && (
+                        <div className="absolute top-14 right-6 bg-gray-800 text-white rounded-md w-80 shadow-lg p-4 z-10">
+                            <div className="flex justify-between mb-2">
+                                <h2 className="font-semibold">Notificações</h2>
+                                <button
+                                    className="text-sm text-blue-500 hover:underline"
+                                    onClick={markAllAsRead}
+                                >
+                                    Marcar todas como lidas
+                                </button>
+                            </div>
+                            <ul className="max-h-64 overflow-y-auto">
+                                {notifications.map((notification) => (
+                                    <li
+                                        key={notification.id}
+                                        className={`p-2 rounded ${
+                                            notification.read ? "text-gray-500" : "text-white"
+                                        }`}
+                                    >
+                                        <Link href={notification.href || "#"} onClick={() => markAsRead(notification.id)}>
+                                            <a className="flex justify-between">
+                                                <span>{notification.message}</span>
+                                                <span className="text-xs">{notification.date}</span>
+                                            </a>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     {!loadingAuth && isAuthenticated ? (
                         <Link href="/user/profile">
                             <div className='border-2 rounded-full p-1 border-var(--foreground) overflow-hidden w-[50px] h-[50px] flex items-center justify-center'>

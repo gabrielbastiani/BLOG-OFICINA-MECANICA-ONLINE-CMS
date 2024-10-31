@@ -34,7 +34,7 @@ function DataTable<T extends { id: string }>({
     const [limit, setLimit] = useState(Number(searchParams.get("limit")) || 5);
     const [currentPage, setCurrentPage] = useState(Number(searchParams.get("page")) || 1);
     const [orderDirection, setOrderDirection] = useState("desc");
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisibleDelete, setModalVisibleDelete] = useState(false);
     const [selectdData, setSelectdData] = useState<string[]>([]);
 
     useEffect(() => {
@@ -107,11 +107,11 @@ function DataTable<T extends { id: string }>({
             alert("Nenhum dado selecionado.");
             return;
         }
-        setModalVisible(true);
+        setModalVisibleDelete(true);
     }
 
     const handleCloseModal = () => {
-        setModalVisible(false);
+        setModalVisibleDelete(false);
     };
 
     async function handleDeleteData() {
@@ -127,7 +127,7 @@ function DataTable<T extends { id: string }>({
             setSelectdData([]);
             onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
 
-            setModalVisible(false);
+            setModalVisibleDelete(false);
 
         } catch (error) {
             if (error instanceof Error && 'response' in error && error.response) {
@@ -163,18 +163,25 @@ function DataTable<T extends { id: string }>({
         return new Date(value).toLocaleDateString();
     };
 
-    const [selectedColumns, setSelectedColumns] = useState<{ [key: string]: boolean }>(
+    const [selectedColumns, setSelectedColumns] = useState<{
+        [key: string]: { selected: boolean; customName: string }
+    }>(
         columns.reduce((acc, column) => {
-            acc[column.key as string] = false; // Inicializa como false
+            acc[column.key as string] = { selected: false, customName: column.label };
             return acc;
-        }, {} as { [key: string]: boolean })
+        }, {} as { [key: string]: { selected: boolean; customName: string } })
     );
 
-    const selectedKeys: string[] = Object.keys(selectedColumns).filter(key => selectedColumns[key]);
+    const selectedKeys = Object.keys(selectedColumns)
+        .filter(key => selectedColumns[key].selected)
+        .map(key => ({
+            key,
+            customName: selectedColumns[key].customName,
+        }));
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const handleOpenExportData = () => setIsModalOpen(true);
-    const handleCloseModalExportData = () => setIsModalOpen(false);
+    const [isModalOpenExportData, setIsModalOpenExportData] = useState(false);
+    const handleOpenExportData = () => setIsModalOpenExportData(true);
+    const handleCloseModalExportData = () => setIsModalOpenExportData(false);
     const [format_file, setFormat_file] = useState("xlsx");
 
     function handleFormatChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -183,25 +190,33 @@ function DataTable<T extends { id: string }>({
 
     const handleExportData = async () => {
         const apiClient = setupAPIClient();
+        const columnsKeys = selectedKeys.map(column => column.key); // Apenas os `key`
+        const customColumnNames = selectedKeys.reduce((acc, column) => {
+            acc[column.key] = column.customName;
+            return acc;
+        }, {} as { [key: string]: string });
+
         try {
             const response = await apiClient.post('/export_data', {
                 tableName: table_data,
-                columns: selectedKeys,
+                columns: columnsKeys, // Apenas as chaves (strings)
                 format: format_file,
-            }, { responseType: 'blob' }); // Ajuste aqui para receber o blob
+                customColumnNames, // Custom columns se a API requerer esses dados separadamente
+            }, { responseType: 'blob' });
 
-            // Crie um URL para o blob retornado
             const url = window.URL.createObjectURL(new Blob([response.data]));
 
-            // Crie um link para download e clique nele
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${name_file_export}.${format_file}`; // Nome do arquivo
+            a.download = `${name_file_export}.${format_file}`;
             document.body.appendChild(a);
             a.click();
-            document.body.removeChild(a); // Remova o link do DOM
+            document.body.removeChild(a);
 
             toast.success("Dados exportados com sucesso");
+
+            handleCloseModalExportData();
+
         } catch (error) {
             console.error(error);
             toast.error("Erro ao exportar os dados");
@@ -264,7 +279,7 @@ function DataTable<T extends { id: string }>({
                             Exportar dados
                         </button>
                     </div>
-                    {isModalOpen && (
+                    {isModalOpenExportData && (
                         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
                             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
                                 <button
@@ -279,11 +294,14 @@ function DataTable<T extends { id: string }>({
                                         <div key={String(column.key)} className="flex items-center mb-2">
                                             <input
                                                 type="checkbox"
-                                                checked={selectedColumns[column.key as string]}
+                                                checked={selectedColumns[column.key as string].selected}
                                                 onChange={() =>
                                                     setSelectedColumns((prev) => ({
                                                         ...prev,
-                                                        [column.key as string]: !prev[column.key as string],
+                                                        [column.key as string]: {
+                                                            selected: !prev[column.key as string].selected,
+                                                            customName: column.label,
+                                                        },
                                                     }))
                                                 }
                                             />
@@ -307,17 +325,17 @@ function DataTable<T extends { id: string }>({
                                         Cancelar
                                     </button>
                                     <button
-                                        onClick={handleExportData} // Adicione a lógica para aplicar a seleção se necessário
-                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                        onClick={handleExportData}
+                                        className="px-4 py-2 bg-backgroundButton text-black rounded hover:bg-hoverButtonBackground"
                                     >
-                                        Aplicar
+                                        Exportar
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
                     {/* Modal de confirmação de exclusão */}
-                    {modalVisible && (
+                    {modalVisibleDelete && (
                         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
                             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
                                 <button
