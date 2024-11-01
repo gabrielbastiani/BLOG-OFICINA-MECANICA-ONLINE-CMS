@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { AiOutlineClose } from "react-icons/ai";
 import { setupAPIClient } from "@/services/api";
 import { toast } from "react-toastify";
+import { AuthContext } from "@/contexts/AuthContext";
 
 interface DataTableProps<T extends { id: string }> {
     name_file_export: string;
@@ -25,6 +26,8 @@ function DataTable<T extends { id: string }>({
     totalPages,
     onFetchData,
 }: DataTableProps<T>) {
+
+    const { user } = useContext(AuthContext);
 
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -198,6 +201,7 @@ function DataTable<T extends { id: string }>({
 
         try {
             const response = await apiClient.post('/export_data', {
+                user_id: user?.id,
                 tableName: table_data,
                 columns: columnsKeys, // Apenas as chaves (strings)
                 format: format_file,

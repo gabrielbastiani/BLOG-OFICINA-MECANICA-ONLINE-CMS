@@ -34,6 +34,7 @@ const roleOptions = ["SUPER_ADMIN", "ADMIN", "EMPLOYEE"];
 export default function All_users() {
 
     const { user } = useContext(AuthContext);
+    
     const [isValidPage, setIsValidPage] = useState(true);
     const [users, setUsers] = useState<UsersProps[]>([]);
     const [loading, setLoading] = useState(false);
@@ -288,6 +289,7 @@ export default function All_users() {
                     onRequestClose={handleCloseModalDelete}
                     delete_user={userId}
                     onUserDeleted={handleUserDeleted}
+                    nameUser={user?.name}
                 />
             )}
             {modalVisiblePassword && (
