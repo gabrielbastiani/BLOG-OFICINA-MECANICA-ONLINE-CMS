@@ -4,6 +4,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { setupAPIClient } from "@/services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/contexts/AuthContext";
+import ConfirmDeleteModal from "./confirmDeleteModal";
 
 interface DataTableProps<T extends { id: string }> {
     name_file_export: string;
@@ -16,7 +17,9 @@ interface DataTableProps<T extends { id: string }> {
     onFetchData: (params: { page: number; limit: number; search: string; orderBy: string; orderDirection: string }) => void;
 }
 
-function DataTable<T extends { id: string }>({
+function DataTable<T extends {
+    created_at: string | number | Date; id: string 
+}>({
     name_file_export,
     table_data,
     url_item_router,
@@ -42,9 +45,7 @@ function DataTable<T extends { id: string }>({
 
     useEffect(() => {
         updateUrlParams();
-        onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
     }, [currentPage, limit, orderBy, orderDirection, search]);
-
 
     function updateUrlParams() {
         const params = new URLSearchParams({
@@ -58,8 +59,8 @@ function DataTable<T extends { id: string }>({
     }
 
     useEffect(() => {
-        updateUrlParams();
-    }, [currentPage, limit, orderBy, orderDirection]);
+        onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
+    }, [currentPage, limit, orderBy, orderDirection, search]);
 
     function handleSearchSubmit() {
         setCurrentPage(1);
@@ -88,6 +89,10 @@ function DataTable<T extends { id: string }>({
         setLimit(5);
         setCurrentPage(1);
         router.replace("");
+    }
+
+    function handleOpemTimeData() {
+
     }
 
     const handlePageClick = (pageNumber: number) => {
@@ -185,6 +190,9 @@ function DataTable<T extends { id: string }>({
     const [isModalOpenExportData, setIsModalOpenExportData] = useState(false);
     const handleOpenExportData = () => setIsModalOpenExportData(true);
     const handleCloseModalExportData = () => setIsModalOpenExportData(false);
+    const [isModalOpenTimeData, setIsModalOpenTimeData] = useState(false);
+    const handleOpenTimeData = () => setIsModalOpenTimeData(true);
+    const handleCloseModalTimeData = () => setIsModalOpenTimeData(false);
     const [format_file, setFormat_file] = useState("xlsx");
 
     function handleFormatChange(e: React.ChangeEvent<HTMLSelectElement>) {
@@ -227,6 +235,44 @@ function DataTable<T extends { id: string }>({
         }
     };
 
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
+    const [filteredData, setFilteredData] = useState<T[]>(data);
+
+    useEffect(() => {
+        setFilteredData(data);
+    }, [data]);
+
+    useEffect(() => {
+        if (startDate && endDate) {
+            filterData();
+        } else {
+            setFilteredData(data);
+        }
+    }, [startDate, endDate]);
+
+    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setStartDate(e.target.value);
+    };
+
+    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEndDate(e.target.value);
+    };
+
+    const filterData = () => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        const filtered = data.filter(item => {
+            const itemDate = new Date(item.created_at);
+            // Verifique se as datas estão válidas
+            return itemDate >= start && itemDate <= end && !isNaN(itemDate.getTime());
+        });
+
+        setFilteredData(filtered);
+    };
+
+    console.log(filteredData.map(item => item.created_at))
 
     return (
         <div>
@@ -265,6 +311,43 @@ function DataTable<T extends { id: string }>({
                         <option value="asc">Ascendente</option>
                         <option value="desc">Descendente</option>
                     </select>
+                    <button
+                        onClick={handleOpenTimeData}
+                        className="mt-2 md:mt-0 md:ml-2 p-2 bg-gray-500 text-white rounded w-full md:w-auto"
+                    >
+                        Por data
+                    </button>
+                    {isModalOpenTimeData && (
+                        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
+                                <button
+                                    onClick={handleCloseModalTimeData}
+                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                                >
+                                    <AiOutlineClose size={24} color="black" />
+                                </button>
+                                <h2 className="mb-4 text-black">Selecione as datas</h2>
+                                <div>
+                                    <input type="date" value={startDate} onChange={handleStartDateChange} placeholder="Data inicial" />
+                                    <input type="date" value={endDate} onChange={handleEndDateChange} placeholder="Data final" />
+                                </div>
+                                <div className="flex justify-end mt-4">
+                                    <button
+                                        onClick={handleCloseModalTimeData}
+                                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 mr-2"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={filterData}
+                                        className="px-4 py-2 bg-backgroundButton text-black rounded hover:bg-hoverButtonBackground"
+                                    >
+                                        Aplicar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     {selectdData.length > 0 && (
                         <div className="flex justify-end items-center ml-4">
                             <button
@@ -340,33 +423,11 @@ function DataTable<T extends { id: string }>({
                     )}
                     {/* Modal de confirmação de exclusão */}
                     {modalVisibleDelete && (
-                        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
-                                <button
-                                    onClick={handleCloseModal}
-                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                                >
-                                    <AiOutlineClose size={24} color="black" />
-                                </button>
-                                <h2 className="mb-6 mt-8 text-black">
-                                    Você tem certeza que deseja excluir {selectdData.length} contato(s)?
-                                </h2>
-                                <div className="flex justify-end space-x-4">
-                                    <button
-                                        onClick={handleCloseModal}
-                                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={handleDeleteData}
-                                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                    >
-                                        Confirmar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
+                        <ConfirmDeleteModal
+                            isOpen={modalVisibleDelete}
+                            onClose={handleCloseModal}
+                            onConfirm={handleDeleteData}
+                        />
                     )}
 
                 </div>
@@ -391,7 +452,7 @@ function DataTable<T extends { id: string }>({
                         </tr>
                     </thead>
                     <tbody>
-                        {data.map((item) => (
+                        {filteredData.map((item) => (
                             <tr key={String(item["id"])} className="border-b cursor-pointer">
                                 <td className="w-2 p-3">
                                     <input

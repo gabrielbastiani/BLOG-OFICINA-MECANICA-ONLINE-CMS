@@ -10,6 +10,7 @@ import { FiLogIn, FiUser, FiBell } from "react-icons/fi";
 import { setupAPIClient } from "@/services/api";
 import { MdCategory, MdConnectWithoutContact, MdNotifications, MdPostAdd } from "react-icons/md";
 import { FaFileExport, FaRegCommentDots, FaRegNewspaper, FaUser } from "react-icons/fa";
+import moment from 'moment';
 
 interface Content {
     children: ReactNode;
@@ -18,7 +19,7 @@ interface Content {
 interface Notification {
     id: string;
     message: string;
-    date: string;
+    created_at: string;
     href?: string;
     read: boolean;
     type: string;
@@ -62,7 +63,7 @@ export function SidebarAndHeader({ children }: Content) {
     const fetchNotifications = async (setNotifications: (arg0: any) => void) => {
         try {
             const response = await apiClient.get(`/user/notifications?user_id=${idUser}`);
-            setNotifications(response.data);
+            setNotifications(response.data.slice(0, 20));
         } catch (error) {
             console.error("Erro ao buscar notificações:", error);
         }
@@ -290,7 +291,7 @@ export function SidebarAndHeader({ children }: Content) {
                                 <div className="flex justify-between mb-2">
                                     <h2 className="font-semibold">Notificações</h2>
                                     <button
-                                        className="text-sm text-blue-500 hover:underline"
+                                        className="text-sm text-red-600 hover:underline"
                                         onClick={markAllAsRead}
                                     >
                                         Marcar todas como lidas
@@ -312,14 +313,20 @@ export function SidebarAndHeader({ children }: Content) {
                                                     <NotificationIcon type={notification.type} />
                                                     <span>{notification.message}</span>
                                                 </span>
-                                                <span className="text-xs text-gray-400">{notification.date}</span>
+                                                <span className="text-xs text-gray-400">{moment(notification.created_at).format('DD/MM/YYYY HH:mm')}</span>
                                             </button>
                                         </li>
                                     ))}
                                 </ul>
+                                <div className="mt-4 text-center">
+                                    <Link href="/central_notifications" passHref>
+                                        <button className="bg-backgroundButton text-white hover:underline text-sm p-3 rounded">
+                                            Ver todas as notificações
+                                        </button>
+                                    </Link>
+                                </div>
                             </div>
                         )}
-
                         {/* Avatar do usuário */}
                         {!loadingAuth && isAuthenticated ? (
                             <Link href="/user/profile">

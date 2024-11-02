@@ -31,10 +31,10 @@ export default function Add_user() {
 
     const captchaRef = useRef<ReCAPTCHA | null>(null);
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormData>({
+    const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<FormData>({
         resolver: zodResolver(schema),
         mode: "onChange",
-    });
+    });    
 
     function generateComplexPassword(length: number): string {
         const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -96,7 +96,9 @@ export default function Add_user() {
             });
 
             toast.success('Cadastro feito com sucesso!');
-            setLoading(false);
+            reset();
+            setGeneratedPassword("");
+            setIsChecked(false);
         } catch (error) {
             if (error instanceof Error && 'response' in error && error.response) {
                 console.log((error as any).response.data);
