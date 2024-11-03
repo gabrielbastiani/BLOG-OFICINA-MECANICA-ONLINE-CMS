@@ -21,10 +21,10 @@ export default function All_contacts() {
 
     const apiClient = setupAPIClient();
 
-    async function fetchContacts({ page, limit, search, orderBy, orderDirection }: any) {
+    async function fetchContacts({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
         try {
             const response = await apiClient.get(`/contacts_form/all_contacts`, {
-                params: { page, limit, search, orderBy, orderDirection }
+                params: { page, limit, search, orderBy, orderDirection, startDate, endDate }
             });
             setContacts(response.data.contacts);
             setTotalPages(response.data.totalPages);

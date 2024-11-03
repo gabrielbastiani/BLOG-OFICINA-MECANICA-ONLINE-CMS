@@ -5,6 +5,7 @@ import { setupAPIClient } from "@/services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/contexts/AuthContext";
 import ConfirmDeleteModal from "./confirmDeleteModal";
+import moment from "moment";
 
 interface DataTableProps<T extends { id: string }> {
     name_file_export: string;
@@ -14,11 +15,11 @@ interface DataTableProps<T extends { id: string }> {
     data: T[];
     columns: { key: keyof T; label: string }[];
     totalPages: number;
-    onFetchData: (params: { page: number; limit: number; search: string; orderBy: string; orderDirection: string }) => void;
+    onFetchData: (params: { page: number; limit: number; search: string; orderBy: string; orderDirection: string, startDate: string, endDate: string }) => void;
 }
 
 function DataTable<T extends {
-    created_at: string | number | Date; id: string 
+    created_at: string | number | Date; id: string
 }>({
     name_file_export,
     table_data,
@@ -42,10 +43,44 @@ function DataTable<T extends {
     const [orderDirection, setOrderDirection] = useState("desc");
     const [modalVisibleDelete, setModalVisibleDelete] = useState(false);
     const [selectdData, setSelectdData] = useState<string[]>([]);
+    // Estados para filtragem por data
+    const [startDate, setStartDate] = useState<string>('');
+    const [endDate, setEndDate] = useState<string>('');
+    const [filteredData, setFilteredData] = useState<T[]>(data);
+
+    useEffect(() => {
+        // Filtra automaticamente quando os dados ou as datas mudam
+        if (startDate && endDate) {
+            filterData();
+        } else {
+            setFilteredData(data);
+        }
+    }, [data, startDate, endDate]);
+
+    // Função para filtrar os dados pela data
+    const filterData = () => {
+        const start = new Date(moment(startDate).format('DD/MM/YYYY HH:mm'));
+        const end = new Date(moment(endDate).format('DD/MM/YYYY HH:mm'));
+
+        const filtered = data.filter(item => {
+            const itemDate = new Date(moment(item.created_at).format('DD/MM/YYYY HH:mm'));
+            return itemDate >= start && itemDate <= end && !isNaN(itemDate.getTime());
+        });
+
+        setFilteredData(filtered);
+    };
+
+    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setStartDate(e.target.value);
+    };
+
+    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEndDate(e.target.value);
+    };
 
     useEffect(() => {
         updateUrlParams();
-    }, [currentPage, limit, orderBy, orderDirection, search]);
+    }, [currentPage, limit, orderBy, orderDirection, search, startDate, endDate]);
 
     function updateUrlParams() {
         const params = new URLSearchParams({
@@ -53,14 +88,16 @@ function DataTable<T extends {
             limit: limit.toString(),
             search,
             orderBy,
-            orderDirection
+            orderDirection,
+            startDate,
+            endDate
         });
         router.replace(`?${params.toString()}`);
     }
 
     useEffect(() => {
-        onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
-    }, [currentPage, limit, orderBy, orderDirection, search]);
+        onFetchData({ page: currentPage, limit, search, orderBy, orderDirection, startDate, endDate });
+    }, [currentPage, limit, orderBy, orderDirection, search, startDate, endDate]);
 
     function handleSearchSubmit() {
         setCurrentPage(1);
@@ -86,13 +123,10 @@ function DataTable<T extends {
         setSearch("");
         setOrderBy("created_at");
         setOrderDirection("desc");
+        setFilteredData(data);
         setLimit(5);
         setCurrentPage(1);
         router.replace("");
-    }
-
-    function handleOpemTimeData() {
-
     }
 
     const handlePageClick = (pageNumber: number) => {
@@ -133,7 +167,7 @@ function DataTable<T extends {
 
             toast.success(`Contato(s) deletados com sucesso`);
             setSelectdData([]);
-            onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
+            onFetchData({ page: currentPage, limit, search, orderBy, orderDirection, startDate, endDate });
 
             setModalVisibleDelete(false);
 
@@ -235,44 +269,6 @@ function DataTable<T extends {
         }
     };
 
-    const [startDate, setStartDate] = useState<string>('');
-    const [endDate, setEndDate] = useState<string>('');
-    const [filteredData, setFilteredData] = useState<T[]>(data);
-
-    useEffect(() => {
-        setFilteredData(data);
-    }, [data]);
-
-    useEffect(() => {
-        if (startDate && endDate) {
-            filterData();
-        } else {
-            setFilteredData(data);
-        }
-    }, [startDate, endDate]);
-
-    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setStartDate(e.target.value);
-    };
-
-    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEndDate(e.target.value);
-    };
-
-    const filterData = () => {
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-
-        const filtered = data.filter(item => {
-            const itemDate = new Date(item.created_at);
-            // Verifique se as datas estão válidas
-            return itemDate >= start && itemDate <= end && !isNaN(itemDate.getTime());
-        });
-
-        setFilteredData(filtered);
-    };
-
-    console.log(filteredData.map(item => item.created_at))
 
     return (
         <div>
@@ -327,22 +323,29 @@ function DataTable<T extends {
                                     <AiOutlineClose size={24} color="black" />
                                 </button>
                                 <h2 className="mb-4 text-black">Selecione as datas</h2>
-                                <div>
-                                    <input type="date" value={startDate} onChange={handleStartDateChange} placeholder="Data inicial" />
-                                    <input type="date" value={endDate} onChange={handleEndDateChange} placeholder="Data final" />
+                                <div className="flex flex-col md:flex-row items-center w-full md:w-auto">
+                                    <input
+                                        className="text-black"
+                                        type="date"
+                                        value={startDate}
+                                        onChange={handleStartDateChange}
+                                        placeholder="Data inicial"
+                                    />
+                                    <span className="text-black px-5">ATÉ</span>
+                                    <input
+                                        className="text-black"
+                                        type="date"
+                                        value={endDate}
+                                        onChange={handleEndDateChange}
+                                        placeholder="Data final"
+                                    />
                                 </div>
                                 <div className="flex justify-end mt-4">
                                     <button
                                         onClick={handleCloseModalTimeData}
                                         className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 mr-2"
                                     >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={filterData}
-                                        className="px-4 py-2 bg-backgroundButton text-black rounded hover:bg-hoverButtonBackground"
-                                    >
-                                        Aplicar
+                                        Fechar
                                     </button>
                                 </div>
                             </div>
