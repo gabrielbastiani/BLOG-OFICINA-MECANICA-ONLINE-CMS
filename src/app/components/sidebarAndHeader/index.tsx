@@ -291,7 +291,7 @@ export function SidebarAndHeader({ children }: Content) {
                                 <div className="flex justify-between mb-2">
                                     <h2 className="font-semibold">Notificações</h2>
                                     <button
-                                        className="text-sm text-red-600 hover:underline"
+                                        className="text-sm text-red-500 hover:underline"
                                         onClick={markAllAsRead}
                                     >
                                         Marcar todas como lidas
@@ -313,7 +313,7 @@ export function SidebarAndHeader({ children }: Content) {
                                                     <NotificationIcon type={notification.type} />
                                                     <span>{notification.message}</span>
                                                 </span>
-                                                <span className="text-xs text-gray-400">{moment(notification.created_at).format('DD/MM/YYYY HH:mm')}</span>
+                                                <span className="text-xs text-gray-400">{moment(notification.created_at).format('DD-MM-YYYY HH:mm')}</span>
                                             </button>
                                         </li>
                                     ))}

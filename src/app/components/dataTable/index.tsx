@@ -1,11 +1,11 @@
 import { useContext, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { AiOutlineClose } from "react-icons/ai";
 import { setupAPIClient } from "@/services/api";
 import { toast } from "react-toastify";
 import { AuthContext } from "@/contexts/AuthContext";
 import ConfirmDeleteModal from "./confirmDeleteModal";
-import moment from "moment";
+import ExportDataModal from "./exportDataModal";
+import TimeFilterModal from "./timeFilterModal";
 
 interface DataTableProps<T extends { id: string }> {
     name_file_export: string;
@@ -15,12 +15,10 @@ interface DataTableProps<T extends { id: string }> {
     data: T[];
     columns: { key: keyof T; label: string }[];
     totalPages: number;
-    onFetchData: (params: { page: number; limit: number; search: string; orderBy: string; orderDirection: string, startDate: string, endDate: string }) => void;
+    onFetchData: (params: { page: number; limit: number; search: string; orderBy: string; orderDirection: string, startDate?: string, endDate?: string }) => void;
 }
 
-function DataTable<T extends {
-    created_at: string | number | Date; id: string
-}>({
+function DataTable<T extends { created_at: string | number | Date; id: string }>({
     name_file_export,
     table_data,
     url_item_router,
@@ -43,66 +41,57 @@ function DataTable<T extends {
     const [orderDirection, setOrderDirection] = useState("desc");
     const [modalVisibleDelete, setModalVisibleDelete] = useState(false);
     const [selectdData, setSelectdData] = useState<string[]>([]);
-    // Estados para filtragem por data
-    const [startDate, setStartDate] = useState<string>('');
-    const [endDate, setEndDate] = useState<string>('');
-    const [filteredData, setFilteredData] = useState<T[]>(data);
+    const [startDate, setStartDate] = useState(searchParams.get("startDate") || "");
+    const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
+
+    const [isModalOpenExportData, setIsModalOpenExportData] = useState(false);
+
+    const handleOpenExportData = () => setIsModalOpenExportData(true);
+    const handleCloseModalExportData = () => setIsModalOpenExportData(false);
+
+    const [isModalOpenTimeData, setIsModalOpenTimeData] = useState(false);
+    const handleOpenTimeData = () => setIsModalOpenTimeData(true);
+    const handleCloseModalTimeData = () => setIsModalOpenTimeData(false);
 
     useEffect(() => {
-        // Filtra automaticamente quando os dados ou as datas mudam
-        if (startDate && endDate) {
-            filterData();
-        } else {
-            setFilteredData(data);
-        }
-    }, [data, startDate, endDate]);
+        const initialSearch = searchParams.get("search") || "";
+        const initialOrderBy = searchParams.get("orderBy") || "created_at";
+        const initialOrderDirection = searchParams.get("orderDirection") || "desc";
+        const initialLimit = Number(searchParams.get("limit")) || 5;
+        const initialCurrentPage = Number(searchParams.get("page")) || 1; // Mudança aqui para "page"
+        const initialStartDate = searchParams.get("startDate") || "";
+        const initialEndDate = searchParams.get("endDate") || "";
 
-    // Função para filtrar os dados pela data
-    const filterData = () => {
-        const start = new Date(moment(startDate).format('DD/MM/YYYY HH:mm'));
-        const end = new Date(moment(endDate).format('DD/MM/YYYY HH:mm'));
+        setSearch(initialSearch);
+        setOrderBy(initialOrderBy);
+        setOrderDirection(initialOrderDirection);
+        setLimit(initialLimit);
+        setCurrentPage(initialCurrentPage);
+        setStartDate(initialStartDate);
+        setEndDate(initialEndDate);
 
-        const filtered = data.filter(item => {
-            const itemDate = new Date(moment(item.created_at).format('DD/MM/YYYY HH:mm'));
-            return itemDate >= start && itemDate <= end && !isNaN(itemDate.getTime());
-        });
+    }, [searchParams]);
 
-        setFilteredData(filtered);
-    };
+    const updateUrlParams = () => {
+        const params = new URLSearchParams();
+        if (search) params.set("search", search);
+        if (orderBy) params.set("orderBy", orderBy);
+        if (orderDirection) params.set("orderDirection", orderDirection);
+        if (limit) params.set("limit", limit.toString());
+        if (currentPage) params.set("page", currentPage.toString());
+        if (startDate) params.set("startDate", startDate);
+        if (endDate) params.set("endDate", endDate);
 
-    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setStartDate(e.target.value);
-    };
-
-    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEndDate(e.target.value);
+        router.replace(`?${params.toString()}`);
     };
 
     useEffect(() => {
         updateUrlParams();
-    }, [currentPage, limit, orderBy, orderDirection, search, startDate, endDate]);
-
-    function updateUrlParams() {
-        const params = new URLSearchParams({
-            page: currentPage.toString(),
-            limit: limit.toString(),
-            search,
-            orderBy,
-            orderDirection,
-            startDate,
-            endDate
-        });
-        router.replace(`?${params.toString()}`);
-    }
+    }, [search, orderBy, orderDirection, limit, currentPage, startDate, endDate]);
 
     useEffect(() => {
         onFetchData({ page: currentPage, limit, search, orderBy, orderDirection, startDate, endDate });
     }, [currentPage, limit, orderBy, orderDirection, search, startDate, endDate]);
-
-    function handleSearchSubmit() {
-        setCurrentPage(1);
-        updateUrlParams();
-    }
 
     function handleOrderByChange(e: React.ChangeEvent<HTMLSelectElement>) {
         setOrderBy(e.target.value);
@@ -123,9 +112,10 @@ function DataTable<T extends {
         setSearch("");
         setOrderBy("created_at");
         setOrderDirection("desc");
-        setFilteredData(data);
         setLimit(5);
         setCurrentPage(1);
+        setStartDate("");
+        setEndDate("");
         router.replace("");
     }
 
@@ -167,7 +157,7 @@ function DataTable<T extends {
 
             toast.success(`Contato(s) deletados com sucesso`);
             setSelectdData([]);
-            onFetchData({ page: currentPage, limit, search, orderBy, orderDirection, startDate, endDate });
+            onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
 
             setModalVisibleDelete(false);
 
@@ -221,17 +211,22 @@ function DataTable<T extends {
             customName: selectedColumns[key].customName,
         }));
 
-    const [isModalOpenExportData, setIsModalOpenExportData] = useState(false);
-    const handleOpenExportData = () => setIsModalOpenExportData(true);
-    const handleCloseModalExportData = () => setIsModalOpenExportData(false);
-    const [isModalOpenTimeData, setIsModalOpenTimeData] = useState(false);
-    const handleOpenTimeData = () => setIsModalOpenTimeData(true);
-    const handleCloseModalTimeData = () => setIsModalOpenTimeData(false);
     const [format_file, setFormat_file] = useState("xlsx");
 
-    function handleFormatChange(e: React.ChangeEvent<HTMLSelectElement>) {
-        setFormat_file(e.target.value);
-    }
+    const handleFormatChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedFormat = e.target.value;
+        setFormat_file(selectedFormat);
+    };
+
+    const toggleColumnSelection = (columnKey: string) => {
+        setSelectedColumns((prev) => ({
+            ...prev,
+            [columnKey]: {
+                ...prev[columnKey],
+                selected: !prev[columnKey].selected,
+            },
+        }));
+    };
 
     const handleExportData = async () => {
         const apiClient = setupAPIClient();
@@ -245,9 +240,9 @@ function DataTable<T extends {
             const response = await apiClient.post('/export_data', {
                 user_id: user?.id,
                 tableName: table_data,
-                columns: columnsKeys, // Apenas as chaves (strings)
+                columns: columnsKeys,
                 format: format_file,
-                customColumnNames, // Custom columns se a API requerer esses dados separadamente
+                customColumnNames,
             }, { responseType: 'blob' });
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -269,6 +264,12 @@ function DataTable<T extends {
         }
     };
 
+    const handleDateChange = (start: string, end: string) => {
+        setStartDate(start);
+        setEndDate(end);
+        setCurrentPage(1);
+    };
+
 
     return (
         <div>
@@ -282,14 +283,8 @@ function DataTable<T extends {
                         className="border p-2 rounded w-96 text-black"
                     />
                     <button
-                        onClick={handleSearchSubmit}
-                        className="mt-2 md:mt-0 md:ml-2 p-2 bg-backgroundButton text-white rounded w-full md:w-auto"
-                    >
-                        Buscar
-                    </button>
-                    <button
                         onClick={handleResetFilters}
-                        className="mt-2 md:mt-0 md:ml-2 p-2 bg-gray-500 text-white rounded w-full md:w-auto"
+                        className="mt-2 md:mt-0 md:ml-2 p-2 bg-red-500 text-white rounded w-full md:w-auto"
                     >
                         Resetar
                     </button>
@@ -313,52 +308,18 @@ function DataTable<T extends {
                     >
                         Por data
                     </button>
-                    {isModalOpenTimeData && (
-                        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
-                                <button
-                                    onClick={handleCloseModalTimeData}
-                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                                >
-                                    <AiOutlineClose size={24} color="black" />
-                                </button>
-                                <h2 className="mb-4 text-black">Selecione as datas</h2>
-                                <div className="flex flex-col md:flex-row items-center w-full md:w-auto">
-                                    <input
-                                        className="text-black"
-                                        type="date"
-                                        value={startDate}
-                                        onChange={handleStartDateChange}
-                                        placeholder="Data inicial"
-                                    />
-                                    <span className="text-black px-5">ATÉ</span>
-                                    <input
-                                        className="text-black"
-                                        type="date"
-                                        value={endDate}
-                                        onChange={handleEndDateChange}
-                                        placeholder="Data final"
-                                    />
-                                </div>
-                                <div className="flex justify-end mt-4">
-                                    <button
-                                        onClick={handleCloseModalTimeData}
-                                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 mr-2"
-                                    >
-                                        Fechar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <TimeFilterModal
+                        isOpen={isModalOpenTimeData}
+                        onClose={handleCloseModalTimeData}
+                        onDateChange={handleDateChange}
+                    />
                     {selectdData.length > 0 && (
                         <div className="flex justify-end items-center ml-4">
-                            <button
-                                onClick={handleDelete}
-                                className="p-2 bg-red-500 text-white rounded"
-                            >
-                                Deletar {selectdData.length} dado(s)
-                            </button>
+                            {selectdData.length > 0 && (
+                                <button onClick={handleDelete} className="p-2 bg-red-500 text-white rounded">
+                                    Deletar {selectdData.length} dado(s)
+                                </button>
+                            )}
                         </div>
                     )}
                     <div className="flex justify-end items-center ml-4">
@@ -369,62 +330,19 @@ function DataTable<T extends {
                             Exportar dados
                         </button>
                     </div>
-                    {isModalOpenExportData && (
-                        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto relative">
-                                <button
-                                    onClick={handleCloseModalExportData}
-                                    className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-                                >
-                                    <AiOutlineClose size={24} color="black" />
-                                </button>
-                                <h2 className="mb-4 text-black">Selecione os dados a serem exportados</h2>
-                                <div>
-                                    {columns.map((column) => (
-                                        <div key={String(column.key)} className="flex items-center mb-2">
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedColumns[column.key as string].selected}
-                                                onChange={() =>
-                                                    setSelectedColumns((prev) => ({
-                                                        ...prev,
-                                                        [column.key as string]: {
-                                                            selected: !prev[column.key as string].selected,
-                                                            customName: column.label,
-                                                        },
-                                                    }))
-                                                }
-                                            />
-                                            <label className="ml-2 text-black">{column.label}</label>
-                                        </div>
-                                    ))}
-                                    <select
-                                        value={format_file}
-                                        onChange={handleFormatChange}
-                                        className="border p-2 rounded text-black"
-                                    >
-                                        <option value="xlsx">Excel XLSX</option>
-                                        <option value="csv">Excel CSV</option>
-                                    </select>
-                                </div>
-                                <div className="flex justify-end mt-4">
-                                    <button
-                                        onClick={handleCloseModalExportData}
-                                        className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 mr-2"
-                                    >
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        onClick={handleExportData}
-                                        className="px-4 py-2 bg-backgroundButton text-black rounded hover:bg-hoverButtonBackground"
-                                    >
-                                        Exportar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                    {/* Modal de confirmação de exclusão */}
+                    <ExportDataModal
+                        isOpen={isModalOpenExportData}
+                        columns={columns.map((column) => ({
+                            ...column,
+                            key: String(column.key)
+                        }))}
+                        selectedColumns={selectedColumns}
+                        formatFile={format_file}
+                        onClose={handleCloseModalExportData}
+                        onFormatChange={(format) => handleFormatChange({ target: { value: format } } as React.ChangeEvent<HTMLSelectElement>)}
+                        onColumnToggle={(columnKey) => toggleColumnSelection(columnKey)}
+                        onExport={handleExportData}
+                    />
                     {modalVisibleDelete && (
                         <ConfirmDeleteModal
                             isOpen={modalVisibleDelete}
@@ -432,7 +350,6 @@ function DataTable<T extends {
                             onConfirm={handleDeleteData}
                         />
                     )}
-
                 </div>
             </div>
             {/* Tabela de contatos */}
@@ -455,7 +372,7 @@ function DataTable<T extends {
                         </tr>
                     </thead>
                     <tbody>
-                        {filteredData.map((item) => (
+                        {data.map((item) => (
                             <tr key={String(item["id"])} className="border-b cursor-pointer">
                                 <td className="w-2 p-3">
                                     <input
