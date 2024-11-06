@@ -28,44 +28,47 @@ interface Notification {
 export function SidebarAndHeader({ children }: Content) {
 
     const { isAuthenticated, loadingAuth, user } = useContext(AuthContext);
-
     const [isSideBarOpen, setIsSideBarOpen] = useState(true);
     const [currentRoute, setCurrentRoute] = useState<string | null>(null);
+    const [openMenu, setOpenMenu] = useState<string | null>(null);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
     const notificationRef = useRef<HTMLDivElement>(null);
+    const apiClient = setupAPIClient();
+    const idUser = user?.id;
 
     useEffect(() => {
         function handleClickOutside(event: MouseEvent) {
-            // Verifique se o clique foi fora do popup e feche-o se necessário
             if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
                 setShowNotifications(false);
             }
         }
-
-        // Adicione o evento de clique ao documento
         document.addEventListener("mousedown", handleClickOutside);
-
-        // Limpe o evento quando o componente for desmontado
         return () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
 
-    const apiClient = setupAPIClient();
-    const idUser = user?.id;
-
-    useEffect(() => {
-        fetchNotifications(setNotifications);
-    }, [idUser]);
-
-    const fetchNotifications = async (setNotifications: (arg0: any) => void) => {
+    const fetchNotifications = async () => {
         try {
             const response = await apiClient.get(`/user/notifications?user_id=${idUser}`);
-            setNotifications(response.data.slice(0, 20));
+            const fetchedNotifications = response.data.slice(0, 20);
+            setNotifications(fetchedNotifications);
+            setHasUnreadNotifications(fetchedNotifications.some((notification: { read: any; }) => !notification.read));
         } catch (error) {
             console.error("Erro ao buscar notificações:", error);
+        }
+    };
+
+    const checkForNewNotifications = async () => {
+        try {
+            const response = await apiClient.get(`/user/notifications?user_id=${idUser}`);
+            const newNotifications = response.data.slice(0, 20);
+            setNotifications(newNotifications);
+        } catch (error) {
+            console.error("Erro ao verificar novas notificações:", error);
         }
     };
 
@@ -98,6 +101,8 @@ export function SidebarAndHeader({ children }: Content) {
                     notification.id === id ? { ...notification, read: true } : notification
                 )
             );
+            const hasUnread = notifications.some(notification => notification.id !== id && !notification.read);
+            setHasUnreadNotifications(hasUnread);
         } catch (error) {
             console.error("Erro ao marcar notificação como lida:", error);
         }
@@ -106,7 +111,10 @@ export function SidebarAndHeader({ children }: Content) {
     const markAllAsRead = async () => {
         try {
             await apiClient.put(`/notifications/mark-all-read?user_id=${idUser}`);
-            setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })));
+            setNotifications((prev) =>
+                prev.map((notification) => ({ ...notification, read: true }))
+            );
+            setHasUnreadNotifications(false);
         } catch (error) {
             console.error("Erro ao marcar todas as notificações como lidas:", error);
         }
@@ -119,18 +127,38 @@ export function SidebarAndHeader({ children }: Content) {
         }
     }, []);
 
+    const handleMenuToggle = (menuName: string) => {
+        setOpenMenu((prevMenu) => (prevMenu === menuName ? null : menuName));
+    };
+
+    useEffect(() => {
+        fetchNotifications();
+
+        const interval = setInterval(() => {
+            checkForNewNotifications();
+        }, 20000);
+
+        return () => clearInterval(interval);
+    }, [idUser]);
+
+    useEffect(() => {
+        setHasUnreadNotifications(notifications.some(notification => !notification.read));
+    }, [notifications]);
+
+
+
     return (
         <Collapsible.Root
             defaultOpen
             className="h-screen w-screen bg-gray-950 text-slate-100 flex overflow-hidden"
             onOpenChange={setIsSideBarOpen}
         >
-            <Collapsible.Content className="bg-gray-950 flex-shrink-0 border-r border-slate-600 h-full relative group overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-200">
-                <Collapsible.Trigger className='absolute h-7 right-4 z-[99] text-white hover:scale-105 duration-200 inline-flex items-center justify-center'>
+            <Collapsible.Content className="bg-gray-950 flex-shrink-0 border-r border-slate-600 h-full relative group overflow-y-auto">
+                <Collapsible.Trigger className="absolute h-7 right-4 z-[99] text-white hover:scale-105 duration-200 inline-flex items-center justify-center">
                     <ArrowBendDoubleUpLeft className="h-7 w-7 mt-8" />
                 </Collapsible.Trigger>
 
-                <div className='flex-1 flex flex-col h-full gap-8 w-[220px]'>
+                <div className="flex-1 flex flex-col h-full gap-8 w-[220px]">
                     <nav className="flex mx-2 flex-col gap-8 text-slate-100">
                         <div className="flex flex-col gap-2 ml-2">
                             <div className="text-white font-semibold uppercase mb-2 ml-2 mt-3">
@@ -149,107 +177,97 @@ export function SidebarAndHeader({ children }: Content) {
 
                             {user?.role === 'SUPER_ADMIN' ? (
                                 <>
-                                    <Collapsible.Root className="flex flex-col" defaultOpen>
-                                        <Collapsible.Trigger asChild>
-                                            <button
-                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center', {
-                                                    'bg-activeLink rounded': currentRoute?.includes("/user"),
-                                                    'text-white': !currentRoute?.includes("/user")
-                                                })}
-                                            >
-                                                Usuários
-                                                <CaretRight className={clsx('transition-transform duration-200', {
-                                                    'rotate-90': currentRoute?.includes("/user"),
-                                                    'rotate-0': !currentRoute?.includes("/user")
-                                                })} />
-                                            </button>
-                                        </Collapsible.Trigger>
-
-                                        <Collapsible.Content
-                                            className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
+                                    <div>
+                                        <button
+                                            onClick={() => handleMenuToggle('users')}
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'users' || currentRoute?.includes("/user"),
+                                                'text-white': openMenu !== 'users' && !currentRoute?.includes("/user")
+                                            })}
                                         >
-                                            <Link href="/user/all_users" className={clsx({
-                                                'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/all_users",
-                                                'text-white p-2 mb-2 text-sm': currentRoute !== "/user/all_users"
-                                            })}>
-                                                Todos os Usuários
-                                            </Link>
+                                            Usuários
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': openMenu === 'users',
+                                                'rotate-0': openMenu !== 'users'
+                                            })} />
+                                        </button>
+                                        {openMenu === 'users' && (
+                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/user/all_users" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/all_users",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/user/all_users"
+                                                })}>
+                                                    Todos os Usuários
+                                                </Link>
+                                                <Link href="/user/add_user" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/add_user",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/user/add_user"
+                                                })}>
+                                                    Adicionar Novo Usuário
+                                                </Link>
+                                                <Link href="/user/profile" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
+                                                })}>
+                                                    Editar perfil
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
 
-                                            <Link href="/user/add_user" className={clsx({
-                                                'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/add_user",
-                                                'text-white p-2 mb-2 text-sm': currentRoute !== "/user/add_user"
-                                            })}>
-                                                Adicionar Novo Usuário
-                                            </Link>
-
+                                    <div>
+                                        <button
+                                            onClick={() => handleMenuToggle('contacts')}
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'contacts' || currentRoute?.includes("/contacts_form"),
+                                                'text-white': openMenu !== 'contacts' && !currentRoute?.includes("/contacts_form")
+                                            })}
+                                        >
+                                            Contatos
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': openMenu === 'contacts',
+                                                'rotate-0': openMenu !== 'contacts'
+                                            })} />
+                                        </button>
+                                        {openMenu === 'contacts' && (
+                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/contacts_form/all_contacts" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/contacts_form/all_contacts",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/contacts_form/all_contacts"
+                                                })}>
+                                                    Todos os Contatos
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <div>
+                                    <button
+                                        onClick={() => handleMenuToggle('user')}
+                                        className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                            'bg-activeLink rounded': openMenu === 'user' || currentRoute?.includes("/user"),
+                                            'text-white': openMenu !== 'user' && !currentRoute?.includes("/user")
+                                        })}
+                                    >
+                                        Usuários
+                                        <CaretRight className={clsx('transition-transform duration-200', {
+                                            'rotate-90': openMenu === 'user',
+                                            'rotate-0': openMenu !== 'user'
+                                        })} />
+                                    </button>
+                                    {openMenu === 'user' && (
+                                        <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
                                             <Link href="/user/profile" className={clsx({
                                                 'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
                                                 'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
                                             })}>
                                                 Editar perfil
                                             </Link>
-                                        </Collapsible.Content>
-                                    </Collapsible.Root>
-
-                                    <Collapsible.Root className="flex flex-col" defaultOpen>
-                                        <Collapsible.Trigger asChild>
-                                            <button
-                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center', {
-                                                    'bg-activeLink rounded': currentRoute?.includes("/contacts_form"),
-                                                    'text-white': !currentRoute?.includes("/contacts_form")
-                                                })}
-                                            >
-                                                Contatos
-                                                <CaretRight className={clsx('transition-transform duration-200', {
-                                                    'rotate-90': currentRoute?.includes("/contacts_form"),
-                                                    'rotate-0': !currentRoute?.includes("/contacts_form")
-                                                })} />
-                                            </button>
-                                        </Collapsible.Trigger>
-
-                                        <Collapsible.Content
-                                            className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
-                                        >
-                                            <Link href="/contacts_form/all_contacts" className={clsx({
-                                                'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/contacts_form/all_contacts",
-                                                'text-white p-2 mb-2 text-sm': currentRoute !== "/contacts_form/all_contacts"
-                                            })}>
-                                                Todos os Contatos
-                                            </Link>
-
-                                        </Collapsible.Content>
-                                    </Collapsible.Root>
-                                </>
-                            ) :
-                                <Collapsible.Root className="flex flex-col" defaultOpen>
-                                    <Collapsible.Trigger asChild>
-                                        <button
-                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center', {
-                                                'bg-activeLink rounded': currentRoute?.includes("/user"),
-                                                'text-white': !currentRoute?.includes("/user")
-                                            })}
-                                        >
-                                            Usuários
-                                            <CaretRight className={clsx('transition-transform duration-200', {
-                                                'rotate-90': currentRoute?.includes("/user"),
-                                                'rotate-0': !currentRoute?.includes("/user")
-                                            })} />
-                                        </button>
-                                    </Collapsible.Trigger>
-
-                                    <Collapsible.Content
-                                        className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col"
-                                    >
-                                        <Link href="/user/profile" className={clsx({
-                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
-                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
-                                        })}>
-                                            Editar perfil
-                                        </Link>
-                                    </Collapsible.Content>
-
-                                </Collapsible.Root>
-                            }
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </section>
                     </nav>
                 </div>
@@ -279,7 +297,7 @@ export function SidebarAndHeader({ children }: Content) {
                                 className="text-white cursor-pointer"
                                 onClick={() => setShowNotifications(!showNotifications)}
                             />
-                            {notifications.some((n) => !n.read) && (
+                            {hasUnreadNotifications && (
                                 <span className="absolute top-0 right-0 h-2 w-2 bg-red-500 rounded-full" />
                             )}
                         </div>

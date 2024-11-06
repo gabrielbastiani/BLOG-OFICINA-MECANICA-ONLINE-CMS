@@ -1,31 +1,27 @@
 "use client";
 
-import { notFound } from 'next/navigation';
-import Modal from 'react-modal';
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "@/contexts/AuthContext";
+import { useState } from "react";
 import { setupAPIClient } from "@/services/api";
-import Image from "next/image";
-import { MdNotInterested } from "react-icons/md";
-import { toast } from "react-toastify";
-import { useSearchParams } from "next/navigation";
-import { LoadingRequest } from "../../components/loadingRequest";
 import { SidebarAndHeader } from "../../components/sidebarAndHeader";
 import { Section } from "../../components/section";
 import { TitlePage } from "../../components/titlePage";
-import { FaTrashAlt } from 'react-icons/fa';
-import { ModalDeleteUser } from '@/app/components/popups/ModalDeleteUser';
-import { Pagination } from '@/app/components/pagination';
-import { ModalPasswordChange } from '@/app/components/popups/ModalPasswordChange';
+import DataTable from '@/app/components/dataTable';
+import Image from "next/image";
+import Modal from 'react-modal';
+import { ModalPasswordChange } from "@/app/components/popups/ModalPasswordChange";
+import { MdNotInterested } from "react-icons/md";
+import { toast } from "react-toastify";
 
 interface UsersProps {
     name: string;
     id: string;
     slug_name: string;
-    image_user: string;
+    image_user: string | null;
     status: string;
     role: string;
     email: string;
+    created_at: string | number | Date;
+    mudar_senha: string;
 }
 
 const statusOptions = ["Disponivel", "Indisponivel"];
@@ -33,120 +29,25 @@ const roleOptions = ["SUPER_ADMIN", "ADMIN", "EMPLOYEE"];
 
 export default function All_users() {
 
-    const { user } = useContext(AuthContext);
-    
-    const [isValidPage, setIsValidPage] = useState(true);
-    const [users, setUsers] = useState<UsersProps[]>([]);
-    const [loading, setLoading] = useState(false);
-
-    // Estados de paginação
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-
-    // Estado para controlar qual campo está sendo editado
-    const [editingUser, setEditingUser] = useState<{ id: string, field: string } | null>(null);
-    const [editedValue, setEditedValue] = useState<string>("");
-
-    const [modalVisible, setModalVisible] = useState(false);
     const [modalVisiblePassword, setModalVisiblePassword] = useState(false);
     const [userId, setUserId] = useState<string>("");
+    const [editingUser, setEditingUser] = useState<{ id: string, field: string } | null>(null);
+    const [editedValue, setEditedValue] = useState<string>("");
+    const [all_users, setAll_users] = useState<UsersProps[]>([]);
+    const [totalPages, setTotalPages] = useState(1);
 
-    const filteredUsers = users.filter((item) => item.role !== "SUPER_ADMIN");
+    const apiClient = setupAPIClient();
 
-    const searchParams = useSearchParams();
-
-    useEffect(() => {
-        const page = Number(searchParams.get("page")) || 1;
-        setCurrentPage(page);
-    }, [searchParams]);
-
-    useEffect(() => {
-        const apiClient = setupAPIClient();
-
-        async function fetchUsers() {
-            try {
-                setLoading(true);
-                if (!user) return;
-                const response = await apiClient.get(`/user/all_users?page=${currentPage}`);
-
-                setUsers(response.data.users);
-                setTotalPages(response.data.totalPages);
-
-            } catch (error) {
-                console.log(error);
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        fetchUsers();
-    }, [user, currentPage]);
-
-    // Função para iniciar a edição
-    const handleEdit = (id: string, field: string, currentValue: string) => {
-        setEditingUser({ id, field });
-        setEditedValue(currentValue);
-    };
-
-    // Função para salvar o valor editado e atualizar no banco de dados
-    const handleSave = async (id: string) => {
-        const apiClient = setupAPIClient();
+    async function fetchUsers({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
         try {
-            setLoading(true);
-
-            const updatedField = editingUser?.field === "status" ? { status: editedValue } : { role: editedValue };
-
-            const data = {
-                ...updatedField,
-                user_id: id,
-            };
-
-            await apiClient.put(`/user/update`, data);
-
-            setUsers((prevUsers) =>
-                prevUsers.map((user) =>
-                    user.id === id ? { ...user, ...updatedField } : user
-                )
-            );
-
-            setEditingUser(null);
-            toast.success("Dado atualizado com sucesso");
+            const response = await apiClient.get(`/user/all_users`, {
+                params: { page, limit, search, orderBy, orderDirection, startDate, endDate }
+            });
+            setAll_users(response.data.users);
+            setTotalPages(response.data.totalPages);
         } catch (error) {
             console.log(error);
-            toast.error("Erro ao atualizar o dado!!!");
-        } finally {
-            setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        const page = Number(searchParams.get("page")) || 1;
-        setCurrentPage(page);
-
-        const validPages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-        if (!validPages.includes(page)) {
-            setIsValidPage(false);
-        } else {
-            setIsValidPage(true);
-        }
-    }, [searchParams, totalPages]);
-
-    if (!isValidPage) {
-        return notFound();
-    }
-
-    function handleUserDeleted(userId: string) {
-        setUsers((prevUsers) => prevUsers.filter(user => user.id !== userId));
-    }
-
-    function handleCloseModalDelete() {
-        setModalVisible(false);
-    }
-
-    async function handleOpenModalDelete(id: string) {
-        setModalVisible(true);
-        setUserId(id);
     }
 
     function handleCloseModalPassword() {
@@ -160,138 +61,188 @@ export default function All_users() {
 
     Modal.setAppElement('#root');
 
+    const handleEdit = (id: string, field: string, currentValue: string) => {
+        setEditingUser({ id, field });
+        setEditedValue(currentValue);
+    };
+
+    const handleSave = async (id: string) => {
+        const apiClient = setupAPIClient();
+        try {
+
+            const updatedField = editingUser?.field === "status" ? { status: editedValue } : { role: editedValue };
+
+            const data = {
+                ...updatedField,
+                user_id: id,
+            };
+
+            await apiClient.put(`/user/update`, data);
+
+            setAll_users((prevUsers) =>
+                prevUsers.map((user) =>
+                    user.id === id ? { ...user, ...updatedField } : user
+                )
+            );
+
+            setEditingUser(null);
+            toast.success("Dado atualizado com sucesso");
+        } catch (error) {
+            console.log(error);
+            toast.error("Erro ao atualizar o dado!!!");
+        }
+    };
+
+    // ---- COLUNAS PARA EXPORTAÇÂO DE DADOS ---- //
+
+    const availableColumns = ["id", "name", "email", "status", "role", "created_at"];
+
+    const customNames: any = {
+        id: "ID do usuario",
+        name: "Nome",
+        email: "Email",
+        status: "Status",
+        role: "Atribuição",
+        created_at: "Data de cadastro"
+    };
+
+    // ---- SELECT PARA ORDENAÇÂO DOS ---- //
+
+    const columnsOrder: any = [
+        { key: "name", label: "Nome" },
+        { key: "email", label: "Email" },
+        { key: "created_at", label: "Data de Criação" },
+    ];
+
+    const availableColumnsOrder: any = ["name", "created_at", "email"];
+
+    const customNamesOrder: any = {
+        name: "Nome Completo",
+        created_at: "Data de Registro",
+        email: "Email"
+    };
+
 
     return (
-        <>
-            {loading ? (
-                <LoadingRequest />
-            ) : (
-                <SidebarAndHeader>
-                    <Section>
-                        <TitlePage title="USUÁRIOS" />
-
-                        {filteredUsers.length > 0 ? (
-                            filteredUsers.map((item, index) => (
-                                <div
-                                    key={index}
-                                    className="mb-10 border-gray-300 border-2 p-5 rounded-md md:p-6 lg:p-8"
+        <SidebarAndHeader>
+            <Section>
+                <TitlePage title="TODOS OS USUÁRIOS" />
+                <DataTable
+                    url_delete_data="/user/delete_user"
+                    table_data="user"
+                    name_file_export="Usuários"
+                    data={all_users}
+                    columns={[
+                        {
+                            key: 'image_user',
+                            label: 'Foto',
+                            render: (item) => (
+                                <>
+                                    {item.image_user ? (
+                                        <Image
+                                            src={`http://localhost:3333/files/${item.image_user}`}
+                                            alt={item.name}
+                                            width={80}
+                                            height={80}
+                                            className="w-8 h-8 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
+                                            <MdNotInterested color="black" size={25} />
+                                        </div>
+                                    )}
+                                </>
+                            ),
+                        },
+                        { key: "name", label: "Nome" },
+                        { key: "email", label: "Email" },
+                        {
+                            key: 'status',
+                            label: 'Status',
+                            render: (item) => (
+                                <td>
+                                    {editingUser?.id === item.id && editingUser?.field === "status" ? (
+                                        <select
+                                            value={editedValue || item.status}
+                                            onChange={(e) => setEditedValue(e.target.value)}
+                                            onBlur={() => handleSave(item.id)}
+                                            className="appearance-auto text-black border-gray-300 rounded-md p-1"
+                                        >
+                                            {statusOptions.map((status) => (
+                                                <option key={status} value={status}>
+                                                    {status}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span onClick={() => handleEdit(item.id, "status", item.status)}
+                                            className="cursor-pointer text-red-500 hover:underline">
+                                            {item.status}
+                                        </span>
+                                    )}
+                                </td>
+                            ),
+                        },
+                        {
+                            key: 'role',
+                            label: 'Atribuição',
+                            render: (item) => (
+                                <td>
+                                    {editingUser?.id === item.id && editingUser?.field === "role" ? (
+                                        <select
+                                            value={editedValue || item.role}
+                                            onChange={(e) => setEditedValue(e.target.value)}
+                                            onBlur={() => handleSave(item.id)}
+                                            className="appearance-auto text-black border-gray-300 rounded-md p-1"
+                                        >
+                                            {roleOptions.map((role) => (
+                                                <option key={role} value={role}>
+                                                    {role === "SUPER_ADMIN"
+                                                        ? "Super administrador"
+                                                        : role === "ADMIN"
+                                                            ? "Administrador"
+                                                            : role === "EMPLOYEE"
+                                                                ? "Empregado"
+                                                                : null}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span onClick={() => handleEdit(item.id, "role", item.role)} className="cursor-pointer text-backgroundButton hover:underline">
+                                            {item.role === "SUPER_ADMIN"
+                                                ? "Super administrador"
+                                                : item.role === "ADMIN"
+                                                    ? "Administrador"
+                                                    : item.role === "EMPLOYEE"
+                                                        ? "Empregado"
+                                                        : null}
+                                        </span>
+                                    )}
+                                </td>
+                            ),
+                        },
+                        {
+                            key: 'mudar_senha',
+                            label: 'Mudar senha',
+                            render: (item) => (
+                                <button
+                                    className='p-1 bg-red-600 text-white text-xs rounded hover:bg-hoverButtonBackground transition duration-300'
+                                    onClick={() => handleOpenModalPassword(item.id)}
                                 >
-                                    <div className="flex flex-col md:flex-row items-center justify-between mb-4">
-                                        <div className="flex items-center">
-                                            {item.image_user ? (
-                                                <Image
-                                                    src={`http://localhost:3333/files/${item.image_user}`}
-                                                    alt="usuario"
-                                                    width={50}
-                                                    height={50}
-                                                    className="rounded-full mr-3 object-cover"
-                                                />
-                                            ) : (
-                                                <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
-                                                    <MdNotInterested color="black" size={25} />
-                                                </div>
-                                            )}
-                                            <p className="text-sm md:text-base">{item.name}</p>
-                                        </div>
-                                        <div className="ml-auto mt-3 md:mt-0">
-                                            <FaTrashAlt
-                                                size={24}
-                                                color="red"
-                                                className="cursor-pointer hover:scale-110 transition-transform"
-                                                onClick={() => handleOpenModalDelete(item.id)}
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-                                        <div className="flex flex-col md:flex-row">
-                                            <p className="mb-3 md:mb-0 md:mr-5">
-                                                Status:{" "}
-                                                {editingUser?.id === item.id && editingUser?.field === "status" ? (
-                                                    <select
-                                                        value={editedValue || item.status}
-                                                        onChange={(e) => setEditedValue(e.target.value)}
-                                                        onBlur={() => handleSave(item.id)}
-                                                        className="appearance-auto text-black border-gray-300 rounded-md p-1"
-                                                    >
-                                                        {statusOptions.map((status) => (
-                                                            <option key={status} value={status}>
-                                                                {status}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                ) : (
-                                                    <span onClick={() => handleEdit(item.id, "status", item.status)} className="cursor-pointer text-backgroundButton hover:underline">
-                                                        {item.status}
-                                                    </span>
-                                                )}
-                                            </p>
-
-                                            <p>
-                                                Atribuição:{" "}
-                                                {editingUser?.id === item.id && editingUser?.field === "role" ? (
-                                                    <select
-                                                        value={editedValue || item.role}
-                                                        onChange={(e) => setEditedValue(e.target.value)}
-                                                        onBlur={() => handleSave(item.id)}
-                                                        className="appearance-auto text-black border-gray-300 rounded-md p-1"
-                                                    >
-                                                        {roleOptions.map((role) => (
-                                                            <option key={role} value={role}>
-                                                                {role === "SUPER_ADMIN"
-                                                                    ? "Super administrador"
-                                                                    : role === "ADMIN"
-                                                                        ? "Administrador"
-                                                                        : role === "EMPLOYEE"
-                                                                            ? "Empregado"
-                                                                            : null}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                ) : (
-                                                    <span onClick={() => handleEdit(item.id, "role", item.role)} className="cursor-pointer text-backgroundButton hover:underline">
-                                                        {item.role === "SUPER_ADMIN"
-                                                            ? "Super administrador"
-                                                            : item.role === "ADMIN"
-                                                                ? "Administrador"
-                                                                : item.role === "EMPLOYEE"
-                                                                    ? "Empregado"
-                                                                    : null}
-                                                    </span>
-                                                )}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <p className='mb-3 md:mb-0 md:mr-5'>Email: <span className="text-backgroundButton">{item.email}</span></p>
-                                    <button
-                                        className='p-2 mt-6 bg-red-600 text-white rounded hover:bg-hoverButtonBackground transition duration-300'
-                                        onClick={() => handleOpenModalPassword(item.id)}
-                                    >
-                                        Mudar senha
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="text-center">Nenhum usuário encontrado.</p>
-                        )}
-
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                        />
-
-                    </Section>
-                </SidebarAndHeader>
-            )}
-            {modalVisible && (
-                <ModalDeleteUser
-                    isOpen={modalVisible}
-                    onRequestClose={handleCloseModalDelete}
-                    delete_user={userId}
-                    onUserDeleted={handleUserDeleted}
-                    nameUser={user?.name}
+                                    Mudar senha
+                                </button>
+                            ),
+                        }
+                    ]}
+                    totalPages={totalPages}
+                    onFetchData={fetchUsers}
+                    availableColumns={availableColumns}
+                    customNames={customNames}
+                    columnsOrder={columnsOrder}
+                    availableColumnsOrder={availableColumnsOrder}
+                    customNamesOrder={customNamesOrder}
                 />
-            )}
+            </Section>
             {modalVisiblePassword && (
                 <ModalPasswordChange
                     isOpen={modalVisiblePassword}
@@ -299,6 +250,6 @@ export default function All_users() {
                     change_password={userId}
                 />
             )}
-        </>
+        </SidebarAndHeader>
     );
 }

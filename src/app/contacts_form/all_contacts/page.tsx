@@ -6,12 +6,13 @@ import { TitlePage } from "@/app/components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import { useState } from "react";
 import DataTable from "@/app/components/dataTable";
+import moment from "moment";
 
 interface ContactsProps {
     id: string;
     name_user: string;
     email_user: string;
-    created_at: string;
+    created_at: string | number | Date;
 }
 
 export default function All_contacts() {
@@ -33,6 +34,35 @@ export default function All_contacts() {
         }
     }
 
+    // ---- COLUNAS PARA EXPORTAÇÂO DE DADOS ---- //
+
+    const availableColumns = ["id", "name_user", "email_user", "subject", "menssage", "created_at"];
+
+    const customNames: any = {
+        id: "ID do formulario",
+        name_user: "Nome do contato",
+        email_user: "Email do contato",
+        subject: "Assunto",
+        menssage: "Mensagem",
+        created_at: "Data de envio"
+    };
+
+    // ---- SELECT PARA ORDENAÇÂO DOS ---- //
+
+    const columnsOrder: any = [
+        { key: "name_user", label: "Nome" },
+        { key: "email_user", label: "Email" },
+        { key: "created_at", label: "Data de Criação" },
+    ];
+
+    const availableColumnsOrder: any = ["name_user", "created_at", "email_user"];
+
+    const customNamesOrder: any = {
+        name_user: "Nome Completo",
+        created_at: "Data de Registro",
+        email_user: "Email"
+    };
+
 
     return (
         <SidebarAndHeader>
@@ -43,7 +73,13 @@ export default function All_contacts() {
                     columns={[
                         { key: "name_user", label: "Nome" },
                         { key: "email_user", label: "Email" },
-                        { key: "created_at", label: "Data de Criação" }
+                        {
+                            key: "created_at",
+                            label: "Data de Criação",
+                            render: (item) => (
+                                <span>{moment(item.created_at).format('DD/MM/YYYY HH:mm')}</span>
+                            ),
+                        },
                     ]}
                     totalPages={totalPages}
                     onFetchData={fetchContacts}
@@ -51,6 +87,11 @@ export default function All_contacts() {
                     url_delete_data="/form_contact/delete_form_contatct"
                     table_data="form_contact"
                     name_file_export="Contatos"
+                    availableColumns={availableColumns}
+                    customNames={customNames}
+                    customNamesOrder={customNamesOrder}
+                    availableColumnsOrder={availableColumnsOrder}
+                    columnsOrder={columnsOrder}
                 />
             </Section>
         </SidebarAndHeader>

@@ -5,15 +5,26 @@ interface ExportDataModalProps {
     isOpen: boolean;
     columns: { key: string; label: string }[];
     selectedColumns: Record<string, { selected: boolean; customName: string }>;
-    formatFile: string;
     onClose: () => void;
-    onFormatChange: (format: string) => void;
     onColumnToggle: (key: string) => void;
     onExport: () => void;
+    customNames: any;
 }
 
-const ExportDataModal: React.FC<ExportDataModalProps> = ({ isOpen, columns, selectedColumns, formatFile, onClose, onFormatChange, onColumnToggle, onExport }) => {
+const ExportDataModal: React.FC<ExportDataModalProps> = ({
+    isOpen,
+    columns,
+    selectedColumns,
+    onClose,
+    onColumnToggle,
+    onExport,
+    customNames = {},
+}) => {
     if (!isOpen) return null;
+
+    const getColumnName = (columnKey: string, defaultLabel: string) => {
+        return customNames[columnKey] || defaultLabel;
+    };
 
     return (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
@@ -30,13 +41,9 @@ const ExportDataModal: React.FC<ExportDataModalProps> = ({ isOpen, columns, sele
                                 checked={selectedColumns[column.key]?.selected || false}
                                 onChange={() => onColumnToggle(column.key)}
                             />
-                            <label className="ml-2 text-black">{column.label}</label>
+                            <label className="ml-2 text-black">{getColumnName(column.key, column.label)}</label>
                         </div>
                     ))}
-                    <select value={formatFile} onChange={(e) => onFormatChange(e.target.value)} className="border p-2 rounded text-black">
-                        <option value="xlsx">Excel XLSX</option>
-                        <option value="csv">Excel CSV</option>
-                    </select>
                 </div>
                 <div className="flex justify-end mt-4">
                     <button onClick={onClose} className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 mr-2">
