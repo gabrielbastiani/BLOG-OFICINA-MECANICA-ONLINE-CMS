@@ -1,5 +1,6 @@
 "use client";
 
+import BulkUser from "@/app/components/bulkUser";
 import { Input } from "@/app/components/input";
 import { LoadingRequest } from "@/app/components/loadingRequest";
 import { Section } from "@/app/components/section";
@@ -122,6 +123,8 @@ export default function Add_user() {
                         <TitlePage title="ADICIONAR USUÁRIO" />
 
                         <div className="flex flex-col space-y-6 w-full max-w-md md:max-w-none">
+
+                            <BulkUser />
 
                             <Input
                                 styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
