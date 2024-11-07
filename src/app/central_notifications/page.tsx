@@ -10,6 +10,7 @@ import moment from "moment";
 import { AuthContext } from "@/contexts/AuthContext";
 import { FaFileExport, FaRegCommentDots, FaRegNewspaper, FaUser } from "react-icons/fa";
 import { MdCategory, MdConnectWithoutContact, MdPostAdd } from "react-icons/md";
+import { toast } from "react-toastify";
 
 interface NotificationProps {
     id: string;
@@ -77,8 +78,10 @@ export default function Central_notifications() {
             setNotification((prev) =>
                 prev.map((notification) => ({ ...notification, read: true }))
             );
+            toast.success("Toadas as suas notificações foram marcadas como lidas");
         } catch (error) {
             console.error("Erro ao marcar todas as notificações como lidas:", error);
+            toast.error("Erro ao marcar todas as notificações como lidas");
         }
     };
 

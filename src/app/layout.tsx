@@ -12,8 +12,8 @@ const geistSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "CMS Blog Builder seu negócio online",
-  description: "Gerenciamento do blog da Builder seu negócio online",
+  title: "Blog Oficina Mecânica Online",
+  description: "Blog da Oficina Mecânica Online",
 };
 
 export default function RootLayout({
