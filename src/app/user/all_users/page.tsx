@@ -128,6 +128,8 @@ export default function All_users() {
             <Section>
                 <TitlePage title="TODOS OS USUÁRIOS" />
                 <DataTable
+                    active_buttons_searchInput={false}
+                    active_export_data={true}
                     url_delete_data="/user/delete_user"
                     table_data="user"
                     name_file_export="Usuários"

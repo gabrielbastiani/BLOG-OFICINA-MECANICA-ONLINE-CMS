@@ -60,7 +60,7 @@ export default function Login() {
             const success = await signIn(dataUser);
 
             if (success) {
-                router.push('/');
+                router.push('/dashboard');
             }
 
             setLoading(false);

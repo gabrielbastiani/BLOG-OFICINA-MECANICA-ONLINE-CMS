@@ -162,15 +162,15 @@ export function SidebarAndHeader({ children }: Content) {
                     <nav className="flex mx-2 flex-col gap-8 text-slate-100">
                         <div className="flex flex-col gap-2 ml-2">
                             <div className="text-white font-semibold uppercase mb-2 ml-2 mt-3">
-                                <Link href="/">
+                                <Link href="/dashboard">
                                     <Image src={logo} width={120} alt="logo" />
                                 </Link>
                             </div>
                         </div>
                         <section className="flex flex-col gap-px">
-                            <Link href="/" className={clsx({
-                                'bg-activeLink rounded p-2 mb-2': currentRoute === "/",
-                                'text-white p-2 mb-2': currentRoute !== "/"
+                            <Link href="/dashboard" className={clsx({
+                                'bg-activeLink rounded p-2 mb-2': currentRoute === "/dashboard",
+                                'text-white p-2 mb-2': currentRoute !== "/dashboard"
                             })}>
                                 Dashboard
                             </Link>

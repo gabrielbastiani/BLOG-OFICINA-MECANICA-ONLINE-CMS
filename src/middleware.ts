@@ -5,10 +5,11 @@ import jwt from 'jsonwebtoken';
 const PUBLIC_ROUTES = [
   '/login',
   '/register',
-  '/recovery_password'
+  '/recovery_password',
+  "/"
 ];
 const PROTECTED_ROUTES = [
-  '/',
+  '/dashboard',
   '/user/profile',
   '/user/all_users',
   '/user/add_user',
@@ -17,7 +18,7 @@ const PROTECTED_ROUTES = [
 ]; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
   SUPER_ADMIN: [
-    '/',
+    '/dashboard',
     '/user/profile',
     '/user/all_users',
     '/user/add_user',
@@ -25,12 +26,12 @@ const ROLE_BASED_ROUTES = {
     '/central_notifications'
   ], // Exemplo de rotas restritas para SUPER_ADMIN
   ADMIN: [
-    '/',
+    '/dashboard',
     '/user/profile',
     '/central_notifications'
   ], // Exemplo de rotas para ADMIN
   EMPLOYEE: [
-    '/',
+    '/dashboard',
     '/user/profile',
     '/central_notifications'
   ], // Exemplo de rotas para EMPLOYEE
@@ -82,6 +83,7 @@ function hasAccessToRoute(userRole: string, pathname: string): boolean {/* @ts-i
 export const config = {
   matcher: [
     '/',
+    '/dashboard',
     '/user/profile',
     '/login',
     '/register',

@@ -24,25 +24,26 @@ const OrderSelect: React.FC<OrderSelectProps> = ({
     );
 
     return (
-        <div className="flex items-center">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 w-full">
             <select
                 value={orderBy}
                 onChange={(e) => onOrderByChange(e.target.value)}
-                className="border p-2 rounded mr-2 text-black"
+                className="border p-2 rounded text-black w-full sm:w-auto"
             >
                 {filteredColumns.map((column) => (
-                    <option className='text-black' key={column.key} value={column.key}>
+                    <option className="text-black" key={column.key} value={column.key}>
                         Ordenar por {customNames?.[column.key] || column.label}
                     </option>
                 ))}
             </select>
+
             <select
                 value={orderDirection}
                 onChange={(e) => onOrderDirectionChange(e.target.value)}
-                className="border p-2 rounded text-black"
+                className="border p-2 rounded text-black w-full sm:w-auto"
             >
-                <option className='text-black' value="asc">Ascendente</option>
-                <option className='text-black' value="desc">Descendente</option>
+                <option className="text-black" value="asc">Ascendente</option>
+                <option className="text-black" value="desc">Descendente</option>
             </select>
         </div>
     );

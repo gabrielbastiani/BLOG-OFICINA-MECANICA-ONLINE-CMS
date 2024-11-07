@@ -92,6 +92,8 @@ export default function All_contacts() {
                     customNamesOrder={customNamesOrder}
                     availableColumnsOrder={availableColumnsOrder}
                     columnsOrder={columnsOrder}
+                    active_export_data={true}
+                    active_buttons_searchInput={false}
                 />
             </Section>
         </SidebarAndHeader>

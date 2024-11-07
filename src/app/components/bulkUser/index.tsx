@@ -1,17 +1,42 @@
+import { AuthContext } from "@/contexts/AuthContext";
 import { setupAPIClient } from "@/services/api";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { toast } from "react-toastify";
 
 const BulkUser = () => {
+
+    const { user } = useContext(AuthContext);
+
     const [file, setFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState<string | null>(null);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             setFile(event.target.files[0]);
-            setError(null);  // Limpa o erro quando o usuário seleciona um arquivo
-            setSuccess(null); // Limpa a mensagem de sucesso
+        }
+    };
+
+    const handleDownload = async () => {
+        setIsLoading(true);
+
+        try {
+            const apiClient = setupAPIClient();
+            const response = await apiClient.get(`/user/download_excel?user_id=${user?.id}`, { responseType: "blob" });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", "modelo_usuarios.xlsx");
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            toast.success("Arquivo Excel pronto para download!");
+        } catch (error) {
+            console.error(error);
+            toast.error("Erro ao gerar o arquivo Excel.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -19,43 +44,52 @@ const BulkUser = () => {
         event.preventDefault();
 
         if (!file) {
-            setError("Por favor, selecione um arquivo.");
+            toast.error("Por favor, selecione um arquivo.");
             return;
         }
 
         setIsLoading(true);
-        setError(null);
-        setSuccess(null);
 
         const formData = new FormData();
-        formData.append("file", file); // Adiciona o arquivo ao formData
+        formData.append("file", file);
 
         try {
             const apiClient = setupAPIClient();
-
-            // Envia o formData com o arquivo para o backend
-            const response = await apiClient.post("/user/bulk_users", formData, {
+            await apiClient.post(`/user/bulk_users?user_id=${user?.id}`, formData, {
                 headers: {
-                    "Content-Type": "multipart/form-data", // Certifica-se de que o tipo de conteúdo é multipart/form-data
+                    "Content-Type": "multipart/form-data",
                 },
             });
 
-            setSuccess("Arquivo carregado com sucesso!");
-            console.log("File uploaded successfully:", response.data);
+            toast.success("Arquivo carregado com sucesso!");
+
         } catch (error) {
-            console.error("Error uploading file:", error);
-            setError("Ocorreu um erro ao carregar o arquivo. Tente novamente.");
+            console.error(error);
+            toast.error("Ocorreu um erro ao carregar o arquivo. Tente novamente.");
         } finally {
             setIsLoading(false);
+            setFile(null);
         }
     };
 
     return (
         <div className="w-full max-w-md md:max-w-none space-y-6">
-            <h2 className="text-xl font-semibold text-gray-800">Upload de Arquivo Excel</h2>
+
+            <h2 className="text-xl font-semibold text-white">Cadastro de usuários em massa</h2>
+
+            <form className="space-y-4">
+                <button
+                    type="button"
+                    onClick={handleDownload}
+                    disabled={isLoading}
+                    className={`px-6 py-3 bg-gray-400 text-white rounded-md hover:bg-hoverButtonBackground transition duration-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                    {isLoading ? "Gerando..." : "Baixar modelo de arquivo"}
+                </button>
+            </form>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
+                <div className="cursor-pointer">
                     <input
                         type="file"
                         accept=".xlsx"
@@ -65,31 +99,20 @@ const BulkUser = () => {
                 </div>
 
                 {file && (
-                    <div className="bg-gray-100 p-2 rounded-md">
+                    <div className="bg-gray-100 p-2 rounded-md w-48">
                         <span className="text-sm text-gray-700">Arquivo Selecionado: <strong>{file.name}</strong></span>
-                    </div>
-                )}
-
-                {error && (
-                    <div className="bg-red-100 text-red-700 p-4 rounded-md">
-                        <p>{error}</p>
-                    </div>
-                )}
-
-                {success && (
-                    <div className="bg-green-100 text-green-700 p-4 rounded-md">
-                        <p>{success}</p>
                     </div>
                 )}
 
                 <button
                     type="submit"
                     disabled={isLoading}
-                    className={`w-full px-6 py-3 bg-backgroundButton text-white rounded-md hover:bg-hoverButtonBackground transition duration-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`px-6 py-3 bg-backgroundButton text-white rounded-md hover:bg-hoverButtonBackground transition duration-300 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
                     {isLoading ? "Carregando..." : "Carregar Arquivo"}
                 </button>
             </form>
+
         </div>
     );
 };

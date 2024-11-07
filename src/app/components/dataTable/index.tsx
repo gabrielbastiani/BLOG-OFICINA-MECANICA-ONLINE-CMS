@@ -16,12 +16,14 @@ interface Column<T> {
 }
 
 interface DataTableProps<T extends { id: string }> {
+    active_buttons_searchInput: boolean;
+    active_export_data: boolean;
     customNamesOrder: {};
     availableColumnsOrder: string[];
     columnsOrder: any;
-    availableColumns: string[];
-    customNames: {};
-    name_file_export: string;
+    availableColumns?: string[];
+    customNames?: {};
+    name_file_export?: string;
     table_data: string;
     url_item_router?: string;
     url_delete_data: string;
@@ -47,6 +49,8 @@ function DataTable<T extends {
     role?: string;
     created_at?: string | number | Date; id: string
 }>({
+    active_buttons_searchInput,
+    active_export_data,
     availableColumnsOrder,
     customNamesOrder,
     columnsOrder,
@@ -198,6 +202,7 @@ function DataTable<T extends {
             <div className="mb-4 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
                 <div className="flex flex-col md:flex-row items-center w-full md:w-auto">
                     <SearchInput
+                        active_buttons_searchInput={active_buttons_searchInput}
                         value={search}
                         onChange={setSearch}
                         onReset={handleResetFilters}
@@ -233,13 +238,17 @@ function DataTable<T extends {
                             )}
                         </div>
                     )}
-                    <ExportDataFunctions
-                        data={data}
-                        table_data={table_data}
-                        name_file_export={name_file_export}
-                        availableColumns={availableColumns}
-                        customNames={customNames}
-                    />
+                    {active_export_data ? (
+                        <ExportDataFunctions
+                            data={data}
+                            table_data={table_data}
+                            name_file_export={name_file_export}
+                            availableColumns={availableColumns}
+                            customNames={customNames}
+                        />
+                    ) :
+                        null
+                    }
                     {modalVisibleDelete && (
                         <ConfirmDeleteModal
                             isOpen={modalVisibleDelete}

@@ -124,8 +124,6 @@ export default function Add_user() {
 
                         <div className="flex flex-col space-y-6 w-full max-w-md md:max-w-none">
 
-                            <BulkUser />
-
                             <Input
                                 styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
                                 type="text"
@@ -202,6 +200,10 @@ export default function Add_user() {
                             >
                                 Cadastrar
                             </button>
+
+                            <hr />
+
+                            <BulkUser />
 
                         </div>
                     </Section>
