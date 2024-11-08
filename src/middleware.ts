@@ -9,6 +9,9 @@ const PUBLIC_ROUTES = [
   "/"
 ];
 const PROTECTED_ROUTES = [
+  '/categories',
+  '/categories/add_category',
+  '/categories/all_categories',
   '/newsletter',
   '/dashboard',
   '/user/profile',
@@ -19,6 +22,9 @@ const PROTECTED_ROUTES = [
 ]; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
   SUPER_ADMIN: [
+    '/categories',
+    '/categories/add_category',
+    '/categories/all_categories',
     '/newsletter',
     '/dashboard',
     '/user/profile',
@@ -28,6 +34,9 @@ const ROLE_BASED_ROUTES = {
     '/central_notifications'
   ], // Exemplo de rotas restritas para SUPER_ADMIN
   ADMIN: [
+    '/categories',
+    '/categories/add_category',
+    '/categories/all_categories',
     '/dashboard',
     '/newsletter',
     '/user/profile',
@@ -38,6 +47,7 @@ const ROLE_BASED_ROUTES = {
   ], // Exemplo de rotas para ADMIN
   EMPLOYEE: [
     '/dashboard',
+    '/categories/all_categories',
     '/user/profile',
     '/central_notifications'
   ], // Exemplo de rotas para EMPLOYEE
@@ -89,6 +99,9 @@ function hasAccessToRoute(userRole: string, pathname: string): boolean {/* @ts-i
 export const config = {
   matcher: [
     '/',
+    '/categories',
+    '/categories/add_category',
+    '/categories/all_categories',
     '/newsletter',
     '/dashboard',
     '/user/profile',

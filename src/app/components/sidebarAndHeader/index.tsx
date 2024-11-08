@@ -252,6 +252,38 @@ export function SidebarAndHeader({ children }: Content) {
                                             Newsletter
                                         </Link>
                                     </div>
+
+                                    <div>
+                                        <button
+                                            onClick={() => handleMenuToggle('categories')}
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'categories' || currentRoute?.includes("/categories"),
+                                                'text-white': openMenu !== 'categories' && !currentRoute?.includes("/categories")
+                                            })}
+                                        >
+                                            Categorias
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': openMenu === 'categories',
+                                                'rotate-0': openMenu !== 'categories'
+                                            })} />
+                                        </button>
+                                        {openMenu === 'categories' && (
+                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/categories/all_categories" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/categories/all_categories",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/all_categories"
+                                                })}>
+                                                    Todos as categorias
+                                                </Link>
+                                                <Link href="/categories/add_category" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/categories/add_category",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/add_category"
+                                                })}>
+                                                    Adicionar nova categoria
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                                 : user?.role === 'ADMIN' ?
                                     <>
@@ -330,33 +362,93 @@ export function SidebarAndHeader({ children }: Content) {
                                                 Newsletter
                                             </Link>
                                         </div>
-                                    </>
-                                    : user?.role === 'EMPLOYEE' ?
+
                                         <div>
                                             <button
-                                                onClick={() => handleMenuToggle('user')}
+                                                onClick={() => handleMenuToggle('categories')}
                                                 className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
-                                                    'bg-activeLink rounded': openMenu === 'user' || currentRoute?.includes("/user"),
-                                                    'text-white': openMenu !== 'user' && !currentRoute?.includes("/user")
+                                                    'bg-activeLink rounded': openMenu === 'categories' || currentRoute?.includes("/categories"),
+                                                    'text-white': openMenu !== 'categories' && !currentRoute?.includes("/categories")
                                                 })}
                                             >
-                                                Usuário
+                                                Categorias
                                                 <CaretRight className={clsx('transition-transform duration-200', {
-                                                    'rotate-90': openMenu === 'user',
-                                                    'rotate-0': openMenu !== 'user'
+                                                    'rotate-90': openMenu === 'categories',
+                                                    'rotate-0': openMenu !== 'categories'
                                                 })} />
                                             </button>
-                                            {openMenu === 'user' && (
+                                            {openMenu === 'categories' && (
                                                 <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
-                                                    <Link href="/user/profile" className={clsx({
-                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
-                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
+                                                    <Link href="/categories/all_categories" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/categories/all_categories",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/all_categories"
                                                     })}>
-                                                        Editar perfil
+                                                        Todos as categorias
+                                                    </Link>
+                                                    <Link href="/categories/add_category" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/categories/add_category",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/add_category"
+                                                    })}>
+                                                        Adicionar nova categoria
                                                     </Link>
                                                 </div>
                                             )}
                                         </div>
+                                    </>
+                                    : user?.role === 'EMPLOYEE' ?
+                                        <>
+                                            <div>
+                                                <button
+                                                    onClick={() => handleMenuToggle('user')}
+                                                    className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                        'bg-activeLink rounded': openMenu === 'user' || currentRoute?.includes("/user"),
+                                                        'text-white': openMenu !== 'user' && !currentRoute?.includes("/user")
+                                                    })}
+                                                >
+                                                    Usuário
+                                                    <CaretRight className={clsx('transition-transform duration-200', {
+                                                        'rotate-90': openMenu === 'user',
+                                                        'rotate-0': openMenu !== 'user'
+                                                    })} />
+                                                </button>
+                                                {openMenu === 'user' && (
+                                                    <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                        <Link href="/user/profile" className={clsx({
+                                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
+                                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
+                                                        })}>
+                                                            Editar perfil
+                                                        </Link>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <button
+                                                    onClick={() => handleMenuToggle('categories')}
+                                                    className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                        'bg-activeLink rounded': openMenu === 'categories' || currentRoute?.includes("/categories"),
+                                                        'text-white': openMenu !== 'categories' && !currentRoute?.includes("/categories")
+                                                    })}
+                                                >
+                                                    Categorias
+                                                    <CaretRight className={clsx('transition-transform duration-200', {
+                                                        'rotate-90': openMenu === 'categories',
+                                                        'rotate-0': openMenu !== 'categories'
+                                                    })} />
+                                                </button>
+                                                {openMenu === 'categories' && (
+                                                    <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                        <Link href="/categories/all_categories" className={clsx({
+                                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/categories/all_categories",
+                                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/all_categories"
+                                                        })}>
+                                                            Todos as categorias
+                                                        </Link>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
                                         :
                                         null
                             }
@@ -383,7 +475,7 @@ export function SidebarAndHeader({ children }: Content) {
 
                     {/* Novo container para o sino e o avatar */}
                     <div className="flex items-center gap-4">
-                    <span>{user?.name}</span>
+                        <span>{user?.name}</span>
                         <div className="relative">
                             <FiBell
                                 size={24}
