@@ -6,9 +6,10 @@ import { LoadingRequest } from "@/app/components/loadingRequest";
 import { Section } from "@/app/components/section";
 import { SidebarAndHeader } from "@/app/components/sidebarAndHeader";
 import { TitlePage } from "@/app/components/titlePage";
+import { AuthContext } from "@/contexts/AuthContext";
 import { setupAPIClient } from "@/services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -23,7 +24,9 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function Add_user() {
-    
+
+    const { user } = useContext(AuthContext);
+
     const [loading, setLoading] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const [generatedPassword, setGeneratedPassword] = useState<string>("");
@@ -35,7 +38,7 @@ export default function Add_user() {
     const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<FormData>({
         resolver: zodResolver(schema),
         mode: "onChange",
-    });    
+    });
 
     function generateComplexPassword(length: number): string {
         const uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -167,12 +170,12 @@ export default function Add_user() {
                             )}
 
                             <label className="flex items-center">
-                            Função:&nbsp;
+                                Função:&nbsp;
                                 <select
                                     onChange={(e) => setRole(e.target.value)}
                                     className="appearance-auto text-black border-gray-300 rounded-md p-1"
                                 >
-                                    <option value="SUPER_ADMIN">Super administrador</option>
+                                    {user?.role === "SUPER_ADMIN" ? <option value="SUPER_ADMIN">Super administrador</option> : null}
                                     <option value="ADMIN">Administrador</option>
                                     <option value="EMPLOYEE">Empregado</option>
                                 </select>
@@ -201,10 +204,15 @@ export default function Add_user() {
                                 Cadastrar
                             </button>
 
-                            <hr />
+                            {user?.role === "SUPER_ADMIN" ?
+                                <>
+                                    <hr />
 
-                            <BulkUser />
-
+                                    <BulkUser />
+                                </>
+                                :
+                                null
+                            }
                         </div>
                     </Section>
                 </SidebarAndHeader>

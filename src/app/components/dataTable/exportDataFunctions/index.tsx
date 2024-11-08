@@ -14,7 +14,7 @@ interface ExportDataProps<T> {
     customNames?: Record<string, string>;
     table_data: string;
     name_file_export?: string;
-    availableColumns?: string[];
+    availableColumns: string[];
 }
 
 const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames = {}, table_data, name_file_export, availableColumns }) => {
@@ -26,7 +26,6 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
     const handleCloseModalExportData = () => setIsModalOpenExportData(false);
 
     const columns: Column<any>[] = Object.keys(data[0] || {})
-        /* @ts-ignore */
         .filter((key) => availableColumns.includes(key))
         .map((key) => ({
             key: key as keyof typeof data[0],
@@ -35,7 +34,7 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
 
     const [selectedColumns, setSelectedColumns] = useState<{
         [key: string]: { selected: boolean; customName: string };
-    }>(/* @ts-ignore */
+    }>(
         availableColumns.reduce((acc, column) => {
             acc[column] = { selected: false, customName: customNames[column] || column };
             return acc;

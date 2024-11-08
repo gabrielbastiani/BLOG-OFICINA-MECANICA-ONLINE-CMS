@@ -1,33 +1,33 @@
-"use client";
+"use client"
 
-import { Section } from "@/app/components/section";
-import { SidebarAndHeader } from "@/app/components/sidebarAndHeader";
-import { TitlePage } from "@/app/components/titlePage";
-import { setupAPIClient } from "@/services/api";
 import { useState } from "react";
-import DataTable from "@/app/components/dataTable";
+import DataTable from "../components/dataTable";
+import { Section } from "../components/section";
+import { SidebarAndHeader } from "../components/sidebarAndHeader";
+import { TitlePage } from "../components/titlePage";
+import { setupAPIClient } from "@/services/api";
 import moment from "moment";
 
-interface ContactsProps {
+interface NewslattersProps {
     id: string;
     name_user: string;
     email_user: string;
     created_at: string | number | Date;
 }
 
-export default function All_contacts() {
+export default function Newsletter() {
 
-    const [contacts, setContacts] = useState<ContactsProps[]>([]);
+    const [newslatters, setNewslatters] = useState<NewslattersProps[]>([]);
     const [totalPages, setTotalPages] = useState(1);
 
     const apiClient = setupAPIClient();
 
-    async function fetchContacts({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
+    async function fetchNewslatters({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
         try {
-            const response = await apiClient.get(`/contacts_form/all_contacts`, {
+            const response = await apiClient.get(`/newsletter/get_newsletters`, {
                 params: { page, limit, search, orderBy, orderDirection, startDate, endDate }
             });
-            setContacts(response.data.contacts);
+            setNewslatters(response.data.newslatters);
             setTotalPages(response.data.totalPages);
         } catch (error) {
             console.log(error);
@@ -36,14 +36,11 @@ export default function All_contacts() {
 
     // ---- COLUNAS PARA EXPORTAÇÂO DE DADOS ---- //
 
-    const availableColumns = ["id", "name_user", "email_user", "subject", "menssage", "created_at"];
+    const availableColumns = ["name_user", "email_user", "created_at"];
 
     const customNames: any = {
-        id: "ID do formulario",
         name_user: "Nome do contato",
         email_user: "Email do contato",
-        subject: "Assunto",
-        menssage: "Mensagem",
         created_at: "Data de envio"
     };
 
@@ -58,18 +55,29 @@ export default function All_contacts() {
     const availableColumnsOrder: any = ["name_user", "created_at", "email_user"];
 
     const customNamesOrder: any = {
-        name_user: "Nome Completo",
+        name_user: "Nome",
         created_at: "Data de Registro",
         email_user: "Email"
     };
 
 
     return (
-        <SidebarAndHeader>
+        <SidebarAndHeader children={
             <Section>
-                <TitlePage title="TODOS OS CONTATOS" />
+
+                <TitlePage title="NEWSLETTER" />
+
                 <DataTable
-                    data={contacts}
+                    name_file_export="newslatter"
+                    modal_delete_bulk={false}
+                    active_buttons_searchInput={false}
+                    active_export_data={true}
+                    customNamesOrder={customNamesOrder}
+                    availableColumnsOrder={availableColumnsOrder}
+                    columnsOrder={columnsOrder}
+                    table_data="newsletter"
+                    url_delete_data="/newsletter/delete_newsletter"
+                    data={newslatters}
                     columns={[
                         { key: "name_user", label: "Nome" },
                         { key: "email_user", label: "Email" },
@@ -82,21 +90,11 @@ export default function All_contacts() {
                         },
                     ]}
                     totalPages={totalPages}
-                    onFetchData={fetchContacts}
-                    url_item_router="/contacts_form/all_contacts"
-                    url_delete_data="/form_contact/delete_form_contatct"
-                    table_data="form_contact"
-                    name_file_export="Contatos"
+                    onFetchData={fetchNewslatters}
                     availableColumns={availableColumns}
                     customNames={customNames}
-                    customNamesOrder={customNamesOrder}
-                    availableColumnsOrder={availableColumnsOrder}
-                    columnsOrder={columnsOrder}
-                    active_export_data={true}
-                    active_buttons_searchInput={false}
-                    modal_delete_bulk={false}
                 />
             </Section>
-        </SidebarAndHeader>
+        } />
     );
 }

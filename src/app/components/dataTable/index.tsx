@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { setupAPIClient } from "@/services/api";
 import { toast } from "react-toastify";
@@ -8,6 +8,8 @@ import SearchInput from "./searchInput";
 import OrderSelect from "./orderSelect";
 import PaginationControls from "./paginationControls";
 import ExportDataFunctions from "./exportDataFunctions";
+import BulkDeleteData from "./bulkDeleteData";
+import { AuthContext } from "@/contexts/AuthContext";
 
 interface Column<T> {
     key: keyof T;
@@ -16,12 +18,13 @@ interface Column<T> {
 }
 
 interface DataTableProps<T extends { id: string }> {
+    modal_delete_bulk: boolean;
     active_buttons_searchInput: boolean;
     active_export_data: boolean;
     customNamesOrder: {};
     availableColumnsOrder: string[];
     columnsOrder: any;
-    availableColumns?: string[];
+    availableColumns: string[];
     customNames?: {};
     name_file_export?: string;
     table_data: string;
@@ -49,6 +52,7 @@ function DataTable<T extends {
     role?: string;
     created_at?: string | number | Date; id: string
 }>({
+    modal_delete_bulk,
     active_buttons_searchInput,
     active_export_data,
     availableColumnsOrder,
@@ -66,6 +70,8 @@ function DataTable<T extends {
     onFetchData,
 }: DataTableProps<T>) {
 
+    const { user } = useContext(AuthContext);
+
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -80,6 +86,9 @@ function DataTable<T extends {
     const [endDate, setEndDate] = useState(searchParams.get("endDate") || "");
     const [isModalOpenTimeData, setIsModalOpenTimeData] = useState(false);
     const handleOpenTimeData = () => setIsModalOpenTimeData(true);
+    const [isModalOpenBulkDeleteData, setIsModalOpenBulkDeleteData] = useState(false);
+    const handleOpenBulkDeleteData = () => setIsModalOpenBulkDeleteData(true);
+    const handleCloseModalBulkDeleteData = () => setIsModalOpenBulkDeleteData(false);
     const handleCloseModalTimeData = () => setIsModalOpenTimeData(false);
 
     useEffect(() => {
@@ -238,6 +247,28 @@ function DataTable<T extends {
                             )}
                         </div>
                     )}
+                    {user?.role === "SUPER_ADMIN" ?
+                        <>
+                            {modal_delete_bulk ?
+                                <>
+                                    <button
+                                        onClick={handleOpenBulkDeleteData}
+                                        className="mt-2 md:mt-0 md:ml-2 p-2 bg-gray-500 text-white rounded w-full md:w-auto"
+                                    >
+                                        Deletar em massa
+                                    </button>
+                                    <BulkDeleteData
+                                        isOpen={isModalOpenBulkDeleteData}
+                                        onClose={handleCloseModalBulkDeleteData}
+                                    />
+                                </>
+                                :
+                                null
+                            }
+                        </>
+                        :
+                        null
+                    }
                     {active_export_data ? (
                         <ExportDataFunctions
                             data={data}

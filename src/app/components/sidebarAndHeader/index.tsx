@@ -175,7 +175,7 @@ export function SidebarAndHeader({ children }: Content) {
                                 Dashboard
                             </Link>
 
-                            {user?.role === 'SUPER_ADMIN' ? (
+                            {user?.role === 'SUPER_ADMIN' ?
                                 <>
                                     <div>
                                         <button
@@ -240,34 +240,126 @@ export function SidebarAndHeader({ children }: Content) {
                                             </div>
                                         )}
                                     </div>
+
+                                    <div>
+                                        <Link
+                                            href="/newsletter"
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'newsletter' || currentRoute?.includes("/newsletter"),
+                                                'text-white': openMenu !== 'newsletter' && !currentRoute?.includes("/newsletter")
+                                            })}
+                                        >
+                                            Newsletter
+                                        </Link>
+                                    </div>
                                 </>
-                            ) : (
-                                <div>
-                                    <button
-                                        onClick={() => handleMenuToggle('user')}
-                                        className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
-                                            'bg-activeLink rounded': openMenu === 'user' || currentRoute?.includes("/user"),
-                                            'text-white': openMenu !== 'user' && !currentRoute?.includes("/user")
-                                        })}
-                                    >
-                                        Usuários
-                                        <CaretRight className={clsx('transition-transform duration-200', {
-                                            'rotate-90': openMenu === 'user',
-                                            'rotate-0': openMenu !== 'user'
-                                        })} />
-                                    </button>
-                                    {openMenu === 'user' && (
-                                        <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
-                                            <Link href="/user/profile" className={clsx({
-                                                'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
-                                                'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
-                                            })}>
-                                                Editar perfil
+                                : user?.role === 'ADMIN' ?
+                                    <>
+                                        <div>
+                                            <button
+                                                onClick={() => handleMenuToggle('users')}
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'users' || currentRoute?.includes("/user"),
+                                                    'text-white': openMenu !== 'users' && !currentRoute?.includes("/user")
+                                                })}
+                                            >
+                                                Usuários
+                                                <CaretRight className={clsx('transition-transform duration-200', {
+                                                    'rotate-90': openMenu === 'users',
+                                                    'rotate-0': openMenu !== 'users'
+                                                })} />
+                                            </button>
+                                            {openMenu === 'users' && (
+                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                    <Link href="/user/all_users" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/all_users",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/user/all_users"
+                                                    })}>
+                                                        Todos os Usuários
+                                                    </Link>
+                                                    <Link href="/user/add_user" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/add_user",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/user/add_user"
+                                                    })}>
+                                                        Adicionar Novo Usuário
+                                                    </Link>
+                                                    <Link href="/user/profile" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
+                                                    })}>
+                                                        Editar perfil
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => handleMenuToggle('contacts')}
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'contacts' || currentRoute?.includes("/contacts_form"),
+                                                    'text-white': openMenu !== 'contacts' && !currentRoute?.includes("/contacts_form")
+                                                })}
+                                            >
+                                                Contatos
+                                                <CaretRight className={clsx('transition-transform duration-200', {
+                                                    'rotate-90': openMenu === 'contacts',
+                                                    'rotate-0': openMenu !== 'contacts'
+                                                })} />
+                                            </button>
+                                            {openMenu === 'contacts' && (
+                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                    <Link href="/contacts_form/all_contacts" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/contacts_form/all_contacts",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/contacts_form/all_contacts"
+                                                    })}>
+                                                        Todos os Contatos
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <Link
+                                                href="/newsletter"
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'newsletter' || currentRoute?.includes("/newsletter"),
+                                                    'text-white': openMenu !== 'newsletter' && !currentRoute?.includes("/newsletter")
+                                                })}
+                                            >
+                                                Newsletter
                                             </Link>
                                         </div>
-                                    )}
-                                </div>
-                            )}
+                                    </>
+                                    : user?.role === 'EMPLOYEE' ?
+                                        <div>
+                                            <button
+                                                onClick={() => handleMenuToggle('user')}
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'user' || currentRoute?.includes("/user"),
+                                                    'text-white': openMenu !== 'user' && !currentRoute?.includes("/user")
+                                                })}
+                                            >
+                                                Usuário
+                                                <CaretRight className={clsx('transition-transform duration-200', {
+                                                    'rotate-90': openMenu === 'user',
+                                                    'rotate-0': openMenu !== 'user'
+                                                })} />
+                                            </button>
+                                            {openMenu === 'user' && (
+                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                    <Link href="/user/profile" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/profile",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/user/profile"
+                                                    })}>
+                                                        Editar perfil
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+                                        :
+                                        null
+                            }
                         </section>
                     </nav>
                 </div>
@@ -291,6 +383,7 @@ export function SidebarAndHeader({ children }: Content) {
 
                     {/* Novo container para o sino e o avatar */}
                     <div className="flex items-center gap-4">
+                    <span>{user?.name}</span>
                         <div className="relative">
                             <FiBell
                                 size={24}
@@ -347,7 +440,7 @@ export function SidebarAndHeader({ children }: Content) {
                         )}
                         {/* Avatar do usuário */}
                         {!loadingAuth && isAuthenticated ? (
-                            <Link href="/user/profile">
+                            <Link href="/user/profile" >
                                 <div className="border-2 rounded-full p-1 border-var(--foreground) overflow-hidden w-[50px] h-[50px] flex items-center justify-center">
                                     {user?.image_user ? (
                                         <Image

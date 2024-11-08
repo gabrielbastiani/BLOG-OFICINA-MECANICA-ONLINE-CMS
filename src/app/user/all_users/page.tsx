@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { setupAPIClient } from "@/services/api";
 import { SidebarAndHeader } from "../../components/sidebarAndHeader";
 import { Section } from "../../components/section";
@@ -11,6 +11,7 @@ import Modal from 'react-modal';
 import { ModalPasswordChange } from "@/app/components/popups/ModalPasswordChange";
 import { MdNotInterested } from "react-icons/md";
 import { toast } from "react-toastify";
+import { AuthContext } from "@/contexts/AuthContext";
 
 interface UsersProps {
     name: string;
@@ -128,6 +129,7 @@ export default function All_users() {
             <Section>
                 <TitlePage title="TODOS OS USUÁRIOS" />
                 <DataTable
+                    modal_delete_bulk={true}
                     active_buttons_searchInput={false}
                     active_export_data={true}
                     url_delete_data="/user/delete_user"
@@ -210,7 +212,8 @@ export default function All_users() {
                                             ))}
                                         </select>
                                     ) : (
-                                        <span onClick={() => handleEdit(item.id, "role", item.role)} className="cursor-pointer text-backgroundButton hover:underline">
+                                        <span onClick={() => handleEdit(item.id, "role", item.role)}
+                                            className="cursor-pointer text-backgroundButton hover:underline">
                                             {item.role === "SUPER_ADMIN"
                                                 ? "Super administrador"
                                                 : item.role === "ADMIN"

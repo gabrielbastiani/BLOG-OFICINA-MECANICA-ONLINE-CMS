@@ -43,22 +43,6 @@ export default function Central_notifications() {
         }
     }
 
-    // ---- SELECT PARA ORDENAÇÂO DOS ---- //
-
-    const columnsOrder: any = [
-        { key: "message", label: "Notificação" },
-        { key: "read", label: "Lida ou não" },
-        { key: "created_at", label: "Data de registro" },
-    ];
-
-    const availableColumnsOrder: any = ["message", "read", "created_at"];
-
-    const customNamesOrder: any = {
-        message: "Notificação",
-        read: "Lida ou não",
-        created_at: "Data de Registro",
-    };
-
     const markAsRead = async (id: string) => {
         try {
             await apiClient.put(`/notifications/mark-read?notificationUser_id=${id}`);
@@ -85,6 +69,22 @@ export default function Central_notifications() {
         }
     };
 
+     // ---- SELECT PARA ORDENAÇÂO DOS ---- //
+
+     const columnsOrder: any = [
+        { key: "message", label: "Notificação" },
+        { key: "read", label: "Lida ou não" },
+        { key: "created_at", label: "Data de registro" },
+    ];
+
+    const availableColumnsOrder: any = ["message", "read", "created_at"];
+
+    const customNamesOrder: any = {
+        message: "Notificação",
+        read: "Lida ou não",
+        created_at: "Data de Registro",
+    };
+
 
     return (
         <SidebarAndHeader children={
@@ -109,15 +109,13 @@ export default function Central_notifications() {
                             label: "Tipo",
                             render: (item) => (
                                 <span>
-                                    {
-                                        item.type === "user" ? <FaUser size={30} color="white" /> :
-                                            item.type === "contact_form" ? <MdConnectWithoutContact size={30} color="white" /> :
-                                                item.type === "post" ? <MdPostAdd size={30} color="white" /> :
-                                                    item.type === "newsletter" ? <FaRegNewspaper size={30} color="white" /> :
-                                                        item.type === "export_data" ? <FaFileExport size={30} color="white" /> :
-                                                            item.type === "comment" ? <FaRegCommentDots size={30} color="white" /> :
-                                                                item.type === "category" ? <MdCategory size={30} color="white" /> : null
-                                    }
+                                    {item.type === "user" ? <FaUser size={30} color="white" /> :
+                                        item.type === "contact_form" ? <MdConnectWithoutContact size={30} color="white" /> :
+                                            item.type === "post" ? <MdPostAdd size={30} color="white" /> :
+                                                item.type === "newsletter" ? <FaRegNewspaper size={30} color="white" /> :
+                                                    item.type === "export_data" ? <FaFileExport size={30} color="white" /> :
+                                                        item.type === "comment" ? <FaRegCommentDots size={30} color="white" /> :
+                                                            item.type === "category" ? <MdCategory size={30} color="white" /> : null}
                                 </span>
                             ),
                         },
@@ -152,6 +150,8 @@ export default function Central_notifications() {
                     columnsOrder={columnsOrder}
                     active_export_data={false}
                     active_buttons_searchInput={true}
+                    modal_delete_bulk={false}
+                    availableColumns={[]}
                 />
             </Section>
         } />
