@@ -22,7 +22,7 @@ const CategoriesList = ({ }: { refetchCategories: () => void }) => {
 
   useEffect(() => {
     const handleRefetch = () => {
-      fetchCategories(); // Recarrega as categorias quando o evento for disparado
+      fetchCategories();
     };
 
     window.addEventListener("refetchCategories", handleRefetch);
