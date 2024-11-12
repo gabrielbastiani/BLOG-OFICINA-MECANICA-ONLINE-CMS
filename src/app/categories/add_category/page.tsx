@@ -36,19 +36,18 @@ export default function AddCategory() {
         mode: "onChange",
     });
 
+    const fetchAvailableCategories = async () => {
+        try {
+            const apiClient = setupAPIClient();
+            const response = await apiClient.get('/category/cms',);
+            setAvailableCategories(response.data.all_categories_disponivel);
+        } catch (error) {
+            console.error("Erro ao carregar categorias:", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchAvailableCategories = async () => {
-            try {
-                const apiClient = setupAPIClient();
-                const response = await apiClient.get('/category/cms',);
-                setAvailableCategories(response.data.all_categories_disponivel);
-            } catch (error) {
-                console.error("Erro ao carregar categorias:", error);
-            }
-        };
-
         fetchAvailableCategories();
-
     }, []);
 
     const onSubmit = async (data: FormData) => {
@@ -63,6 +62,7 @@ export default function AddCategory() {
             toast.success('Categoria cadastrada com sucesso!');
             reset();
             refetchCategories();
+            fetchAvailableCategories();
         } catch (error) {
             toast.error('Erro ao cadastrar a categoria.');
         } finally {
