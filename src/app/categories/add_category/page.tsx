@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
@@ -21,13 +21,35 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function AddCategory() {
+
     const { user } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
+    const [availableCategories, setAvailableCategories] = useState<any[]>([]);
+
+    const refetchCategories = () => {
+        const event = new CustomEvent("refetchCategories");
+        window.dispatchEvent(event);
+    };
 
     const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
         resolver: zodResolver(schema),
         mode: "onChange",
     });
+
+    useEffect(() => {
+        const fetchAvailableCategories = async () => {
+            try {
+                const apiClient = setupAPIClient();
+                const response = await apiClient.get('/category/cms',);
+                setAvailableCategories(response.data.all_categories_disponivel);
+            } catch (error) {
+                console.error("Erro ao carregar categorias:", error);
+            }
+        };
+
+        fetchAvailableCategories();
+
+    }, []);
 
     const onSubmit = async (data: FormData) => {
         setLoading(true);
@@ -40,6 +62,7 @@ export default function AddCategory() {
             });
             toast.success('Categoria cadastrada com sucesso!');
             reset();
+            refetchCategories();
         } catch (error) {
             toast.error('Erro ao cadastrar a categoria.');
         } finally {
@@ -61,19 +84,30 @@ export default function AddCategory() {
                         error={errors.name_category?.message}
                         register={register}
                     />
-                    <Input
-                        styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
-                        type="text"
-                        placeholder="Subcategoria de alguma categoria?..."
-                        name="parentId"
-                        register={register}
-                    />
-                    <button type="submit" disabled={loading} className="mt-4">
+
+                    <div className="mb-4">
+                        <label htmlFor="parentId" className="block text-sm font-medium text-white">Subcategoria de alguma categoria?</label>
+                        <select
+                            {...register("parentId")}
+                            className="border-2 rounded-md h-12 px-3 w-full max-w-sm text-black"
+                            defaultValue=""
+                        >
+                            <option value="" disabled>Selecione uma categoria para se relacionar se desejar...</option>
+                            {availableCategories.map(category => (
+                                <option className="text-black" key={category.id} value={category.id}>
+                                    {category.name_category}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.parentId && <p className="text-red-500 text-xs">{errors.parentId.message}</p>}
+                    </div>
+
+                    <button type="submit" disabled={loading} className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300">
                         {loading ? "Cadastrando..." : "Cadastrar Categoria"}
                     </button>
                 </form>
 
-                <CategoriesList />
+                <CategoriesList refetchCategories={refetchCategories} />
 
             </Section>
         </SidebarAndHeader>
