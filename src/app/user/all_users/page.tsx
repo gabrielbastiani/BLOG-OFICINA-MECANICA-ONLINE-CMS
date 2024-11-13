@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { setupAPIClient } from "@/services/api";
 import { SidebarAndHeader } from "../../components/sidebarAndHeader";
 import { Section } from "../../components/section";
@@ -11,7 +11,6 @@ import Modal from 'react-modal';
 import { ModalPasswordChange } from "@/app/components/popups/ModalPasswordChange";
 import { MdNotInterested } from "react-icons/md";
 import { toast } from "react-toastify";
-import { AuthContext } from "@/contexts/AuthContext";
 
 interface UsersProps {
     name: string;
@@ -36,6 +35,7 @@ export default function All_users() {
     const [editedValue, setEditedValue] = useState<string>("");
     const [all_users, setAll_users] = useState<UsersProps[]>([]);
     const [totalPages, setTotalPages] = useState(1);
+    const [modalImage, setModalImage] = useState<string | null>(null);
 
     const apiClient = setupAPIClient();
 
@@ -94,6 +94,14 @@ export default function All_users() {
         }
     };
 
+    const handleImageClick = (imageUrl: string) => {
+        setModalImage(imageUrl);
+    };
+
+    const handleCloseModal = () => {
+        setModalImage(null);
+    };
+
     // ---- COLUNAS PARA EXPORTAÇÂO DE DADOS ---- //
 
     const availableColumns = ["id", "name", "email", "status", "role", "created_at"];
@@ -148,7 +156,8 @@ export default function All_users() {
                                             alt={item.name}
                                             width={80}
                                             height={80}
-                                            className="w-8 h-8 rounded-full object-cover"
+                                            className="w-8 h-8 rounded-full object-cover cursor-pointer"
+                                            onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_user}`)}
                                         />
                                     ) : (
                                         <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
@@ -247,6 +256,20 @@ export default function All_users() {
                     availableColumnsOrder={availableColumnsOrder}
                     customNamesOrder={customNamesOrder}
                 />
+                {/* Modal for image preview */}
+                {modalImage && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+                        <div className="relative">
+                            <Image src={modalImage} alt="Category Image" width={500} height={500} className="rounded" />
+                            <button
+                                onClick={handleCloseModal}
+                                className="absolute top-0 right-0 mt-2 mr-2 text-white text-2xl font-bold"
+                            >
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                )}
             </Section>
             {modalVisiblePassword && (
                 <ModalPasswordChange

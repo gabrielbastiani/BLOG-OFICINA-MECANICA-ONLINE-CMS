@@ -8,7 +8,7 @@ interface InputProps {
     error?: string;
     rules?: RegisterOptions;
     styles?: string;
-    value?: string;
+    value?: string | number;
 }
 
 export function Input({ name, placeholder, type, register, rules, error, styles, value }: InputProps) {

@@ -216,29 +216,15 @@ export function SidebarAndHeader({ children }: Content) {
                                     </div>
 
                                     <div>
-                                        <button
-                                            onClick={() => handleMenuToggle('contacts')}
+                                        <Link
+                                            href="/contacts_form/all_contacts"
                                             className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
-                                                'bg-activeLink rounded': openMenu === 'contacts' || currentRoute?.includes("/contacts_form"),
-                                                'text-white': openMenu !== 'contacts' && !currentRoute?.includes("/contacts_form")
+                                                'bg-activeLink rounded': openMenu === '/contacts_form/all_contacts' || currentRoute?.includes("/contacts_form/all_contacts"),
+                                                'text-white': openMenu !== '/contacts_form/all_contacts' && !currentRoute?.includes("/contacts_form/all_contacts")
                                             })}
                                         >
                                             Contatos
-                                            <CaretRight className={clsx('transition-transform duration-200', {
-                                                'rotate-90': openMenu === 'contacts',
-                                                'rotate-0': openMenu !== 'contacts'
-                                            })} />
-                                        </button>
-                                        {openMenu === 'contacts' && (
-                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
-                                                <Link href="/contacts_form/all_contacts" className={clsx({
-                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/contacts_form/all_contacts",
-                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/contacts_form/all_contacts"
-                                                })}>
-                                                    Todos os Contatos
-                                                </Link>
-                                            </div>
-                                        )}
+                                        </Link>
                                     </div>
 
                                     <div>
@@ -326,29 +312,15 @@ export function SidebarAndHeader({ children }: Content) {
                                         </div>
 
                                         <div>
-                                            <button
-                                                onClick={() => handleMenuToggle('contacts')}
+                                            <Link
+                                                href="/contacts_form/all_contacts"
                                                 className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
-                                                    'bg-activeLink rounded': openMenu === 'contacts' || currentRoute?.includes("/contacts_form"),
-                                                    'text-white': openMenu !== 'contacts' && !currentRoute?.includes("/contacts_form")
+                                                    'bg-activeLink rounded': openMenu === '/contacts_form/all_contacts' || currentRoute?.includes("/contacts_form/all_contacts"),
+                                                    'text-white': openMenu !== '/contacts_form/all_contacts' && !currentRoute?.includes("/contacts_form/all_contacts")
                                                 })}
                                             >
                                                 Contatos
-                                                <CaretRight className={clsx('transition-transform duration-200', {
-                                                    'rotate-90': openMenu === 'contacts',
-                                                    'rotate-0': openMenu !== 'contacts'
-                                                })} />
-                                            </button>
-                                            {openMenu === 'contacts' && (
-                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
-                                                    <Link href="/contacts_form/all_contacts" className={clsx({
-                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/contacts_form/all_contacts",
-                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/contacts_form/all_contacts"
-                                                    })}>
-                                                        Todos os Contatos
-                                                    </Link>
-                                                </div>
-                                            )}
+                                            </Link>
                                         </div>
 
                                         <div>

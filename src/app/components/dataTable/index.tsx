@@ -164,6 +164,8 @@ function DataTable<T extends {
             const apiClient = setupAPIClient();
             await apiClient.delete(`${url_delete_data}`, {
                 data: {
+                    user_id: user?.id || null,
+                    name: user?.name || null,
                     id_delete: selectdData
                 }
             });
