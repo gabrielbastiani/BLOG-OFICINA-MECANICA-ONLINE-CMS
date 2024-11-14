@@ -3,7 +3,13 @@ import { setupAPIClient } from "@/services/api";
 import { useContext, useState } from "react";
 import { toast } from "react-toastify";
 
-const BulkUser = () => {
+interface BulkProps {
+    link_donwload: string;
+    name_file: string;
+    link_register_data: string;
+}
+
+export function BulkDatas({ link_donwload, name_file, link_register_data }: BulkProps) {
 
     const { user } = useContext(AuthContext);
 
@@ -21,12 +27,12 @@ const BulkUser = () => {
 
         try {
             const apiClient = setupAPIClient();
-            const response = await apiClient.get(`/user/download_excel?user_id=${user?.id}`, { responseType: "blob" });
+            const response = await apiClient.get(`${link_donwload}=${user?.id}`, { responseType: "blob" });
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement("a");
             link.href = url;
-            link.setAttribute("download", "modelo_usuarios.xlsx");
+            link.setAttribute("download", `${name_file}`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -55,7 +61,7 @@ const BulkUser = () => {
 
         try {
             const apiClient = setupAPIClient();
-            await apiClient.post(`/user/bulk_users?user_id=${user?.id}`, formData, {
+            await apiClient.post(`${link_register_data}=${user?.id}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -75,7 +81,7 @@ const BulkUser = () => {
     return (
         <div className="w-full max-w-md md:max-w-none space-y-6">
 
-            <h2 className="text-xl font-semibold text-white">Cadastro de usuários em massa</h2>
+            <h2 className="text-xl font-semibold text-white">Cadastro em massa</h2>
 
             <form className="space-y-4">
                 <button
@@ -117,4 +123,4 @@ const BulkUser = () => {
     );
 };
 
-export default BulkUser;
+export default BulkDatas;

@@ -1,6 +1,6 @@
 "use client";
 
-import BulkUser from "@/app/components/bulkUser";
+import BulkUser, { BulkDatas } from "@/app/components/BulkDatas";
 import { Input } from "@/app/components/input";
 import { LoadingRequest } from "@/app/components/loadingRequest";
 import { Section } from "@/app/components/section";
@@ -208,7 +208,11 @@ export default function Add_user() {
                                 <>
                                     <hr />
 
-                                    <BulkUser />
+                                    <BulkDatas
+                                        link_donwload="/user/download_excel?user_id"
+                                        name_file="modelo_usuarios.xlsx"
+                                        link_register_data="/user/bulk_users?user_id"
+                                    />
                                 </>
                                 :
                                 null

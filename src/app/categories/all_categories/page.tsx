@@ -8,11 +8,12 @@ import { TitlePage } from "@/app/components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import moment from "moment";
-import { useState } from "react";
+import { AwaitedReactNode, JSXElementConstructor, Key, ReactElement, ReactNode, ReactPortal, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { MdNotInterested } from "react-icons/md";
+import noImage from '../../../assets/no-image-icon-6.png';
 
 interface CategoryProps {
     name_category: string;
@@ -23,7 +24,11 @@ interface CategoryProps {
     description: string;
     order: number;
     parentId: string;
-    children: string[];
+    children: {
+        map: any;
+        name_category: string;
+        length: number;
+    }
     created_at: string | number | Date;
 }
 
@@ -43,7 +48,10 @@ export default function All_categories() {
     const [editingCategory, setEditingCategory] = useState<{ id: string, field: string } | null>(null);
     const [editedValue, setEditedValue] = useState<string>("");
     const [modalImage, setModalImage] = useState<string | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [showDescriptionPopup, setShowDescriptionPopup] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [currentCategoryId, setCurrentCategoryId] = useState("");
 
     const { formState: { errors }, reset } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -62,32 +70,30 @@ export default function All_categories() {
         }
     }
 
-    const handleSave = async (id: string) => {
+    console.log(allCategories)
+
+    const handleSave = async (id: string, field: keyof CategoryProps) => {
         try {
             let updatedField: Partial<CategoryProps> = {};
-    
-            if (editingCategory?.field === "name_category") {
+
+            if (field === "name_category") {
                 updatedField = { name_category: editedValue };
-            } else if (editingCategory?.field === "description") {
+            } else if (field === "description") {
                 updatedField = { description: editedValue };
-            } else if (editingCategory?.field === "status") {
+            } else if (field === "status") {
                 updatedField = { status: editedValue };
-            } else if (editingCategory?.field === "order") {
+            } else if (field === "order") {
                 updatedField = { order: Number(editedValue) };
             }
-    
+
             const data = { ...updatedField, category_id: id };
-    
-            // Verifique o que está sendo enviado para o backend
-            console.log("Dados enviados para atualização:", data);
-    
+
             await apiClient.put(`/category/update`, data);
-    
-            // Verifique se o backend retorna alguma confirmação de atualização
+
             setAllCategories((prevCateg) =>
                 prevCateg.map((categ) => (categ.id === id ? { ...categ, ...updatedField } : categ))
             );
-    
+
             setEditingCategory(null);
             setShowDescriptionPopup(null);
             toast.success("Dado atualizado com sucesso");
@@ -95,25 +101,74 @@ export default function All_categories() {
             console.log("Erro ao atualizar a categoria:", error);
             toast.error("Erro ao atualizar o dado!!!");
         }
-    };    
+    };
 
     const handleEdit = (id: string, field: string, currentValue: string) => {
         setEditingCategory({ id, field });
         setEditedValue(currentValue);
     };
 
-    const handleImageClick = (imageUrl: string) => {
+    const handleImageClick = (imageUrl: string, id: string) => {
         setModalImage(imageUrl);
+        setCurrentCategoryId(id);
     };
 
     const handleCloseModal = () => {
         setModalImage(null);
+        setImagePreview(null);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setImagePreview(reader.result as string);
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleDescriptionClick = (id: string, description: string) => {
         setShowDescriptionPopup(id);
-        setEditedValue(description);
+        setEditedValue(description || "");
     };
+
+    const handleDeleteImage = async () => {
+        try {
+            await apiClient.put(`/category/delete_image?category_id=${currentCategoryId}`);
+            setAllCategories((prevCateg) =>
+                prevCateg.map((categ) => (categ.id === currentCategoryId ? { ...categ, image_category: null } : categ))
+            );
+            toast.success("Imagem excluída com sucesso");
+            handleCloseModal();
+        } catch (error) {
+            console.error("Erro ao excluir a imagem:", error);
+            toast.error("Erro ao excluir a imagem");
+        }
+    };
+
+    const handleUpdateImage = async () => {
+        if (fileInputRef.current && fileInputRef.current.files) {
+            const formData = new FormData();
+            formData.append("category_id", currentCategoryId);
+            formData.append("file", fileInputRef.current.files[0]);
+
+            try {
+                const response = await apiClient.put(`/category/update`, formData);
+                const updatedCategory = response.data;
+
+                setAllCategories((prevCateg) =>
+                    prevCateg.map((categ) => (categ.id === currentCategoryId ? { ...categ, image_category: updatedCategory.image_category } : categ))
+                );
+
+                toast.success("Imagem atualizada com sucesso");
+                handleCloseModal();
+            } catch (error) {
+                console.error("Erro ao atualizar a imagem:", error);
+                toast.error("Erro ao atualizar a imagem");
+            }
+        }
+    };
+
 
     return (
         <SidebarAndHeader children={
@@ -161,11 +216,69 @@ export default function All_categories() {
                                             width={100}
                                             height={100}
                                             className="w-8 h-8 rounded-full object-cover cursor-pointer"
-                                            onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_category}`)}
+                                            onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
                                         />
                                     ) : (
                                         <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
-                                            <MdNotInterested color="black" size={25} />
+                                            <MdNotInterested
+                                                className="cursor-pointer"
+                                                color="black"
+                                                size={25}
+                                                onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
+                                            />
+                                        </div>
+                                    )}
+                                    {modalImage && (
+                                        <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+                                            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full relative">
+                                                <button onClick={handleCloseModal} className="absolute top-2 right-2 text-black hover:text-red-600 text-lg">
+                                                    X
+                                                </button>
+                                                <div className="flex justify-center mb-4 w-96 h-96">
+                                                    {modalImage === null ?
+                                                        <Image
+                                                            src={noImage}
+                                                            alt="not"
+                                                            width={400}
+                                                            height={400}
+                                                            className="object-cover rounded-md"
+                                                            style={{ maxWidth: '100%', maxHeight: '100%' }}
+                                                        />
+                                                        :
+                                                        <Image
+                                                            src={imagePreview || modalImage}
+                                                            alt="Imagem da Categoria"
+                                                            width={400}
+                                                            height={400}
+                                                            className="object-cover rounded-md"
+                                                            style={{ maxWidth: '100%', maxHeight: '100%' }}
+                                                        />
+                                                    }
+                                                </div>
+                                                <div className="flex flex-col gap-3">
+                                                    <input
+                                                        ref={fileInputRef}
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="block w-full text-sm text-gray-600 bg-gray-100 border border-gray-300 rounded-lg cursor-pointer p-2 mb-3"
+                                                        onChange={handleFileChange}
+                                                    />
+                                                    <div className="flex justify-around">
+                                                        <button
+                                                            onClick={handleUpdateImage}
+                                                            className="bg-backgroundButton text-white py-2 px-4 rounded-lg hover:bg-hoverButtonBackground transition-colors"
+                                                        >
+                                                            Atualizar Imagem
+                                                        </button>
+                                                        <button
+                                                            onClick={handleDeleteImage}
+                                                            className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-colors"
+                                                        >
+                                                            Deletar Imagem
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     )}
                                 </>
@@ -181,16 +294,16 @@ export default function All_categories() {
                                             type="text"
                                             value={editedValue}
                                             onChange={(e) => setEditedValue(e.target.value)}
-                                            onBlur={() => handleSave(item.id)}
+                                            onBlur={() => handleSave(item.id, "name_category")}
                                             className="border-gray-300 rounded-md p-1 text-black"
                                         />
                                     ) : (
-                                        <span
+                                        <td
                                             onClick={() => handleEdit(item.id, "name_category", item.name_category)}
-                                            className="cursor-pointer hover:underline text-white"
+                                            className="cursor-pointer hover:underline text-white truncate max-w-44"
                                         >
                                             {item.name_category}
-                                        </span>
+                                        </td>
                                     )}
                                 </>
                             ),
@@ -199,12 +312,12 @@ export default function All_categories() {
                             key: "description",
                             label: "Descrição",
                             render: (item) => (
-                                <span
+                                <td
                                     onClick={() => handleDescriptionClick(item.id, item.description || "")}
-                                    className="cursor-pointe text-white hover:underline"
+                                    className="cursor-pointer text-white hover:underline text-xs truncate max-w-32"
                                 >
                                     {item.description ? item.description : "Adicionar descrição"}
-                                </span>
+                                </td>
                             ),
                         },
                         {
@@ -218,18 +331,44 @@ export default function All_categories() {
                                             min={1}
                                             value={editedValue || item.order.toString()}
                                             onChange={(e) => setEditedValue(e.target.value)}
-                                            onBlur={() => handleSave(item.id)}
+                                            onBlur={() => handleSave(item.id, "order")}
                                             className="border-gray-300 rounded-md p-1 text-black"
                                         />
                                     ) : (
-                                        <span
+                                        <td
                                             onClick={() => handleEdit(item.id, "order", item.order.toString())}
                                             className="cursor-pointer text-black hover:underline bg-slate-200 p-2 w-3 rounded"
                                         >
                                             {item.order}
-                                        </span>
+                                        </td>
                                     )}
                                 </td>
+                            ),
+                        },
+                        {
+                            key: 'children',
+                            label: 'Subcategorias',
+                            render: (item: CategoryProps) => (
+                                <>
+                                    {item.children.length === 0 ?
+                                        <td className="text-gray-500">
+                                            Sem subcategoria
+                                        </td>
+                                        :
+                                        <td className="flex flex-wrap space-x-2 max-w-xs">
+                                            {item.children.map((child: { name_category: string }, index: Key | null | undefined) => {
+                                                return (
+                                                    <td
+                                                        key={index}
+                                                        className="p-1 bg-gray-200 rounded-full text-xs whitespace-nowrap text-black"
+                                                    >
+                                                        {child.name_category}
+                                                    </td>
+                                                )
+                                            })}
+                                        </td>
+                                    }
+                                </>
                             ),
                         },
                         {
@@ -241,7 +380,7 @@ export default function All_categories() {
                                         <select
                                             value={editedValue || item.status}
                                             onChange={(e) => setEditedValue(e.target.value)}
-                                            onBlur={() => handleSave(item.id)}
+                                            onBlur={() => handleSave(item.id, "status")}
                                             className="appearance-auto text-black border-gray-300 rounded-md p-1"
                                         >
                                             {statusOptions.map((status) => (
@@ -251,10 +390,10 @@ export default function All_categories() {
                                             ))}
                                         </select>
                                     ) : (
-                                        <span onClick={() => handleEdit(item.id, "status", item.status)}
+                                        <td onClick={() => handleEdit(item.id, "status", item.status)}
                                             className="cursor-pointer text-red-500 hover:underline">
                                             {item.status}
-                                        </span>
+                                        </td>
                                     )}
                                 </td>
                             ),
@@ -263,26 +402,11 @@ export default function All_categories() {
                             key: "created_at",
                             label: "Data de Criação",
                             render: (item) => (
-                                <span>{moment(item.created_at).format('DD/MM/YYYY HH:mm')}</span>
+                                <td>{moment(item.created_at).format('DD/MM/YYYY HH:mm')}</td>
                             ),
                         }
                     ]}
                 />
-
-                {/* Modal for image preview */}
-                {modalImage && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
-                        <div className="relative">
-                            <Image src={modalImage} alt="Category Image" width={500} height={500} className="rounded" />
-                            <button
-                                onClick={handleCloseModal}
-                                className="absolute top-0 right-0 mt-2 mr-2 text-white text-2xl font-bold"
-                            >
-                                &times;
-                            </button>
-                        </div>
-                    </div>
-                )}
                 {/* Popup for editing description */}
                 {showDescriptionPopup && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -302,7 +426,7 @@ export default function All_categories() {
                                     Cancelar
                                 </button>
                                 <button
-                                    onClick={() => handleSave(showDescriptionPopup)}
+                                    onClick={() => handleSave(showDescriptionPopup, "description")}
                                     className="px-4 py-2 text-sm font-semibold text-white bg-backgroundButton rounded-md"
                                 >
                                     Salvar

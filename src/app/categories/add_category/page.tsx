@@ -14,6 +14,7 @@ import { TitlePage } from "@/app/components/titlePage";
 import CategoriesList from "@/app/components/categories/categoriesList";
 import { FiUpload } from "react-icons/fi";
 import Image from "next/image";
+import BulkDatas from "@/app/components/BulkDatas";
 
 const schema = z.object({
     name_category: z.string().nonempty("O campo nome é obrigatório"),
@@ -83,7 +84,7 @@ export default function AddCategory() {
 
             const apiClient = setupAPIClient();
             await apiClient.post('/category/create', formData);
-            
+
             toast.success("Categoria cadastrada com sucesso!");
             reset();
             setAvatarUrl(null);
@@ -101,81 +102,103 @@ export default function AddCategory() {
         <SidebarAndHeader>
             <Section>
                 <TitlePage title="ADICIONAR CATEGORIA" />
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <label className="relative w-full md:w-[300px] h-[200px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden mb-6">
-                        <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black bg-opacity-50 transition-opacity duration-300">
-                            <FiUpload size={30} color="#ff6700" />
-                        </span>
-                        <input
-                            type="file"
-                            accept="image/png, image/jpeg"
-                            onChange={handleFile}
-                            className="hidden"
-                        />
-                        {avatarUrl ? (
-                            <div className="w-full h-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                                <Image
-                                    className="object-cover w-full h-full"
-                                    src={avatarUrl}
-                                    width={300}
-                                    height={200}
-                                    alt="Preview da imagem"
-                                    style={{ objectFit: "cover" }}
-                                />
-                            </div>
-                        ) : (
-                            <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-8xl mx-auto">
+                    {/* Campo de upload de imagem */}
+                    <div className="flex flex-col items-center">
+                        <label className="relative w-full h-[200px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden mb-6">
+                            <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black bg-opacity-50 transition-opacity duration-300">
                                 <FiUpload size={30} color="#ff6700" />
-                            </div>
-                        )}
-                    </label>
-
-                    <Input
-                        styles="border-2 rounded-md h-12 px-3 w-full max-w-sm mb-4"
-                        type="text"
-                        placeholder="Digite um nome..."
-                        name="name_category"
-                        error={errors.name_category?.message}
-                        register={register}
-                    />
-
-                    <textarea
-                        {...register("description")}
-                        className="border-2 rounded-md h-24 px-3 w-full max-w-sm mb-4 resize-none"
-                        placeholder="Digite uma descrição para a categoria..."
-                    />
-                    {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
-
-                    <div className="mb-4">
-                        <label htmlFor="parentId" className="block text-sm font-medium text-white">
-                            Subcategoria de alguma categoria?
+                            </span>
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg"
+                                onChange={handleFile}
+                                className="hidden"
+                            />
+                            {avatarUrl ? (
+                                <div className="w-full h-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                                    <Image
+                                        className="object-cover w-full h-full"
+                                        src={avatarUrl}
+                                        width={250}
+                                        height={200}
+                                        alt="Preview da imagem"
+                                        style={{ objectFit: "cover" }}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                                    <FiUpload size={30} color="#ff6700" />
+                                </div>
+                            )}
                         </label>
-                        <select
-                            {...register("parentId")}
-                            className="border-2 rounded-md h-12 px-3 w-full max-w-sm text-black"
-                            defaultValue=""
-                        >
-                            <option value="" disabled>
-                                Selecione uma categoria para se relacionar se desejar...
-                            </option>
-                            {availableCategories.map(category => (
-                                <option className="text-black" key={category.id} value={category.id}>
-                                    {category.name_category}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.parentId && <p className="text-red-500 text-xs">{errors.parentId.message}</p>}
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
-                    >
-                        {loading ? "Cadastrando..." : "Cadastrar Categoria"}
-                    </button>
-                </form>
+                    {/* Nome da categoria e Subcategoria (segunda coluna) */}
+                    <div className="flex flex-col gap-4">
+                        {/* Nome da categoria */}
+                        <Input
+                            styles="border-2 rounded-md h-12 px-3 w-full"
+                            type="text"
+                            placeholder="Digite um nome..."
+                            name="name_category"
+                            error={errors.name_category?.message}
+                            register={register}
+                        />
 
+                        {/* Select para Subcategoria */}
+                        <div>
+                            <label htmlFor="parentId" className="block text-sm font-medium text-white">
+                                Subcategoria de alguma categoria?
+                            </label>
+                            <select
+                                {...register("parentId")}
+                                className="border-2 rounded-md h-12 px-3 w-full text-black"
+                                defaultValue=""
+                            >
+                                <option value="" disabled>
+                                    Selecione uma categoria para se relacionar se desejar...
+                                </option>
+                                {availableCategories.map(category => (
+                                    <option className="text-black" key={category.id} value={category.id}>
+                                        {category.name_category}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.parentId && <p className="text-red-500 text-xs">{errors.parentId.message}</p>}
+                        </div>
+                    </div>
+
+                    {/* Campo de Descrição (textarea) ocupando a terceira coluna */}
+                    <div>
+                        <textarea
+                            {...register("description")}
+                            className="border-2 rounded-md h-56 px-3 w-full resize-none"
+                            placeholder="Digite uma descrição para a categoria..."
+                        />
+                        {errors.description && <p className="text-red-500 text-xs">{errors.description.message}</p>}
+                    </div>
+
+                    {/* Componente BulkDatas (quarta coluna) */}
+                    <div>
+                        <BulkDatas
+                            link_donwload={""}
+                            name_file={""}
+                            link_register_data={""}
+                        />
+                    </div>
+
+                    {/* Botão de envio ocupando toda a largura abaixo dos campos */}
+                    <div className="col-span-1 md:col-span-4">
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
+                        >
+                            {loading ? "Cadastrando..." : "Cadastrar Categoria"}
+                        </button>
+                    </div>
+                </form>
                 <CategoriesList refetchCategories={refetchCategories} />
             </Section>
         </SidebarAndHeader>
