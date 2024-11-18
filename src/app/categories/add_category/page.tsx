@@ -14,7 +14,7 @@ import { TitlePage } from "@/app/components/titlePage";
 import CategoriesList from "@/app/components/categories/categoriesList";
 import { FiUpload } from "react-icons/fi";
 import Image from "next/image";
-import BulkDatas from "@/app/components/BulkDatas";
+import BulkDatas from "@/app/components/bulkDatas";
 
 const schema = z.object({
     name_category: z.string().nonempty("O campo nome é obrigatório"),

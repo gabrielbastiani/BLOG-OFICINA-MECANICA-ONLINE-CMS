@@ -270,6 +270,38 @@ export function SidebarAndHeader({ children }: Content) {
                                             </div>
                                         )}
                                     </div>
+
+                                    <div>
+                                        <button
+                                            onClick={() => handleMenuToggle('tags')}
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'tags' || currentRoute?.includes("/tags"),
+                                                'text-white': openMenu !== 'tags' && !currentRoute?.includes("/tags")
+                                            })}
+                                        >
+                                            Tags
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': openMenu === 'tags',
+                                                'rotate-0': openMenu !== 'tags'
+                                            })} />
+                                        </button>
+                                        {openMenu === 'tags' && (
+                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/tags/all_tags" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/all_tags",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/all_tags"
+                                                })}>
+                                                    Todos as tags
+                                                </Link>
+                                                <Link href="/tags/add_tag" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/add_tag",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/add_tag"
+                                                })}>
+                                                    Adicionar nova tag
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                                 : user?.role === 'ADMIN' ?
                                     <>
@@ -362,6 +394,38 @@ export function SidebarAndHeader({ children }: Content) {
                                                         'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/add_category"
                                                     })}>
                                                         Adicionar nova categoria
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => handleMenuToggle('tags')}
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'tags' || currentRoute?.includes("/tags"),
+                                                    'text-white': openMenu !== 'tags' && !currentRoute?.includes("/tags")
+                                                })}
+                                            >
+                                                Tags
+                                                <CaretRight className={clsx('transition-transform duration-200', {
+                                                    'rotate-90': openMenu === 'tags',
+                                                    'rotate-0': openMenu !== 'tags'
+                                                })} />
+                                            </button>
+                                            {openMenu === 'tags' && (
+                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                    <Link href="/tags/all_tags" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/all_tags",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/all_tags"
+                                                    })}>
+                                                        Todos as tags
+                                                    </Link>
+                                                    <Link href="/tags/add_tag" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/add_tag",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/add_tag"
+                                                    })}>
+                                                        Adicionar nova tag
                                                     </Link>
                                                 </div>
                                             )}

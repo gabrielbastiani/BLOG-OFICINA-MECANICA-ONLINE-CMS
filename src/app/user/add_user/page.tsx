@@ -1,6 +1,6 @@
 "use client";
 
-import BulkUser, { BulkDatas } from "@/app/components/BulkDatas";
+import { BulkDatas } from "@/app/components/bulkDatas";
 import { Input } from "@/app/components/input";
 import { LoadingRequest } from "@/app/components/loadingRequest";
 import { Section } from "@/app/components/section";
