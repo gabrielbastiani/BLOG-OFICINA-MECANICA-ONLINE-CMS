@@ -1,6 +1,6 @@
 import { AuthContext } from "@/contexts/AuthContext";
 import { setupAPIClient } from "@/services/api";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface BulkProps {
@@ -15,6 +15,11 @@ export function BulkDatas({ link_donwload, name_file, link_register_data }: Bulk
 
     const [file, setFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -104,9 +109,11 @@ export function BulkDatas({ link_donwload, name_file, link_register_data }: Bulk
                     />
                 </div>
 
-                {file && (
+                {isMounted && file && (
                     <div className="bg-gray-100 p-2 rounded-md w-48">
-                        <span className="text-sm text-gray-700">Arquivo Selecionado: <strong>{file.name}</strong></span>
+                        <span className="text-sm text-gray-700">
+                            Arquivo Selecionado: <strong>{file.name}</strong>
+                        </span>
                     </div>
                 )}
 

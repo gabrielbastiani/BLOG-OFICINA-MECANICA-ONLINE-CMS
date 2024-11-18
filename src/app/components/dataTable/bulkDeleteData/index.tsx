@@ -7,9 +7,11 @@ import { toast } from "react-toastify";
 interface BulkDataProps {
     isOpen: boolean;
     onClose: () => void;
+    delete_bulk_data: string;
+    generate_excel_delete: string;
 }
 
-const BulkDeleteData: React.FC<BulkDataProps> = ({ isOpen, onClose }) => {
+const BulkDeleteData: React.FC<BulkDataProps> = ({ isOpen, onClose, delete_bulk_data, generate_excel_delete }) => {
 
     if (!isOpen) return null;
 
@@ -29,12 +31,12 @@ const BulkDeleteData: React.FC<BulkDataProps> = ({ isOpen, onClose }) => {
 
         try {
             const apiClient = setupAPIClient();
-            const response = await apiClient.get(`/user/download_excel_delete_users?user_id=${user?.id}`, { responseType: "blob" });
+            const response = await apiClient.get(`${generate_excel_delete}=${user?.id}`, { responseType: "blob" });
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement("a");
             link.href = url;
-            link.setAttribute("download", "modelo_delete_usuarios.xlsx");
+            link.setAttribute("download", "modelo_de dados.xlsx");
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -45,6 +47,7 @@ const BulkDeleteData: React.FC<BulkDataProps> = ({ isOpen, onClose }) => {
             toast.error("Erro ao gerar o arquivo Excel.");
         } finally {
             setIsLoading(false);
+            onClose();
         }
     };
 
@@ -63,7 +66,7 @@ const BulkDeleteData: React.FC<BulkDataProps> = ({ isOpen, onClose }) => {
 
         try {
             const apiClient = setupAPIClient();
-            await apiClient.post(`/user/bulk_delete_users?user_id=${user?.id}`, formData, {
+            await apiClient.post(`${delete_bulk_data}=${user?.id}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -77,6 +80,7 @@ const BulkDeleteData: React.FC<BulkDataProps> = ({ isOpen, onClose }) => {
         } finally {
             setIsLoading(false);
             setFile(null);
+            onClose();
         }
     };
 

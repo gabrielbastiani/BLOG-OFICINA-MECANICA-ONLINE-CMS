@@ -176,7 +176,9 @@ export default function All_categories() {
                 <TitlePage title="TODAS AS CATEGORIAS" />
 
                 <DataTable
-                    modal_delete_bulk={false}
+                    generate_excel_delete="/category/download_excel_delete_category?user_id"
+                    delete_bulk_data="/category/bulk_delete_category?user_id"
+                    modal_delete_bulk={true}
                     active_buttons_searchInput={false}
                     active_export_data={true}
                     customNames={{

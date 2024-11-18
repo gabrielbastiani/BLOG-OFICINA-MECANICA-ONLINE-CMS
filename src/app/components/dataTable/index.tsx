@@ -18,6 +18,8 @@ interface Column<T> {
 }
 
 interface DataTableProps<T extends { id: string }> {
+    generate_excel_delete: string;
+    delete_bulk_data: string;
     modal_delete_bulk: boolean;
     active_buttons_searchInput: boolean;
     active_export_data: boolean;
@@ -52,6 +54,8 @@ function DataTable<T extends {
     role?: string;
     created_at?: string | number | Date; id: string
 }>({
+    generate_excel_delete,
+    delete_bulk_data,
     modal_delete_bulk,
     active_buttons_searchInput,
     active_export_data,
@@ -260,8 +264,10 @@ function DataTable<T extends {
                                         Deletar em massa
                                     </button>
                                     <BulkDeleteData
+                                        generate_excel_delete={generate_excel_delete}
                                         isOpen={isModalOpenBulkDeleteData}
                                         onClose={handleCloseModalBulkDeleteData}
+                                        delete_bulk_data={delete_bulk_data}
                                     />
                                 </>
                                 :

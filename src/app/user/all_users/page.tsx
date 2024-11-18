@@ -137,6 +137,8 @@ export default function All_users() {
             <Section>
                 <TitlePage title="TODOS OS USUÁRIOS" />
                 <DataTable
+                    generate_excel_delete="/user/download_excel_delete_users?user_id"
+                    delete_bulk_data="/user/bulk_delete_users?user_id"
                     modal_delete_bulk={true}
                     active_buttons_searchInput={false}
                     active_export_data={true}
