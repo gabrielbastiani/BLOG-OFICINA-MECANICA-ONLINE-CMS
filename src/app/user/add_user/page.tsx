@@ -199,6 +199,11 @@ export default function Add_user() {
 
                             <button
                                 onClick={handleSubmit(onSubmit)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleSubmit(onSubmit);
+                                    }
+                                }}
                                 className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
                             >
                                 Cadastrar

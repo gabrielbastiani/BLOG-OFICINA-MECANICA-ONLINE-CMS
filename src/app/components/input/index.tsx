@@ -11,7 +11,7 @@ interface InputProps {
     value?: string | number;
 }
 
-export function Input({ name, placeholder, type, register, rules, error, styles, value }: InputProps) {
+export function Input({ name, placeholder, type, register, rules, error, styles, value, ...rest }: InputProps) {
     return (
         <div>
             <input
@@ -20,6 +20,7 @@ export function Input({ name, placeholder, type, register, rules, error, styles,
                 placeholder={placeholder}
                 type={type}
                 {...register(name, rules)}
+                {...rest}
                 id={name}
                 style={{ color: 'black' }}
             />

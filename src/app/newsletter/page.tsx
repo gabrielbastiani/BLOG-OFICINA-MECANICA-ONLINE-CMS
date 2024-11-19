@@ -93,6 +93,8 @@ export default function Newsletter() {
                     onFetchData={fetchNewslatters}
                     availableColumns={availableColumns}
                     customNames={customNames}
+                    generate_excel_delete={""}
+                    delete_bulk_data={""}
                 />
             </Section>
         } />

@@ -70,8 +70,6 @@ export default function All_categories() {
         }
     }
 
-    console.log(allCategories)
-
     const handleSave = async (id: string, field: keyof CategoryProps) => {
         try {
             let updatedField: Partial<CategoryProps> = {};

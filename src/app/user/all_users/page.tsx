@@ -181,6 +181,11 @@ export default function All_users() {
                                             value={editedValue || item.status}
                                             onChange={(e) => setEditedValue(e.target.value)}
                                             onBlur={() => handleSave(item.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleSave(item.id);
+                                                }
+                                            }}
                                             className="appearance-auto text-black border-gray-300 rounded-md p-1"
                                         >
                                             {statusOptions.map((status) => (

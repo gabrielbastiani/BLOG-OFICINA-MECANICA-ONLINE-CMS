@@ -95,6 +95,8 @@ export default function All_contacts() {
                     active_export_data={true}
                     active_buttons_searchInput={false}
                     modal_delete_bulk={false}
+                    generate_excel_delete={""}
+                    delete_bulk_data={""}
                 />
             </Section>
         </SidebarAndHeader>

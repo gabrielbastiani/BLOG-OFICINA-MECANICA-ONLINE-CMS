@@ -40,7 +40,7 @@ export default function Add_tag() {
             });
 
             toast.success('Cadastro de tag feito com sucesso!');
-            reset();
+            reset({ tag_name: "" });
         } catch (error) {
             if (error instanceof Error && 'response' in error && error.response) {
                 console.log((error as any).response.data);
@@ -49,9 +49,9 @@ export default function Add_tag() {
                 console.error(error);
                 toast.error('Erro ao cadastrar.');
             }
+            reset({ tag_name: "" });
         } finally {
             setLoading(false);
-            reset();
         }
     }
 
@@ -75,6 +75,11 @@ export default function Add_tag() {
 
                             <button
                                 onClick={handleSubmit(onSubmit)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleSubmit(onSubmit);
+                                    }
+                                }}
                                 className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
                             >
                                 {loading ? "Cadastrando..." : "Cadastrar"}
@@ -85,9 +90,9 @@ export default function Add_tag() {
                                     <hr />
 
                                     <BulkDatas
-                                        link_donwload="/user/download_excel?user_id"
-                                        name_file="modelo_usuarios.xlsx"
-                                        link_register_data="/user/bulk_users?user_id"
+                                        link_donwload="/tag/donwload_excel_tag?user_id"
+                                        name_file="modelo_tags.xlsx"
+                                        link_register_data="/tag/bulk_tags?user_id"
                                     />
                                 </>
                                 :
