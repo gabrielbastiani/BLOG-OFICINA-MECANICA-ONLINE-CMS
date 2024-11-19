@@ -55,7 +55,7 @@ export default function Add_tag() {
         }
     }
 
-    
+
 
     return (
         <SidebarAndHeader>
@@ -64,41 +64,41 @@ export default function Add_tag() {
 
                 <div className="flex flex-col space-y-6 w-full max-w-md md:max-w-none">
 
-                            <Input
-                                styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
-                                type="text"
-                                placeholder="Nome da tag..."
-                                name="tag_name"
-                                error={errors.tag_name?.message}
-                                register={register}
-                            />
+                    <Input
+                        styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
+                        type="text"
+                        placeholder="Nome da tag..."
+                        name="tag_name"
+                        error={errors.tag_name?.message}
+                        register={register}
+                    />
 
-                            <button
-                                onClick={handleSubmit(onSubmit)}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        handleSubmit(onSubmit);
-                                    }
-                                }}
-                                className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
-                            >
-                                {loading ? "Cadastrando..." : "Cadastrar"}
-                            </button>
-
-                            {user?.role === "SUPER_ADMIN" ?
-                                <>
-                                    <hr />
-
-                                    <BulkDatas
-                                        link_donwload="/tag/donwload_excel_tag?user_id"
-                                        name_file="modelo_tags.xlsx"
-                                        link_register_data="/tag/bulk_tags?user_id"
-                                    />
-                                </>
-                                :
-                                null
+                    <button
+                        onClick={handleSubmit(onSubmit)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSubmit(onSubmit);
                             }
-                        </div>
+                        }}
+                        className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
+                    >
+                        {loading ? "Cadastrando..." : "Cadastrar"}
+                    </button>
+
+                    {user?.role === "SUPER_ADMIN" ?
+                        <>
+                            <hr />
+
+                            <BulkDatas
+                                link_donwload="/tag/donwload_excel_tag?user_id"
+                                name_file="modelo_tags.xlsx"
+                                link_register_data="/tag/bulk_tags?user_id"
+                            />
+                        </>
+                        :
+                        null
+                    }
+                </div>
             </Section>
         </SidebarAndHeader>
     )

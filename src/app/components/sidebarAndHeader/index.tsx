@@ -302,6 +302,38 @@ export function SidebarAndHeader({ children }: Content) {
                                             </div>
                                         )}
                                     </div>
+
+                                    <div>
+                                        <button
+                                            onClick={() => handleMenuToggle('posts')}
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'posts' || currentRoute?.includes("/posts"),
+                                                'text-white': openMenu !== 'posts' && !currentRoute?.includes("/posts")
+                                            })}
+                                        >
+                                            Posts
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': openMenu === 'posts',
+                                                'rotate-0': openMenu !== 'posts'
+                                            })} />
+                                        </button>
+                                        {openMenu === 'posts' && (
+                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/posts/all_posts" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/all_posts",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/all_posts"
+                                                })}>
+                                                    Todos os posts
+                                                </Link>
+                                                <Link href="/posts/add_post" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/add_post",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/add_post"
+                                                })}>
+                                                    Adicionar novo post
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                                 : user?.role === 'ADMIN' ?
                                     <>
@@ -401,6 +433,38 @@ export function SidebarAndHeader({ children }: Content) {
 
                                         <div>
                                             <button
+                                                onClick={() => handleMenuToggle('posts')}
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'posts' || currentRoute?.includes("/posts"),
+                                                    'text-white': openMenu !== 'posts' && !currentRoute?.includes("/posts")
+                                                })}
+                                            >
+                                                Posts
+                                                <CaretRight className={clsx('transition-transform duration-200', {
+                                                    'rotate-90': openMenu === 'posts',
+                                                    'rotate-0': openMenu !== 'posts'
+                                                })} />
+                                            </button>
+                                            {openMenu === 'posts' && (
+                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                    <Link href="/posts/all_posts" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/all_posts",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/all_posts"
+                                                    })}>
+                                                        Todos os posts
+                                                    </Link>
+                                                    <Link href="/posts/add_post" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/add_post",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/add_post"
+                                                    })}>
+                                                        Adicionar novo post
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
                                                 onClick={() => handleMenuToggle('tags')}
                                                 className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
                                                     'bg-activeLink rounded': openMenu === 'tags' || currentRoute?.includes("/tags"),
@@ -480,6 +544,38 @@ export function SidebarAndHeader({ children }: Content) {
                                                             'text-white p-2 mb-2 text-sm': currentRoute !== "/categories/all_categories"
                                                         })}>
                                                             Todos as categorias
+                                                        </Link>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div>
+                                                <button
+                                                    onClick={() => handleMenuToggle('posts')}
+                                                    className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                        'bg-activeLink rounded': openMenu === 'posts' || currentRoute?.includes("/posts"),
+                                                        'text-white': openMenu !== 'posts' && !currentRoute?.includes("/posts")
+                                                    })}
+                                                >
+                                                    Posts
+                                                    <CaretRight className={clsx('transition-transform duration-200', {
+                                                        'rotate-90': openMenu === 'posts',
+                                                        'rotate-0': openMenu !== 'posts'
+                                                    })} />
+                                                </button>
+                                                {openMenu === 'posts' && (
+                                                    <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                        <Link href="/posts/all_posts" className={clsx({
+                                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/all_posts",
+                                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/all_posts"
+                                                        })}>
+                                                            Todos os posts
+                                                        </Link>
+                                                        <Link href="/posts/add_post" className={clsx({
+                                                            'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/add_post",
+                                                            'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/add_post"
+                                                        })}>
+                                                            Adicionar novo post
                                                         </Link>
                                                     </div>
                                                 )}
