@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Section } from "@/app/components/section";
 import { SidebarAndHeader } from "@/app/components/sidebarAndHeader";
@@ -6,81 +6,81 @@ import { TitlePage } from "@/app/components/titlePage";
 import { AuthContext } from "@/contexts/AuthContext";
 import { setupAPIClient } from "@/services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useContext, useEffect, useState } from "react";
+import { ChangeEvent, useContext, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiUpload } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import Image from "next/image";
-import { Input } from "@/app/components/input";
-import { Editor } from '@tinymce/tinymce-react';
-import { useRef } from 'react';
+import Select from "react-select";
+import { Editor } from "@tinymce/tinymce-react";
 
 interface FormDataProps {
     title: string;
     image_post?: string;
     description?: string;
-    status?: string; // Adicione as propriedades que você precisa
+    status?: string;
     publish_at?: string;
-    categories?: number[];
+    categories?: string[];
     tags?: string[];
 }
 
 interface Category {
-    id: number;
+    id: string;
     name_category: string;
 }
 
 interface Tag {
-    id: number;
+    id: string;
     tag_name: string;
 }
 
-/* type FormFields = {
-    title: string;
-    image_post?: string;
-    description?: string;
-    status?: string;
-    publish_at?: string;
-    categories?: number[];
-    tags?: string[];
-}; */
-
 const schema = z.object({
-    title: z.string().nonempty("O titulo é obrigatório"),
+    title: z.string().nonempty("O título é obrigatório"),
     image_post: z.string().optional(),
     text_post: z.string().optional(),
-    status: z.enum(["Disponivel", "Indisponivel"]),
+    status: z.enum(["Disponivel", "Indisponivel"], {
+        errorMap: () => ({ message: "Selecione um status válido" }),
+    }),
     publish_at: z.string().optional(),
-    categories: z.array(z.number()).optional(),
+    categories: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
-export default function Add_post() {
-
+export default function AddPost() {
     const editorRef = useRef<any>(null);
-
     const { user } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState<Category[]>([]);
     const [tags, setTags] = useState<Tag[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [image_post, setImage_post] = useState<File | null>(null);
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<FormData>({
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+    } = useForm<FormData>({
         resolver: zodResolver(schema),
         mode: "onChange",
     });
 
     useEffect(() => {
         async function fetchData() {
-            const apiClient = setupAPIClient();
-            const categoriesResponse = await apiClient.get('/category/cms');
-            const tagsResponse = await apiClient.get('/tag/all_tags');
-            setCategories(categoriesResponse.data.all_categories_disponivel);
-            setTags(tagsResponse.data.tags);
+            try {
+                const apiClient = setupAPIClient();
+                const categoriesResponse = await apiClient.get("/category/cms");
+                const tagsResponse = await apiClient.get("/tag/all_tags");
+                setCategories(categoriesResponse.data.all_categories_disponivel);
+                setTags(tagsResponse.data.tags);
+            } catch (error) {
+                toast.error("Erro ao carregar categorias e tags.");
+            }
         }
         fetchData();
     }, []);
@@ -94,48 +94,46 @@ export default function Add_post() {
         if (image.type === "image/jpeg" || image.type === "image/png") {
             setImage_post(image);
             setAvatarUrl(URL.createObjectURL(image));
-            console.log("Imagem carregada:", image); // Adicionado para depuração
         } else {
             toast.error("Formato de imagem inválido. Selecione uma imagem JPEG ou PNG.");
         }
     }
 
     const onSubmit = async (data: FormDataProps) => {
-        console.log("Dados do formulário:", data);
         setLoading(true);
         try {
             const content = editorRef.current?.getContent();
-            if (!content) {
+            if (!content || content.trim() === "") {
                 toast.error("O conteúdo do post não pode estar vazio!");
                 setLoading(false);
                 return;
             }
 
             const formData = new FormData();
-
-            console.log(Array.from(formData.entries()));
-
-
             formData.append("author", user?.name || "");
             formData.append("title", data.title);
-            formData.append("text_post", editorRef.current?.getContent());
+            formData.append("text_post", content);
             formData.append("status", data.status || "");
             formData.append("publish_at", data.publish_at || "");
-            formData.append("categories", JSON.stringify(data.categories || []));
-            formData.append("tags", JSON.stringify(data.tags || []));
+            formData.append("categories", JSON.stringify(selectedCategories));
+            formData.append("tags", JSON.stringify(selectedTags));
 
             if (image_post) {
                 formData.append("file", image_post);
             }
 
             const apiClient = setupAPIClient();
-            await apiClient.post('/post/create_post', formData);
+            await apiClient.post("/post/create_post", formData);
 
             toast.success("Post cadastrado com sucesso!");
             reset();
-
+            setAvatarUrl(null);
+            setImage_post(null);
+            editorRef.current?.setContent("");
+            setSelectedCategories([]);
+            setSelectedTags([]);
         } catch (error) {
-            toast.error("Erro ao cadastrar a categoria.");
+            toast.error("Erro ao cadastrar o post.");
         } finally {
             setLoading(false);
         }
@@ -145,115 +143,93 @@ export default function Add_post() {
         <SidebarAndHeader>
             <Section>
                 <TitlePage title="CADASTRAR POST" />
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <label className="relative w-full h-[200px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden mb-6">
-                        <span className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 bg-black bg-opacity-50 transition-opacity duration-300">
-                            <FiUpload size={30} color="#ff6700" />
-                        </span>
-                        <input
-                            type="file"
-                            accept="image/png, image/jpeg"
-                            onChange={handleFile}
-                            className="hidden"
-                        />
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    {/* Input para Imagem */}
+                    <label className="relative w-full h-[200px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden">
+                        <input type="file" accept="image/png, image/jpeg" onChange={handleFile} className="hidden" />
                         {avatarUrl ? (
-                            <div className="w-full h-full bg-gray-300 flex items-center justify-center overflow-hidden">
-                                <Image
-                                    className="object-cover w-full h-full"
-                                    src={avatarUrl}
-                                    width={250}
-                                    height={200}
-                                    alt="Preview da imagem"
-                                    style={{ objectFit: "cover" }}
-                                />
-                            </div>
+                            <Image src={avatarUrl} alt="Preview da imagem" width={250} height={200} className="object-cover w-full h-full" />
                         ) : (
-                            <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                            <div className="flex items-center justify-center w-full h-full bg-gray-300">
                                 <FiUpload size={30} color="#ff6700" />
                             </div>
                         )}
                     </label>
 
-                    <Input
-                        styles="border-2 rounded-md h-12 px-3 w-full text-black"
-                        type="text"
-                        placeholder="Digite um titulo..."
-                        name="title"
-                        error={errors.title?.message}
-                        register={register}
-                    />
-
-                    <select
-                        multiple
-                        {...register("categories", { required: true })}
-                        className="border-2 rounded-md h-12 px-3 w-full text-black"
-                    >
-                        {categories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                                {category.name_category}
-                            </option>
-                        ))}
-                    </select>
-
-                    <select
-                        multiple
-                        {...register("tags", { required: true })}
-                        className="border-2 rounded-md h-12 px-3 w-full text-black"
-                    >
-                        {tags.map((tag) => (
-                            <option key={tag.id} value={tag.id}>
-                                {tag.tag_name}
-                            </option>
-                        ))}
-                    </select>
-
-
-                    <select
-                        {...register("status", { required: true })}
-                        className="border-2 rounded-md h-12 px-3 w-full text-black"
-                    >
-                        <option value="">Selecione o status</option>
-                        <option value="Disponivel">Disponível</option>
-                        <option value="Indisponivel">Indisponível</option>
-                    </select>
-
+                    {/* Input para Título */}
                     <input
-                        type="datetime-local"
-                        {...register("publish_at", { required: true })}
-                        className="border-2 rounded-md h-12 px-3 w-full text-black"
+                        type="text"
+                        placeholder="Digite um título..."
+                        {...register("title")}
+                        className="w-full border-2 rounded-md px-3 py-2 text-black"
                     />
 
+                    {/* Seletores em linha */}
+                    <div className="grid grid-cols-2 gap-4">
+                        <Select
+                            options={categories.map((cat) => ({ value: cat.id, label: cat.name_category }))}
+                            isMulti
+                            placeholder="Selecione categorias"
+                            className="basic-multi-select text-black z-10"
+                            classNamePrefix="select"
+                            onChange={(selected) =>
+                                setSelectedCategories(selected.map((item: any) => item.value))
+                            }
+                        />
+                        <Select
+                            options={tags.map((tag) => ({ value: tag.id, label: tag.tag_name }))}
+                            isMulti
+                            placeholder="Selecione tags"
+                            className="basic-multi-select text-black z-10"
+                            classNamePrefix="select"
+                            onChange={(selected) =>
+                                setSelectedTags(selected.map((item: any) => item.value))
+                            }
+                        />
+                        <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
+                            <option value="">Selecione o status</option>
+                            <option value="Disponivel">Disponível</option>
+                            <option value="Indisponivel">Indisponível</option>
+                        </select>
+                        <input type="datetime-local" {...register("publish_at")} className="border-2 rounded-md px-3 py-2 text-black" />
+                    </div>
 
+                    {/* Editor de texto */}
                     <Editor
-                        apiKey='3uadxc7du623dpn0gcvz8d1520ngvsigncyxnuj5f580qyz4'
+                        apiKey="3uadxc7du623dpn0gcvz8d1520ngvsigncyxnuj5f580qyz4"
                         onInit={(evt, editor) => (editorRef.current = editor)}
                         initialValue="<p>Digite seu conteúdo aqui...</p>"
                         init={{
                             height: 500,
-                            menubar: false,
-                            plugins: [
-                                'advlist autolink lists link image charmap preview anchor',
-                                'searchreplace visualblocks code fullscreen',
-                                'insertdatetime media table paste code help wordcount'
+                            menubar: true,
+                            plugins: ["link", "lists", "image", "media", "advlist autolink lists link image charmap preview anchor",
+                                "searchreplace visualblocks code fullscreen",
+                                "insertdatetime media table paste code help wordcount",
+                                "emoticons template codesample",],
+                            toolbar: "undo redo | formatselect | bold italic | bold italic backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image emoticons | table codesample | preview help",
+                            codesample_languages: [
+                                { text: "HTML/XML", value: "markup" },
+                                { text: "JavaScript", value: "javascript" },
+                                { text: "CSS", value: "css" },
+                                { text: "PHP", value: "php" },
+                                { text: "Ruby", value: "ruby" },
+                                { text: "Python", value: "python" },
                             ],
-                            toolbar:
-                                'undo redo | formatselect | bold italic backcolor | \
-                        alignleft aligncenter alignright alignjustify | \
-                        bullist numlist outdent indent | removeformat | help',
+                            content_style: "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
                         }}
                     />
 
+                    {/* Botão de cadastro */}
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`w-full px-6 py-3 text-white rounded transition duration-300 ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-backgroundButton hover:bg-hoverButtonBackground"
+                        className={`fixed right-10 bottom-10 px-6 py-3 rounded bg-backgroundButton text-white ${loading ? "opacity-50" : "hover:bg-hoverButtonBackground"
                             }`}
                     >
                         {loading ? "Cadastrando..." : "Cadastrar Post"}
                     </button>
-
                 </form>
             </Section>
         </SidebarAndHeader>
-    )
+    );
 }
