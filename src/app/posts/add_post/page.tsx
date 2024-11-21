@@ -126,12 +126,12 @@ export default function AddPost() {
             await apiClient.post("/post/create_post", formData);
 
             toast.success("Post cadastrado com sucesso!");
+            setSelectedCategories([]);
+            setSelectedTags([]);
             reset();
             setAvatarUrl(null);
             setImage_post(null);
             editorRef.current?.setContent("");
-            setSelectedCategories([]);
-            setSelectedTags([]);
         } catch (error) {
             toast.error("Erro ao cadastrar o post.");
         } finally {
@@ -145,7 +145,7 @@ export default function AddPost() {
                 <TitlePage title="CADASTRAR POST" />
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                     {/* Input para Imagem */}
-                    <label className="relative w-full h-[200px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden">
+                    <label className="relative w-full h-[450px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden">
                         <input type="file" accept="image/png, image/jpeg" onChange={handleFile} className="hidden" />
                         {avatarUrl ? (
                             <Image src={avatarUrl} alt="Preview da imagem" width={250} height={200} className="object-cover w-full h-full" />
@@ -167,7 +167,7 @@ export default function AddPost() {
                     {/* Seletores em linha */}
                     <div className="grid grid-cols-2 gap-4">
                         <Select
-                            options={categories.map((cat) => ({ value: cat.id, label: cat.name_category }))}
+                            options={categories.map((cat, index) => ({ key: index, value: cat.id, label: cat.name_category }))}
                             isMulti
                             placeholder="Selecione categorias"
                             className="basic-multi-select text-black z-10"
@@ -177,7 +177,7 @@ export default function AddPost() {
                             }
                         />
                         <Select
-                            options={tags.map((tag) => ({ value: tag.id, label: tag.tag_name }))}
+                            options={tags.map((tag, index) => ({ key: index, value: tag.id, label: tag.tag_name }))}
                             isMulti
                             placeholder="Selecione tags"
                             className="basic-multi-select text-black z-10"
@@ -191,7 +191,16 @@ export default function AddPost() {
                             <option value="Disponivel">Disponível</option>
                             <option value="Indisponivel">Indisponível</option>
                         </select>
-                        <input type="datetime-local" {...register("publish_at")} className="border-2 rounded-md px-3 py-2 text-black" />
+
+                        <label>
+                            Agende sua postagem: &nbsp;&nbsp;
+                            <input
+                            type="datetime-local"
+                            {...register("publish_at")}
+                            className="border-2 rounded-md px-3 py-2 text-black"
+                        />
+                            </label>
+                        
                     </div>
 
                     {/* Editor de texto */}
@@ -223,7 +232,7 @@ export default function AddPost() {
                     <button
                         type="submit"
                         disabled={loading}
-                        className={`fixed right-10 bottom-10 px-6 py-3 rounded bg-backgroundButton text-white ${loading ? "opacity-50" : "hover:bg-hoverButtonBackground"
+                        className={`fixed right-10 bottom-10 px-6 py-3 z-10 rounded bg-backgroundButton text-white ${loading ? "opacity-50" : "hover:bg-hoverButtonBackground z-10"
                             }`}
                     >
                         {loading ? "Cadastrando..." : "Cadastrar Post"}
