@@ -14,6 +14,7 @@ import { z } from "zod";
 import Image from "next/image";
 import Select from "react-select";
 import { Editor } from "@tinymce/tinymce-react";
+import BulkDatas from "@/app/components/bulkDatas";
 
 interface FormDataProps {
     title: string;
@@ -195,12 +196,12 @@ export default function AddPost() {
                         <label>
                             Agende sua postagem: &nbsp;&nbsp;
                             <input
-                            type="datetime-local"
-                            {...register("publish_at")}
-                            className="border-2 rounded-md px-3 py-2 text-black"
-                        />
-                            </label>
-                        
+                                type="datetime-local"
+                                {...register("publish_at")}
+                                className="border-2 rounded-md px-3 py-2 text-black"
+                            />
+                        </label>
+
                     </div>
 
                     {/* Editor de texto */}
@@ -238,6 +239,14 @@ export default function AddPost() {
                         {loading ? "Cadastrando..." : "Cadastrar Post"}
                     </button>
                 </form>
+
+                <hr className="mt-6 mb-6" />
+
+                <BulkDatas
+                    link_donwload="/post/donwload_excel_posts?user_id"
+                    name_file="posts.xlsx"
+                    link_register_data="/post/bulk_posts?user_id"
+                />
             </Section>
         </SidebarAndHeader>
     );

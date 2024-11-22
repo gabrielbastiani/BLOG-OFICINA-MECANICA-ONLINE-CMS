@@ -26,11 +26,21 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
     const handleCloseModalExportData = () => setIsModalOpenExportData(false);
 
     const columns: Column<any>[] = Object.keys(data[0] || {})
+    .filter((key) => availableColumns.includes(key) || (table_data === 'posts' && ['categories', 'tags'].includes(key)))
+    .map((key) => ({
+        key: key as keyof typeof data[0],
+        label: customNames[key] || key,
+    }));
+
+    console.log(columns)
+
+
+    /* const columns: Column<any>[] = Object.keys(data[0] || {})
         .filter((key) => availableColumns.includes(key))
         .map((key) => ({
             key: key as keyof typeof data[0],
             label: customNames[key] || key,
-        }));
+        })); */
 
     const [selectedColumns, setSelectedColumns] = useState<{
         [key: string]: { selected: boolean; customName: string };
@@ -73,7 +83,7 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
                 tableName: table_data,
                 columns: columnsKeys,
                 format: "xlsx",
-                customColumnNames, // Passando os nomes personalizados aqui
+                customColumnNames,
             }, { responseType: 'blob' });
     
             const url = window.URL.createObjectURL(new Blob([response.data]));
