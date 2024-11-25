@@ -26,21 +26,11 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
     const handleCloseModalExportData = () => setIsModalOpenExportData(false);
 
     const columns: Column<any>[] = Object.keys(data[0] || {})
-    .filter((key) => availableColumns.includes(key) || (table_data === 'posts' && ['categories', 'tags'].includes(key)))
-    .map((key) => ({
-        key: key as keyof typeof data[0],
-        label: customNames[key] || key,
-    }));
-
-    console.log(columns)
-
-
-    /* const columns: Column<any>[] = Object.keys(data[0] || {})
         .filter((key) => availableColumns.includes(key))
         .map((key) => ({
             key: key as keyof typeof data[0],
             label: customNames[key] || key,
-        })); */
+        }));
 
     const [selectedColumns, setSelectedColumns] = useState<{
         [key: string]: { selected: boolean; customName: string };
@@ -76,7 +66,7 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
             acc[column.key] = selectedColumns[column.key].customName || column.key;
             return acc;
         }, {} as { [key: string]: string });
-    
+
         try {
             const response = await apiClient.post('/export_data', {
                 user_id: user?.id,
@@ -85,24 +75,24 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
                 format: "xlsx",
                 customColumnNames,
             }, { responseType: 'blob' });
-    
+
             const url = window.URL.createObjectURL(new Blob([response.data]));
-    
+
             const a = document.createElement('a');
             a.href = url;
             a.download = `${name_file_export}.xlsx`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-    
+
             toast.success("Dados exportados com sucesso");
             handleCloseModalExportData();
-    
+
         } catch (error) {
             console.error(error);
             toast.error("Erro ao exportar os dados");
         }
-    };    
+    };
 
 
     return (
