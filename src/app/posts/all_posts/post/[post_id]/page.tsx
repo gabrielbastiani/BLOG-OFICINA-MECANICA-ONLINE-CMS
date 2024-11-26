@@ -14,15 +14,19 @@ import Select from "react-select";
 import { Editor } from "@tinymce/tinymce-react";
 
 interface FormDataProps {
-    author: string;
-    title: string;
+    categories?: {
+        category: { id: string; name_category: string };
+    }[];
+    tags?: {
+        tag: { id: string; tag_name: string }
+    }[];
+    author?: string;
+    title?: string;
     image_post?: string;
     text_post?: string;
     status?: string;
     publish_at?: string;
-    categories?: string[];
-    tags?: string[];
-    created_at: string;
+    created_at?: string;
 }
 
 interface Author {
@@ -90,20 +94,32 @@ export default function Post({ params }: { params: { post_id: string } }) {
                     ]);
 
                 setAllAuthors(authorsResponse.data.all_autor);
+
                 const postData = postResponse.data.unique_post;
                 setDataPost(postData);
-                setAvatarUrl(postData.image_post || null);
-                setSelectedAuthor(postData.author || null);
-                setSelectedCategories(postData.categories || []);
-                setSelectedTags(postData.tags || []);
+
+                setSelectedCategories(
+                    postData.categories?.map((cat: { category: { id: any } }) => cat.category.id) || []
+                );
+
+                setSelectedTags(
+                    postData.tags?.map((tag: { tag: { id: any } }) => tag.tag.id) || []
+                );
+
                 setCategories(categoriesResponse.data.all_categories_disponivel);
                 setTags(tagsResponse.data.tags);
+
+                setAvatarUrl(postData.image_post || null);
+                setSelectedAuthor(postData.author || null);
 
                 reset({
                     title: postData.title,
                     status: postData.status,
-                    publish_at: postData.publish_at,
+                    publish_at: postData.publish_at
+                        ? new Date(postData.publish_at).toISOString().slice(0, 16)
+                        : "",
                 });
+
                 if (editorRef.current) {
                     editorRef.current.setContent(postData.text_post || "");
                 }
@@ -141,11 +157,11 @@ export default function Post({ params }: { params: { post_id: string } }) {
 
             const formData = new FormData();
             formData.append("post_id", params.post_id);
-            formData.append("author", selectedAuthor || "");
+            formData.append("author", selectedAuthor ?? "");
             formData.append("title", data.title);
             formData.append("text_post", content);
             formData.append("status", data.status || "");
-            formData.append("publish_at", data.publish_at || "");
+            formData.append("publish_at", data.publish_at ? new Date(data.publish_at).toISOString() : "");
             formData.append("categories", JSON.stringify(selectedCategories));
             formData.append("tags", JSON.stringify(selectedTags));
 
@@ -164,19 +180,20 @@ export default function Post({ params }: { params: { post_id: string } }) {
         }
     };
 
+
+
     return (
         <SidebarAndHeader>
             <Section>
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Input para Imagem */}
                     <label className="relative w-full h-[450px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden">
                         <input type="file" accept="image/png, image/jpeg" onChange={handleFile} className="hidden" />
                         {avatarUrl ? (
                             <Image
-                            src={`http://localhost:3333/files/${dataPost?.image_post}` || avatarUrl}
+                                src={imagePost ? avatarUrl : `http://localhost:3333/files/${avatarUrl}`}
                                 alt="Preview da imagem"
-                                width={250}
-                                height={200}
+                                width={450}
+                                height={300}
                                 className="object-cover w-full h-full"
                             />
                         ) : (
@@ -186,73 +203,132 @@ export default function Post({ params }: { params: { post_id: string } }) {
                         )}
                     </label>
 
-                    {/* Input para Autor */}
-                    <Select
-                        options={allAuthors.map((author) => ({ value: author.name, label: author.name }))}
+                    <label>
+                        Autor:
+                        <Select
+                        options={allAuthors.map((author) => ({
+                            value: author.name,
+                            label: author.name,
+                        }))}
                         placeholder="Selecione um autor"
-                        value={selectedAuthor ? { value: selectedAuthor, label: allAuthors.find((a) => a.id === selectedAuthor)?.name } : null}
+                        value={selectedAuthor ? { value: selectedAuthor, label: selectedAuthor } : null}
                         onChange={(selected) => setSelectedAuthor(selected?.value || null)}
-                        className="w-full border-2 rounded-md px-3 py-2 text-black"
+                        className="w-full rounded-md px-3 py-2 text-black placeholder-black z-50"
                     />
+                    </label>
 
-                    {/* Input para Título */}
-                    <input
+                    <label>
+                        Titulo:
+                        <input
                         type="text"
                         placeholder="Digite um título..."
                         {...register("title")}
-                        defaultValue={dataPost?.title || ""}
                         className="w-full border-2 rounded-md px-3 py-2 text-black"
                     />
+                    </label>
 
-                    {/* Seletores */}
                     <div className="grid grid-cols-2 gap-4">
-                        <Select
-                            options={categories.map((cat) => ({ value: cat.id, label: cat.name_category }))}
+
+                        <label>
+                            Categorias:
+                            <Select
+                            className="text-black z-40"
+                            options={categories.map((cat) => ({
+                                value: cat.id,
+                                label: cat.name_category,
+                            }))}
                             isMulti
                             placeholder="Selecione categorias"
-                            value={selectedCategories.map((id) => ({
-                                value: id,
-                                label: categories.find((cat) => cat.id === id)?.name_category || id,
-                            }))}
-                            onChange={(selected) => setSelectedCategories(selected.map((item) => item.value))}
+                            value={
+                                dataPost?.categories
+                                    ? dataPost.categories.map((cat) => ({
+                                        value: cat.category.id,
+                                        label: cat.category.name_category,
+                                    }))
+                                    : []
+                            }
+                            onChange={(selected) => {
+                                const updatedCategories = selected.map((item) => ({
+                                    category: { id: item.value, name_category: item.label },
+                                }));
+                                const categoryIds = updatedCategories.map(item => item.category.id);
+                                setSelectedCategories(categoryIds)
+                                setDataPost((prev) =>
+                                    prev
+                                        ? {
+                                            ...prev,
+                                            categories: updatedCategories,
+                                        }
+                                        : null
+                                );
+                            }}
                         />
-                        <Select
-                            options={tags.map((tag) => ({ value: tag.id, label: tag.tag_name }))}
+                        </label>
+
+                        <label>
+                            Tags:
+                            <Select
+                            className="text-black z-40"
+                            options={tags.map((tag) => ({
+                                value: tag.id,
+                                label: tag.tag_name,
+                            }))} // Opções disponíveis para seleção
                             isMulti
                             placeholder="Selecione tags"
-                            value={selectedTags.map((id) => ({
-                                value: id,
-                                label: tags.find((tag) => tag.id === id)?.tag_name || id,
-                            }))}
-                            onChange={(selected) => setSelectedTags(selected.map((item) => item.value))}
+                            value={
+                                dataPost?.tags
+                                    ? dataPost.tags.map((ta) => ({
+                                        value: ta.tag.id,
+                                        label: ta.tag.tag_name,
+                                    }))
+                                    : [] // Garante que não haverá erro caso tags seja null/undefined
+                            }
+                            onChange={(selected) => {
+                                const updatedTags = selected.map((item) => ({
+                                    tag: { id: item.value, tag_name: item.label },
+                                }));
+                                const tagIds = updatedTags.map(item => item.tag.id);
+                                setSelectedTags(tagIds)
+                                setDataPost((prev) =>
+                                    prev
+                                        ? {
+                                            ...prev,
+                                            tags: updatedTags,
+                                        }
+                                        : null
+                                );
+                            }}
                         />
+                        </label>
                     </div>
 
-                    {/* Status */}
-                    <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
+                    <div className="mt-8">
+                    <label>
+                        Status:&nbsp;&nbsp;
+                        <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
                         <option value="">Selecione o status</option>
                         <option value="Disponivel">Disponível</option>
                         <option value="Indisponivel">Indisponível</option>
                     </select>
+                    </label>
+                    </div>
 
-                    {/* Data de Publicação */}
                     <label className="block">
                         Agende sua postagem:
                         <input
                             type="datetime-local"
                             {...register("publish_at")}
-                            defaultValue={dataPost?.publish_at ? new Date(dataPost.publish_at).toISOString().slice(0, -1) : ""}
-                            className="border-2 rounded-md px-3 py-2 text-black"
+                            className="w-full border-2 rounded-md px-3 py-2 text-black"
                         />
+
                     </label>
 
-                    {/* Editor de texto */}
                     <Editor
-                        apiKey="3uadxc7du623dpn0gcvz8d1520ngvsigncyxnuj5f580qyz4"
+                        apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
                         onInit={(evt, editor) => (editorRef.current = editor)}
                         initialValue={dataPost?.text_post || "<p>Digite seu conteúdo aqui...</p>"}
                         init={{
-                            height: 500,
+                            height: 800,
                             menubar: true,
                             plugins: ["link", "lists", "image", "media", "advlist autolink lists link image charmap preview anchor",
                                 "searchreplace visualblocks code fullscreen",
@@ -271,17 +347,15 @@ export default function Post({ params }: { params: { post_id: string } }) {
                         }}
                     />
 
-                    {/* Botão de envio */}
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-orange-500 px-4 py-2 rounded-lg text-white hover:bg-orange-600 transition disabled:opacity-50"
+                        className={`fixed right-10 bottom-10 w-36 z-50 py-3 text-white ${loading ? "bg-gray-500" : "bg-red-600 hover:bg-orange-600"} rounded-md`}
                     >
                         {loading ? "Atualizando..." : "Atualizar Post"}
                     </button>
                 </form>
             </Section>
         </SidebarAndHeader>
-
     );
 }
