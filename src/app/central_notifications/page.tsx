@@ -8,7 +8,7 @@ import { TitlePage } from "../components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import moment from "moment";
 import { AuthContext } from "@/contexts/AuthContext";
-import { FaFileExport, FaRegCommentDots, FaRegNewspaper, FaUser } from "react-icons/fa";
+import { FaFileExport, FaRegCommentDots, FaRegNewspaper, FaTags, FaUser } from "react-icons/fa";
 import { MdCategory, MdConnectWithoutContact, MdPostAdd } from "react-icons/md";
 import { toast } from "react-toastify";
 
@@ -69,9 +69,9 @@ export default function Central_notifications() {
         }
     };
 
-     // ---- SELECT PARA ORDENAÇÂO DOS ---- //
+    // ---- SELECT PARA ORDENAÇÂO DOS ---- //
 
-     const columnsOrder: any = [
+    const columnsOrder: any = [
         { key: "message", label: "Notificação" },
         { key: "read", label: "Lida ou não" },
         { key: "created_at", label: "Data de registro" },
@@ -115,7 +115,8 @@ export default function Central_notifications() {
                                                 item.type === "newsletter" ? <FaRegNewspaper size={30} color="white" /> :
                                                     item.type === "export_data" ? <FaFileExport size={30} color="white" /> :
                                                         item.type === "comment" ? <FaRegCommentDots size={30} color="white" /> :
-                                                            item.type === "category" ? <MdCategory size={30} color="white" /> : null}
+                                                            item.type === "tag" ? <FaTags size={30} color="white" /> :
+                                                                item.type === "category" ? <MdCategory size={30} color="white" /> : null}
                                 </span>
                             ),
                         },
@@ -152,6 +153,8 @@ export default function Central_notifications() {
                     active_buttons_searchInput={true}
                     modal_delete_bulk={false}
                     availableColumns={[]}
+                    generate_excel_delete=""
+                    delete_bulk_data=""
                 />
             </Section>
         } />

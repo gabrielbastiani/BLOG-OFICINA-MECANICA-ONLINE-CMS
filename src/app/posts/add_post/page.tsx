@@ -78,7 +78,7 @@ export default function AddPost() {
                 const categoriesResponse = await apiClient.get("/category/cms");
                 const tagsResponse = await apiClient.get("/tag/all_tags");
                 setCategories(categoriesResponse.data.all_categories_disponivel);
-                setTags(tagsResponse.data.tags);
+                setTags(tagsResponse.data.tags_all);
             } catch (error) {
                 toast.error("Erro ao carregar categorias e tags.");
             }
@@ -110,6 +110,12 @@ export default function AddPost() {
                 return;
             }
 
+            if (data.status === "") {
+                toast.error("Escolha um status para o seu post!!!");
+                setLoading(false);
+                return;
+            }
+
             const formData = new FormData();
             formData.append("author", user?.name || "");
             formData.append("title", data.title);
@@ -134,6 +140,7 @@ export default function AddPost() {
             setImage_post(null);
             editorRef.current?.setContent("");
         } catch (error) {
+            console.log(error)
             toast.error("Erro ao cadastrar o post.");
         } finally {
             setLoading(false);

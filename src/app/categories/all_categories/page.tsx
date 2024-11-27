@@ -8,12 +8,13 @@ import { TitlePage } from "@/app/components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
 import moment from "moment";
-import { Key, useRef, useState } from "react";
+import { Key, useContext, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { MdNotInterested } from "react-icons/md";
 import noImage from '../../../assets/no-image-icon-6.png';
+import { AuthContext } from "@/contexts/AuthContext";
 
 interface CategoryProps {
     name_category: string;
@@ -41,6 +42,8 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function All_categories() {
+
+    const { user } = useContext(AuthContext);
     const apiClient = setupAPIClient();
 
     const [allCategories, setAllCategories] = useState<CategoryProps[]>([]);
@@ -216,7 +219,7 @@ export default function All_categories() {
                                             width={100}
                                             height={100}
                                             className="w-8 h-8 rounded-full object-cover cursor-pointer"
-                                            onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
+                                            onClick={() => user?.role === "EMPLOYEE" ? "" : handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
                                         />
                                     ) : (
                                         <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
@@ -224,7 +227,7 @@ export default function All_categories() {
                                                 className="cursor-pointer"
                                                 color="black"
                                                 size={25}
-                                                onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
+                                                onClick={() => user?.role === "EMPLOYEE" ? "" : handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
                                             />
                                         </div>
                                     )}
@@ -299,7 +302,7 @@ export default function All_categories() {
                                         />
                                     ) : (
                                         <td
-                                            onClick={() => handleEdit(item.id, "name_category", item.name_category)}
+                                            onClick={() => user?.role === "EMPLOYEE" ? "" : handleEdit(item.id, "name_category", item.name_category)}
                                             className="cursor-pointer hover:underline text-white truncate max-w-44"
                                         >
                                             {item.name_category}
@@ -313,7 +316,7 @@ export default function All_categories() {
                             label: "Descrição",
                             render: (item) => (
                                 <td
-                                    onClick={() => handleDescriptionClick(item.id, item.description || "")}
+                                    onClick={() => user?.role === "EMPLOYEE" ? "" : handleDescriptionClick(item.id, item.description || "")}
                                     className="cursor-pointer text-white hover:underline text-xs truncate max-w-32"
                                 >
                                     {item.description ? item.description : "Adicionar descrição"}
@@ -336,7 +339,7 @@ export default function All_categories() {
                                         />
                                     ) : (
                                         <td
-                                            onClick={() => handleEdit(item.id, "order", item.order.toString())}
+                                            onClick={() => user?.role === "EMPLOYEE" ? "" : handleEdit(item.id, "order", item.order.toString())}
                                             className="cursor-pointer text-black hover:underline bg-slate-200 p-2 w-3 rounded"
                                         >
                                             {item.order}
@@ -390,7 +393,7 @@ export default function All_categories() {
                                             ))}
                                         </select>
                                     ) : (
-                                        <td onClick={() => handleEdit(item.id, "status", item.status)}
+                                        <td onClick={() => user?.role === "EMPLOYEE" ? "" : handleEdit(item.id, "status", item.status)}
                                             className="cursor-pointer text-red-500 hover:underline">
                                             {item.status}
                                         </td>

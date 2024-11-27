@@ -9,7 +9,7 @@ import Link from "next/link";
 import { FiLogIn, FiUser, FiBell } from "react-icons/fi";
 import { setupAPIClient } from "@/services/api";
 import { MdCategory, MdConnectWithoutContact, MdNotifications, MdPostAdd } from "react-icons/md";
-import { FaFileExport, FaRegCommentDots, FaRegNewspaper, FaUser } from "react-icons/fa";
+import { FaFileExport, FaRegCommentDots, FaRegNewspaper, FaTags, FaUser } from "react-icons/fa";
 import moment from 'moment';
 
 interface Content {
@@ -88,6 +88,8 @@ export function SidebarAndHeader({ children }: Content) {
                 return <FaRegCommentDots size={30} color="white" />;
             case "category":
                 return <MdCategory size={30} color="white" />;
+            case "tag":
+                return <FaTags size={30} color="white" />;
             default:
                 return <MdNotifications size={30} color="white" />;
         }
@@ -330,6 +332,12 @@ export function SidebarAndHeader({ children }: Content) {
                                                     'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/add_post"
                                                 })}>
                                                     Adicionar novo post
+                                                </Link>
+                                                <Link href="/posts/comments" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/posts/comments",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/posts/comments"
+                                                })}>
+                                                    Comentarios
                                                 </Link>
                                             </div>
                                         )}

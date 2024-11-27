@@ -107,7 +107,7 @@ export default function Post({ params }: { params: { post_id: string } }) {
                 );
 
                 setCategories(categoriesResponse.data.all_categories_disponivel);
-                setTags(tagsResponse.data.tags);
+                setTags(tagsResponse.data.tags_all);
 
                 setAvatarUrl(postData.image_post || null);
                 setSelectedAuthor(postData.author || null);
@@ -206,25 +206,25 @@ export default function Post({ params }: { params: { post_id: string } }) {
                     <label>
                         Autor:
                         <Select
-                        options={allAuthors.map((author) => ({
-                            value: author.name,
-                            label: author.name,
-                        }))}
-                        placeholder="Selecione um autor"
-                        value={selectedAuthor ? { value: selectedAuthor, label: selectedAuthor } : null}
-                        onChange={(selected) => setSelectedAuthor(selected?.value || null)}
-                        className="w-full rounded-md px-3 py-2 text-black placeholder-black z-50"
-                    />
+                            options={allAuthors.map((author) => ({
+                                value: author.name,
+                                label: author.name,
+                            }))}
+                            placeholder="Selecione um autor"
+                            value={selectedAuthor ? { value: selectedAuthor, label: selectedAuthor } : null}
+                            onChange={(selected) => setSelectedAuthor(selected?.value || null)}
+                            className="w-full rounded-md px-3 py-2 text-black placeholder-black z-50"
+                        />
                     </label>
 
                     <label>
                         Titulo:
                         <input
-                        type="text"
-                        placeholder="Digite um título..."
-                        {...register("title")}
-                        className="w-full border-2 rounded-md px-3 py-2 text-black"
-                    />
+                            type="text"
+                            placeholder="Digite um título..."
+                            {...register("title")}
+                            className="w-full border-2 rounded-md px-3 py-2 text-black"
+                        />
                     </label>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -232,85 +232,85 @@ export default function Post({ params }: { params: { post_id: string } }) {
                         <label>
                             Categorias:
                             <Select
-                            className="text-black z-40"
-                            options={categories.map((cat) => ({
-                                value: cat.id,
-                                label: cat.name_category,
-                            }))}
-                            isMulti
-                            placeholder="Selecione categorias"
-                            value={
-                                dataPost?.categories
-                                    ? dataPost.categories.map((cat) => ({
-                                        value: cat.category.id,
-                                        label: cat.category.name_category,
-                                    }))
-                                    : []
-                            }
-                            onChange={(selected) => {
-                                const updatedCategories = selected.map((item) => ({
-                                    category: { id: item.value, name_category: item.label },
-                                }));
-                                const categoryIds = updatedCategories.map(item => item.category.id);
-                                setSelectedCategories(categoryIds)
-                                setDataPost((prev) =>
-                                    prev
-                                        ? {
-                                            ...prev,
-                                            categories: updatedCategories,
-                                        }
-                                        : null
-                                );
-                            }}
-                        />
+                                className="text-black z-40"
+                                options={categories.map((cat) => ({
+                                    value: cat.id,
+                                    label: cat.name_category,
+                                }))}
+                                isMulti
+                                placeholder="Selecione categorias"
+                                value={
+                                    dataPost?.categories
+                                        ? dataPost.categories.map((cat) => ({
+                                            value: cat.category.id,
+                                            label: cat.category.name_category,
+                                        }))
+                                        : []
+                                }
+                                onChange={(selected) => {
+                                    const updatedCategories = selected.map((item) => ({
+                                        category: { id: item.value, name_category: item.label },
+                                    }));
+                                    const categoryIds = updatedCategories.map(item => item.category.id);
+                                    setSelectedCategories(categoryIds)
+                                    setDataPost((prev) =>
+                                        prev
+                                            ? {
+                                                ...prev,
+                                                categories: updatedCategories,
+                                            }
+                                            : null
+                                    );
+                                }}
+                            />
                         </label>
 
                         <label>
                             Tags:
                             <Select
-                            className="text-black z-40"
-                            options={tags.map((tag) => ({
-                                value: tag.id,
-                                label: tag.tag_name,
-                            }))} // Opções disponíveis para seleção
-                            isMulti
-                            placeholder="Selecione tags"
-                            value={
-                                dataPost?.tags
-                                    ? dataPost.tags.map((ta) => ({
-                                        value: ta.tag.id,
-                                        label: ta.tag.tag_name,
-                                    }))
-                                    : [] // Garante que não haverá erro caso tags seja null/undefined
-                            }
-                            onChange={(selected) => {
-                                const updatedTags = selected.map((item) => ({
-                                    tag: { id: item.value, tag_name: item.label },
-                                }));
-                                const tagIds = updatedTags.map(item => item.tag.id);
-                                setSelectedTags(tagIds)
-                                setDataPost((prev) =>
-                                    prev
-                                        ? {
-                                            ...prev,
-                                            tags: updatedTags,
-                                        }
-                                        : null
-                                );
-                            }}
-                        />
+                                className="text-black z-40"
+                                options={tags.map((tag) => ({
+                                    value: tag.id,
+                                    label: tag.tag_name,
+                                }))} // Opções disponíveis para seleção
+                                isMulti
+                                placeholder="Selecione tags"
+                                value={
+                                    dataPost?.tags
+                                        ? dataPost.tags.map((ta) => ({
+                                            value: ta.tag.id,
+                                            label: ta.tag.tag_name,
+                                        }))
+                                        : [] // Garante que não haverá erro caso tags seja null/undefined
+                                }
+                                onChange={(selected) => {
+                                    const updatedTags = selected.map((item) => ({
+                                        tag: { id: item.value, tag_name: item.label },
+                                    }));
+                                    const tagIds = updatedTags.map(item => item.tag.id);
+                                    setSelectedTags(tagIds)
+                                    setDataPost((prev) =>
+                                        prev
+                                            ? {
+                                                ...prev,
+                                                tags: updatedTags,
+                                            }
+                                            : null
+                                    );
+                                }}
+                            />
                         </label>
                     </div>
 
                     <div className="mt-8">
-                    <label>
-                        Status:&nbsp;&nbsp;
-                        <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
-                        <option value="">Selecione o status</option>
-                        <option value="Disponivel">Disponível</option>
-                        <option value="Indisponivel">Indisponível</option>
-                    </select>
-                    </label>
+                        <label>
+                            Status:&nbsp;&nbsp;
+                            <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
+                                <option value="">Selecione o status</option>
+                                <option value="Disponivel">Disponível</option>
+                                <option value="Indisponivel">Indisponível</option>
+                            </select>
+                        </label>
                     </div>
 
                     <label className="block">
