@@ -36,7 +36,7 @@ interface CommentProps {
     };
 }
 
-const statusOptions = ["Fila", "Aprovar", "Rejeitar", "Spam", "Lixeira"];
+const statusOptions = ["Fila", "Aprovar", "Rejeitar"];
 
 export default function Comments() {
 
@@ -123,22 +123,15 @@ export default function Comments() {
     // ---- SELECT PARA ORDENAÇÂO DOS ---- //
 
     const columnsOrder: any = [
-        { key: "post", label: "Titulo do Post" },
-        { key: "created_at", label: "Data de Criação" },
-        { key: "status", label: "Status" }
+        { key: "created_at", label: "Data de Criação" }
     ];
 
     const availableColumnsOrder: any = [
-        "post",
-        "created_at",
-        "status"
+        "created_at"
     ];
 
     const customNamesOrder: any = {
-        post: "Titulo do Post",
-        userBlog: "Autor do post",
-        created_at: "Data de criação",
-        status: "Status"
+        created_at: "Data de criação"
     };
 
 
