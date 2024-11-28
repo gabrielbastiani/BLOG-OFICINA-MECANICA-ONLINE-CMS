@@ -6,11 +6,24 @@ import { SidebarAndHeader } from "@/app/components/sidebarAndHeader";
 import { TitlePage } from "@/app/components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import { useState } from "react";
+import Image from "next/image";
+import { MdNotInterested } from "react-icons/md";
+import moment from "moment";
+import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface CommentProps {
     id: string;
     post_id: string;
-    userBlog_id: string;
+    userBlog: {
+        image_user: string;
+        name: string;
+    },
+    post: {
+        title: string;
+        slug_title_post: string;
+    },
+    replyCount: number;
     comment: string;
     nivel?: number;
     parentId: string;
@@ -27,10 +40,14 @@ const statusOptions = ["Fila", "Aprovar", "Rejeitar", "Spam", "Lixeira"];
 
 export default function Comments() {
 
+    const router = useRouter();
     const apiClient = setupAPIClient();
 
     const [all_comments, setAll_comments] = useState<CommentProps[]>([]);
     const [totalPages, setTotalPages] = useState(1);
+    const [editedValue, setEditedValue] = useState<string>("");
+    const [editStatus, setEditStatus] = useState<{ id: string, field: string } | null>(null);
+    const [showCommentPopup, setShowCommentPopup] = useState<string | null>(null);
 
     async function fetchComments({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
         try {
@@ -44,50 +61,82 @@ export default function Comments() {
         }
     }
 
+    const handleEdit = (id: string, field: string, currentValue: string) => {
+        setEditStatus({ id, field });
+        setEditedValue(currentValue);
+    };
+
+    const handleSave = async (id: string) => {
+        try {
+
+            const data = {
+                comment_id: id,
+                status: editedValue
+            }
+
+            await apiClient.put(`/comment/update_status`, data);
+
+            setAll_comments((prevComm) =>
+                prevComm.map((comm) => (comm.id === id ? { ...comm, status: editedValue } : comm))
+            );
+
+            setEditStatus(null);
+            toast.success("Dado atualizado com sucesso");
+
+        } catch (error) {
+            console.log("Erro ao atualizar a categoria:", error);
+            toast.error("Erro ao atualizar o dado!!!");
+        }
+    };
+
+    const handleDescriptionClick = (id: string, comment: string) => {
+        setShowCommentPopup(id);
+        setEditedValue(comment || "");
+    };
+
     // ---- COLUNAS PARA EXPORTAÇÂO DE DADOS ---- //
 
     const availableColumns = [
         "id",
-        "author",
-        "title",
-        "text_post",
-        "post_like",
+        "post",
+        "userBlog",
+        "comment",
+        "parent",
+        "replies",
+        "comment_like",
         "status",
-        "publish_at",
-        "tags",
-        "categories",
         "created_at"
     ];
 
     const customNames: any = {
-        id: "ID do Post",
-        author: "Autor do post",
-        title: "Titulo do Post",
-        text_post: "Texto do post",
-        post_like: "Número de likes",
+        id: "ID do comentario",
+        post: "Titulo do post",
+        userBlog: "Autor do post",
+        comment: "Texto do post",
+        parent: "Número de likes",
+        replies: "Respostas",
         status: "Status",
-        publish_at: "Publicação programada",
-        tags: "Tags do post",
-        categories: "Categorias do post",
+        comment_like: "Publicação programada",
         created_at: "Data de criação"
     };
 
     // ---- SELECT PARA ORDENAÇÂO DOS ---- //
 
     const columnsOrder: any = [
-        { key: "title", label: "Titulo do Post" },
+        { key: "post", label: "Titulo do Post" },
         { key: "created_at", label: "Data de Criação" },
         { key: "status", label: "Status" }
     ];
 
     const availableColumnsOrder: any = [
-        "title",
+        "post",
         "created_at",
         "status"
     ];
 
     const customNamesOrder: any = {
-        title: "Titulo do Post",
+        post: "Titulo do Post",
+        userBlog: "Autor do post",
         created_at: "Data de criação",
         status: "Status"
     };
@@ -101,23 +150,159 @@ export default function Comments() {
                 <DataTable
                     generate_excel_delete=""
                     delete_bulk_data=""
+                    url_delete_data=""
                     modal_delete_bulk={false}
                     active_buttons_searchInput={false}
                     active_export_data={true}
-                    customNamesOrder={undefined}
-                    availableColumnsOrder={[]}
-                    columnsOrder={undefined}
-                    availableColumns={[]}
+                    customNamesOrder={customNamesOrder}
+                    customNames={customNames}
+                    availableColumnsOrder={availableColumnsOrder}
+                    columnsOrder={columnsOrder}
+                    availableColumns={availableColumns}
                     table_data="comment"
-                    url_delete_data=""
-                    data={[]}
-                    totalPages={0}
-                    onFetchData={function (params: { page: number; limit: number; search: string; orderBy: string; orderDirection: string; startDate?: string; endDate?: string; }): void {
-                        throw new Error("Function not implemented.");
-                    }}
-                    columns={[]}
-                />
+                    data={all_comments}
+                    totalPages={totalPages}
+                    onFetchData={fetchComments}
+                    columns={[
+                        {
+                            key: 'userBlog',
+                            label: 'Foto do usúario',
+                            render: (item) => (
+                                <>
+                                    {item.userBlog.image_user ? (
+                                        <Image
+                                            key={item.id}
+                                            src={`http://localhost:3333/files/${item.userBlog.image_user}`}
+                                            alt={item.userBlog.name}
+                                            width={80}
+                                            height={80}
+                                            className="w-8 h-8 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
+                                            <MdNotInterested color="black" size={25} />
+                                        </div>
+                                    )}
+                                </>
+                            ),
+                        },
+                        {
+                            key: "userBlog",
+                            label: "Nome",
+                            render: (item) => (
+                                <td key={item.id}>{item.userBlog.name}</td>
+                            )
+                        },
+                        {
+                            key: "comment",
+                            label: "Comentário",
+                            render: (item) => (
+                                <div
+                                    className="truncate w-40"
+                                    key={item.id}
+                                >
+                                    <td
+                                        className="cursor-pointer"
+                                        onClick={() => handleDescriptionClick(item.id, item.comment || "")}
+                                    >
+                                        {item.comment}
+                                    </td>
+                                </div>
+                            )
+                        },
+                        {
+                            key: "created_at",
+                            label: "Enviado em",
+                            render: (item) => (
+                                <td>{moment(item.created_at).format('DD/MM/YYYY HH:mm')}</td>
+                            ),
+                        },
+                        {
+                            key: "post",
+                            label: "Em resposta para",
+                            render: (item) => (
+                                <div
+                                    key={item.id}
+                                    className="truncate w-40"
+                                >
+                                    <td>
+                                        {item.post.title}
+                                    </td>
+                                </div>
+                            )
+                        },
+                        {
+                            key: "replyCount",
+                            label: "Total de respostas",
 
+                        },
+                        {
+                            key: 'status',
+                            label: 'Status',
+                            render: (item) => (
+                                <td>
+                                    {editStatus?.id === item.id && editStatus?.field === "status" ? (
+                                        <select
+                                            value={editedValue || item.status}
+                                            onChange={(e) => setEditedValue(e.target.value)}
+                                            onBlur={() => handleSave(item.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    handleSave(item.id);
+                                                }
+                                            }}
+                                            className="appearance-auto text-black border-gray-300 rounded-md p-1"
+                                        >
+                                            {statusOptions.map((status) => (
+                                                <option key={status} value={status}>
+                                                    {status}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <span onClick={() => handleEdit(item.id, "status", item.status)}
+                                            className="cursor-pointer text-red-500 hover:underline">
+                                            {item.status}
+                                        </span>
+                                    )}
+                                </td>
+                            ),
+                        },
+                        {
+                            key: 'post',
+                            label: 'Ver post',
+                            render: (item) => (
+                                <button
+                                    key={item.id}
+                                    className='p-1 bg-red-600 text-white text-xs rounded hover:bg-hoverButtonBackground transition duration-300'
+                                    onClick={() => router.push(`/post/${item.post.slug_title_post}`)}
+                                >
+                                    Ver post
+                                </button>
+                            ),
+                        },
+                    ]}
+                />
+                {showCommentPopup && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="bg-white p-5 rounded shadow-lg w-96">
+                            <h2 className="text-lg font-semibold mb-3 text-black">Ver comentario:</h2>
+                            <p
+                                className="text-black"
+                            >
+                                {editedValue}
+                            </p>
+                            <div className="flex justify-end mt-4 space-x-2">
+                                <button
+                                    onClick={() => setShowCommentPopup(null)}
+                                    className="px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-md"
+                                >
+                                    Sair
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </Section>
         </SidebarAndHeader>
     )
