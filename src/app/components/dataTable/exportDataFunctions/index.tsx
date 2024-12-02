@@ -41,7 +41,6 @@ const ExportDataFunctions: React.FC<ExportDataProps<any>> = ({ data, customNames
         }, {} as { [key: string]: { selected: boolean; customName: string } })
     );
 
-
     const selectedKeys = Object.keys(selectedColumns)
         .filter((key) => selectedColumns[key].selected)
         .map((key) => ({

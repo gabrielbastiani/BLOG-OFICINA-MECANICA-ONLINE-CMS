@@ -21,7 +21,9 @@ interface DataTableProps<T extends { id: string }> {
     generate_excel_delete: string;
     delete_bulk_data: string;
     modal_delete_bulk: boolean;
-    active_buttons_searchInput: boolean;
+    active_buttons_searchInput_notification: boolean;
+    active_buttons_searchInput_comments: boolean;
+    checkbox_delete: boolean;
     active_export_data: boolean;
     customNamesOrder: {};
     availableColumnsOrder: string[];
@@ -57,7 +59,9 @@ function DataTable<T extends {
     generate_excel_delete,
     delete_bulk_data,
     modal_delete_bulk,
-    active_buttons_searchInput,
+    active_buttons_searchInput_notification,
+    active_buttons_searchInput_comments,
+    checkbox_delete,
     active_export_data,
     availableColumnsOrder,
     customNamesOrder,
@@ -217,7 +221,8 @@ function DataTable<T extends {
             <div className="mb-4 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
                 <div className="flex flex-col md:flex-row items-center w-full md:w-auto">
                     <SearchInput
-                        active_buttons_searchInput={active_buttons_searchInput}
+                        active_buttons_searchInput_notification={active_buttons_searchInput_notification}
+                        active_buttons_searchInput_comments={active_buttons_searchInput_comments}
                         value={search}
                         onChange={setSearch}
                         onReset={handleResetFilters}
@@ -297,17 +302,19 @@ function DataTable<T extends {
                     )}
                 </div>
             </div>
-            {/* Tabela de contatos */}
+            {/* Tabela */}
             <div className="overflow-x-auto">
                 <table className="border rounded min-w-full table-auto">
                     <thead>
                         <tr className="border-b">
                             <th className="p-3 text-left">
-                                <input
-                                    type="checkbox"
-                                    onChange={handleSelectAll}
-                                    checked={selectdData.length === data.length}
-                                />
+                                {checkbox_delete ? (
+                                    <input
+                                        type="checkbox"
+                                        onChange={handleSelectAll}
+                                        checked={selectdData.length === data.length}
+                                    />
+                                ) : null}
                             </th>
                             {columns.map((column) => (
                                 <th key={String(column.key)} className="p-3 text-left">
@@ -319,13 +326,15 @@ function DataTable<T extends {
                     <tbody>
                         {data.map((item) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-3">
-                                    <input
-                                        type="checkbox"
-                                        checked={selectdData.includes(item.id)}
-                                        onChange={() => handleSelectContact(item.id)}
-                                    />
-                                </td>
+                                {checkbox_delete ? (
+                                    <td className="p-3">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectdData.includes(item.id)}
+                                            onChange={() => handleSelectContact(item.id)}
+                                        />
+                                    </td>
+                                ) : null}
                                 {columns.map((column) => (
                                     <td
                                         onClick={

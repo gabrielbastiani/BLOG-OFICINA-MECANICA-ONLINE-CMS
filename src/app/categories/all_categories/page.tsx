@@ -180,7 +180,7 @@ export default function All_categories() {
                     generate_excel_delete="/category/download_excel_delete_category?user_id"
                     delete_bulk_data="/category/bulk_delete_category?user_id"
                     modal_delete_bulk={true}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
                     active_export_data={true}
                     customNames={{
                         id: "ID da categoria",

@@ -137,10 +137,12 @@ export default function All_users() {
             <Section>
                 <TitlePage title="TODOS OS USUÁRIOS" />
                 <DataTable
+                    checkbox_delete={true}
+                    active_buttons_searchInput_comments={false}
                     generate_excel_delete="/user/download_excel_delete_users?user_id"
                     delete_bulk_data="/user/bulk_delete_users?user_id"
                     modal_delete_bulk={true}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
                     active_export_data={true}
                     url_delete_data="/user/delete_user"
                     table_data="user"
@@ -159,8 +161,7 @@ export default function All_users() {
                                             width={80}
                                             height={80}
                                             className="w-8 h-8 rounded-full object-cover cursor-pointer"
-                                            onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_user}`)}
-                                        />
+                                            onClick={() => handleImageClick(`http://localhost:3333/files/${item.image_user}`)} />
                                     ) : (
                                         <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
                                             <MdNotInterested color="black" size={25} />
@@ -185,7 +186,7 @@ export default function All_users() {
                                                 if (e.key === "Enter") {
                                                     handleSave(item.id);
                                                 }
-                                            }}
+                                            } }
                                             className="appearance-auto text-black border-gray-300 rounded-md p-1"
                                         >
                                             {statusOptions.map((status) => (

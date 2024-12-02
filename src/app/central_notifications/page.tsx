@@ -150,7 +150,7 @@ export default function Central_notifications() {
                     availableColumnsOrder={availableColumnsOrder}
                     columnsOrder={columnsOrder}
                     active_export_data={false}
-                    active_buttons_searchInput={true}
+                    active_buttons_searchInput_notification={true}
                     modal_delete_bulk={false}
                     availableColumns={[]}
                     generate_excel_delete=""

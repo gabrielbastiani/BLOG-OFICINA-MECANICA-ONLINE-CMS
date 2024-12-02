@@ -93,10 +93,12 @@ export default function All_contacts() {
                     availableColumnsOrder={availableColumnsOrder}
                     columnsOrder={columnsOrder}
                     active_export_data={true}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
                     modal_delete_bulk={false}
                     generate_excel_delete={""}
                     delete_bulk_data={""}
+                    checkbox_delete={true}
+                    active_buttons_searchInput_comments={false}
                 />
             </Section>
         </SidebarAndHeader>

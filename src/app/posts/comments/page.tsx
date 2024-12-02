@@ -36,7 +36,7 @@ interface CommentProps {
     };
 }
 
-const statusOptions = ["Fila", "Aprovar", "Rejeitar"];
+const statusOptions = ["Pendente", "Aprovado", "Recusado"];
 
 export default function Comments() {
 
@@ -141,11 +141,14 @@ export default function Comments() {
                 <TitlePage title="COMENTARIOS" />
 
                 <DataTable
+                    checkbox_delete={false}
                     generate_excel_delete=""
                     delete_bulk_data=""
                     url_delete_data=""
+                    name_file_export="Comentarios"
                     modal_delete_bulk={false}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
+                    active_buttons_searchInput_comments={true}
                     active_export_data={true}
                     customNamesOrder={customNamesOrder}
                     customNames={customNames}

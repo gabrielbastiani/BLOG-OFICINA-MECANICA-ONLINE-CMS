@@ -68,9 +68,11 @@ export default function Newsletter() {
                 <TitlePage title="NEWSLETTER" />
 
                 <DataTable
+                    checkbox_delete={true}
+                    active_buttons_searchInput_comments={false}
                     name_file_export="newslatter"
                     modal_delete_bulk={false}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
                     active_export_data={true}
                     customNamesOrder={customNamesOrder}
                     availableColumnsOrder={availableColumnsOrder}

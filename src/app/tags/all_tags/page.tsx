@@ -93,10 +93,12 @@ export default function All_tags() {
                 <TitlePage title="TODAS AS TAGS" />
 
                 <DataTable
+                    checkbox_delete={true}
+                    active_buttons_searchInput_comments={false}
                     generate_excel_delete="/tag/download_excel_delete_tags?user_id"
                     delete_bulk_data="/tag/bulk_delete_tags?user_id"
                     modal_delete_bulk={true}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
                     active_export_data={true}
                     customNamesOrder={customNamesOrder}
                     availableColumnsOrder={availableColumnsOrder}

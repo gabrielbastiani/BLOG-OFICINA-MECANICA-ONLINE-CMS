@@ -149,11 +149,13 @@ export default function All_posts() {
                 <TitlePage title="TODOS POSTS" />
 
                 <DataTable
+                    checkbox_delete={true}
+                    active_buttons_searchInput_comments={false}
                     generate_excel_delete="/post/download_excel_delete_post?user_id"
                     delete_bulk_data="/post/bulk_delete_posts?user_id"
                     name_file_export="Posts"
                     modal_delete_bulk={true}
-                    active_buttons_searchInput={false}
+                    active_buttons_searchInput_notification={false}
                     active_export_data={true}
                     customNamesOrder={customNamesOrder}
                     availableColumnsOrder={availableColumnsOrder}
