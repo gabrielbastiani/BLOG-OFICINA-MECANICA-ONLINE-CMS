@@ -177,20 +177,23 @@ export default function All_categories() {
                 <TitlePage title="TODAS AS CATEGORIAS" />
 
                 <DataTable
+                    active_buttons_searchInput_comments={false}
+                    checkbox_delete={true}
                     generate_excel_delete="/category/download_excel_delete_category?user_id"
                     delete_bulk_data="/category/bulk_delete_category?user_id"
                     modal_delete_bulk={true}
                     active_buttons_searchInput_notification={false}
                     active_export_data={true}
+                    name_file_export="Categorias"
+                    availableColumns={["id", "name_category", "description", "status", "children", "created_at"]}
                     customNames={{
                         id: "ID da categoria",
                         name_category: "Nome da categoria",
                         description: "Descrição",
                         status: "Status",
-                        parentId: "Parente da categoria?",
+                        children: "Subcategorias",
                         created_at: "Data de cadastro"
                     }}
-                    name_file_export="Categorias"
                     customNamesOrder={{
                         name_category: "Nome Completo",
                         created_at: "Data de Registro"
@@ -200,7 +203,6 @@ export default function All_categories() {
                         { key: "name_category", label: "Nome" },
                         { key: "created_at", label: "Data de Criação" }
                     ]}
-                    availableColumns={["id", "name_category", "description", "status", "parentId", "created_at"]}
                     table_data="category"
                     url_delete_data="/category/delete_category"
                     data={allCategories}
@@ -219,16 +221,14 @@ export default function All_categories() {
                                             width={100}
                                             height={100}
                                             className="w-8 h-8 rounded-full object-cover cursor-pointer"
-                                            onClick={() => user?.role === "EMPLOYEE" ? "" : handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
-                                        />
+                                            onClick={() => user?.role === "EMPLOYEE" ? "" : handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)} />
                                     ) : (
                                         <div className="mr-3 w-[50px] h-[50px] rounded-full bg-gray-300 flex items-center justify-center md:w-[40px] md:h-[40px]">
                                             <MdNotInterested
                                                 className="cursor-pointer"
                                                 color="black"
                                                 size={25}
-                                                onClick={() => user?.role === "EMPLOYEE" ? "" : handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)}
-                                            />
+                                                onClick={() => user?.role === "EMPLOYEE" ? "" : handleImageClick(`http://localhost:3333/files/${item.image_category}`, item.id)} />
                                         </div>
                                     )}
                                     {modalImage && (
@@ -245,8 +245,7 @@ export default function All_categories() {
                                                             width={400}
                                                             height={400}
                                                             className="object-cover rounded-md"
-                                                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                                                        />
+                                                            style={{ maxWidth: '100%', maxHeight: '100%' }} />
                                                         :
                                                         <Image
                                                             src={imagePreview || modalImage}
@@ -254,9 +253,7 @@ export default function All_categories() {
                                                             width={400}
                                                             height={400}
                                                             className="object-cover rounded-md"
-                                                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                                                        />
-                                                    }
+                                                            style={{ maxWidth: '100%', maxHeight: '100%' }} />}
                                                 </div>
                                                 <div className="flex flex-col gap-3">
                                                     <input
@@ -264,8 +261,7 @@ export default function All_categories() {
                                                         type="file"
                                                         accept="image/*"
                                                         className="block w-full text-sm text-gray-600 bg-gray-100 border border-gray-300 rounded-lg cursor-pointer p-2 mb-3"
-                                                        onChange={handleFileChange}
-                                                    />
+                                                        onChange={handleFileChange} />
                                                     <div className="flex justify-around">
                                                         <button
                                                             onClick={handleUpdateImage}
@@ -298,8 +294,7 @@ export default function All_categories() {
                                             value={editedValue}
                                             onChange={(e) => setEditedValue(e.target.value)}
                                             onBlur={() => handleSave(item.id, "name_category")}
-                                            className="border-gray-300 rounded-md p-1 text-black"
-                                        />
+                                            className="border-gray-300 rounded-md p-1 text-black" />
                                     ) : (
                                         <td
                                             onClick={() => user?.role === "EMPLOYEE" ? "" : handleEdit(item.id, "name_category", item.name_category)}
@@ -335,8 +330,7 @@ export default function All_categories() {
                                             value={editedValue || item.order.toString()}
                                             onChange={(e) => setEditedValue(e.target.value)}
                                             onBlur={() => handleSave(item.id, "order")}
-                                            className="border-gray-300 rounded-md p-1 text-black"
-                                        />
+                                            className="border-gray-300 rounded-md p-1 text-black" />
                                     ) : (
                                         <td
                                             onClick={() => user?.role === "EMPLOYEE" ? "" : handleEdit(item.id, "order", item.order.toString())}
@@ -359,7 +353,7 @@ export default function All_categories() {
                                         </td>
                                         :
                                         <td className="flex flex-wrap space-x-2 max-w-xs">
-                                            {item.children.map((child: { name_category: string }, index: Key | null | undefined) => {
+                                            {item.children.map((child: { name_category: string; }, index: Key | null | undefined) => {
                                                 return (
                                                     <td
                                                         key={index}
@@ -367,10 +361,9 @@ export default function All_categories() {
                                                     >
                                                         {child.name_category}
                                                     </td>
-                                                )
+                                                );
                                             })}
-                                        </td>
-                                    }
+                                        </td>}
                                 </>
                             ),
                         },

@@ -9,6 +9,7 @@ const PUBLIC_ROUTES = [
   "/"
 ];
 const PROTECTED_ROUTES = [
+  '/user/users_blog',
   '/posts/comments',
   '/posts/all_posts/post',
   '/posts/all_posts',
@@ -29,6 +30,7 @@ const PROTECTED_ROUTES = [
 ]; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
   SUPER_ADMIN: [
+    '/user/users_blog',
     '/posts/comments',
     '/posts/all_posts/post',
     '/posts/all_posts',
@@ -48,6 +50,7 @@ const ROLE_BASED_ROUTES = {
     '/central_notifications'
   ], // Exemplo de rotas restritas para SUPER_ADMIN
   ADMIN: [
+    '/user/users_blog',
     '/posts/comments',
     '/posts/all_posts/post',
     '/posts/all_posts',
@@ -125,6 +128,7 @@ function hasAccessToRoute(userRole: string, pathname: string): boolean {/* @ts-i
 export const config = {
   matcher: [
     '/',
+    '/user/users_blog',
     '/posts/comments',
     '/posts/all_posts/post',
     '/posts/all_posts',

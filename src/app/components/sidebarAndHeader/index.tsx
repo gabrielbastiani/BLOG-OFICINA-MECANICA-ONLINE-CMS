@@ -199,7 +199,13 @@ export function SidebarAndHeader({ children }: Content) {
                                                     'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/all_users",
                                                     'text-white p-2 mb-2 text-sm': currentRoute !== "/user/all_users"
                                                 })}>
-                                                    Todos os Usuários
+                                                    Usuários CMS
+                                                </Link>
+                                                <Link href="/user/users_blog" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/users_blog",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/user/users_blog"
+                                                })}>
+                                                    Usuários Blog
                                                 </Link>
                                                 <Link href="/user/add_user" className={clsx({
                                                     'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/add_user",
@@ -365,7 +371,13 @@ export function SidebarAndHeader({ children }: Content) {
                                                         'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/all_users",
                                                         'text-white p-2 mb-2 text-sm': currentRoute !== "/user/all_users"
                                                     })}>
-                                                        Todos os Usuários
+                                                        Usuários CMS
+                                                    </Link>
+                                                    <Link href="/user/users_blog" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/users_blog",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/user/users_blog"
+                                                    })}>
+                                                        Usuários Blog
                                                     </Link>
                                                     <Link href="/user/add_user" className={clsx({
                                                         'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/user/add_user",

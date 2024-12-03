@@ -112,7 +112,7 @@ export default function Comments() {
         id: "ID do comentario",
         post: "Titulo do post",
         userBlog: "Autor do post",
-        comment: "Texto do post",
+        comment: "Comentario",
         parent: "Número de likes",
         replies: "Respostas",
         status: "Status",

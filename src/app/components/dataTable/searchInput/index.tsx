@@ -21,7 +21,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ value, onChange, onReset, act
     ];
 
     const filterValuesComment = [
-        { label: "Pendente", value: "fila" },
+        { label: "Pendente", value: "pendente" },
         { label: "Aprovado", value: "aprovado" },
         { label: "Recusado", value: "recusado" }
     ];

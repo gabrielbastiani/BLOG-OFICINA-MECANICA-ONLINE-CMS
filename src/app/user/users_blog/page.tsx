@@ -11,6 +11,7 @@ import Modal from 'react-modal';
 import { ModalPasswordChange } from "@/app/components/popups/ModalPasswordChange";
 import { MdNotInterested } from "react-icons/md";
 import { toast } from "react-toastify";
+import moment from "moment";
 
 interface UsersProps {
     name: string;
@@ -18,16 +19,15 @@ interface UsersProps {
     slug_name: string;
     image_user: string | null;
     status: string;
-    role: string;
+    newsletter: boolean;
     email: string;
     created_at: string | number | Date;
     mudar_senha: string;
 }
 
 const statusOptions = ["Disponivel", "Indisponivel"];
-const roleOptions = ["SUPER_ADMIN", "ADMIN", "EMPLOYEE"];
 
-export default function All_users() {
+export default function Users_blog() {
 
     const [modalVisiblePassword, setModalVisiblePassword] = useState(false);
     const [userId, setUserId] = useState<string>("");
@@ -39,12 +39,12 @@ export default function All_users() {
 
     const apiClient = setupAPIClient();
 
-    async function fetchUsers({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
+    async function fetchUsersBlog({ page, limit, search, orderBy, orderDirection, startDate, endDate }: any) {
         try {
-            const response = await apiClient.get(`/user/all_users`, {
+            const response = await apiClient.get(`/user/user_blog/all_users_blog`, {
                 params: { page, limit, search, orderBy, orderDirection, startDate, endDate }
             });
-            setAll_users(response.data.users);
+            setAll_users(response.data.usersBlog);
             setTotalPages(response.data.totalPages);
         } catch (error) {
             console.log(error);
@@ -71,14 +71,14 @@ export default function All_users() {
         const apiClient = setupAPIClient();
         try {
 
-            const updatedField = editingUser?.field === "status" ? { status: editedValue } : { role: editedValue };
+            const updatedField = editingUser?.field === "status" ? { status: editedValue } : { status: editedValue };
 
             const data = {
                 ...updatedField,
                 user_id: id,
             };
 
-            await apiClient.put(`/user/update`, data);
+            await apiClient.put(`/user/user_blog/update`, data);
 
             setAll_users((prevUsers) =>
                 prevUsers.map((user) =>
@@ -104,14 +104,13 @@ export default function All_users() {
 
     // ---- COLUNAS PARA EXPORTAÇÂO DE DADOS ---- //
 
-    const availableColumns = ["id", "name", "email", "status", "role", "created_at"];
+    const availableColumns = ["id", "name", "email", "status", "created_at"];
 
     const customNames: any = {
         id: "ID do usuario",
         name: "Nome",
         email: "Email",
         status: "Status",
-        role: "Atribuição",
         created_at: "Data de cadastro"
     };
 
@@ -135,18 +134,18 @@ export default function All_users() {
     return (
         <SidebarAndHeader>
             <Section>
-                <TitlePage title="TODOS OS USUÁRIOS" />
+                <TitlePage title="TODOS OS USUÁRIOS DO BLOG" />
                 <DataTable
                     checkbox_delete={true}
                     active_buttons_searchInput_comments={false}
-                    generate_excel_delete="/user/download_excel_delete_users?user_id"
-                    delete_bulk_data="/user/bulk_delete_users?user_id"
+                    generate_excel_delete="/user/user_blog/download_excel_delete_users_blog?user_id"
+                    delete_bulk_data="/user/user_blog/bulk_delete_users_blog?user_id"
                     modal_delete_bulk={true}
                     active_buttons_searchInput_notification={false}
                     active_export_data={true}
-                    url_delete_data="/user/delete_user"
-                    table_data="user"
-                    name_file_export="Usuários"
+                    url_delete_data="/user/user_blog/delete_user_blog"
+                    table_data="userBlog"
+                    name_file_export="Usuários_Blog"
                     data={all_users}
                     columns={[
                         {
@@ -186,7 +185,7 @@ export default function All_users() {
                                                 if (e.key === "Enter") {
                                                     handleSave(item.id);
                                                 }
-                                            } }
+                                            }}
                                             className="appearance-auto text-black border-gray-300 rounded-md p-1"
                                         >
                                             {statusOptions.map((status) => (
@@ -205,42 +204,10 @@ export default function All_users() {
                             ),
                         },
                         {
-                            key: 'role',
-                            label: 'Atribuição',
+                            key: "created_at",
+                            label: "Data de cadastro",
                             render: (item) => (
-                                <td>
-                                    {editingUser?.id === item.id && editingUser?.field === "role" ? (
-                                        <select
-                                            value={editedValue || item.role}
-                                            onChange={(e) => setEditedValue(e.target.value)}
-                                            onBlur={() => handleSave(item.id)}
-                                            className="appearance-auto text-black border-gray-300 rounded-md p-1"
-                                        >
-                                            {roleOptions.map((role) => (
-                                                <option key={role} value={role}>
-                                                    {role === "SUPER_ADMIN"
-                                                        ? "Super administrador"
-                                                        : role === "ADMIN"
-                                                            ? "Administrador"
-                                                            : role === "EMPLOYEE"
-                                                                ? "Empregado"
-                                                                : null}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    ) : (
-                                        <span onClick={() => handleEdit(item.id, "role", item.role)}
-                                            className="cursor-pointer text-backgroundButton hover:underline">
-                                            {item.role === "SUPER_ADMIN"
-                                                ? "Super administrador"
-                                                : item.role === "ADMIN"
-                                                    ? "Administrador"
-                                                    : item.role === "EMPLOYEE"
-                                                        ? "Empregado"
-                                                        : null}
-                                        </span>
-                                    )}
-                                </td>
+                                <td>{moment(item.created_at).format('DD/MM/YYYY HH:mm')}</td>
                             ),
                         },
                         {
@@ -257,7 +224,7 @@ export default function All_users() {
                         }
                     ]}
                     totalPages={totalPages}
-                    onFetchData={fetchUsers}
+                    onFetchData={fetchUsersBlog}
                     availableColumns={availableColumns}
                     customNames={customNames}
                     columnsOrder={columnsOrder}
@@ -284,7 +251,7 @@ export default function All_users() {
                     isOpen={modalVisiblePassword}
                     onRequestClose={handleCloseModalPassword}
                     id_users={userId}
-                    link_update_senha="/user/update"
+                    link_update_senha="/user/user_blog/update"
                 />
             )}
         </SidebarAndHeader>

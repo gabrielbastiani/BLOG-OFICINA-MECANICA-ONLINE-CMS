@@ -10,7 +10,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 interface DeleteProps {
     isOpen: boolean;
     onRequestClose: () => void;
-    change_password: string;
+    id_users: string;
+    link_update_senha: string;
 }
 
 const passwordSchema = z.object({
@@ -23,7 +24,7 @@ const passwordSchema = z.object({
 
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
-export function ModalPasswordChange({ isOpen, onRequestClose, change_password }: DeleteProps) {
+export function ModalPasswordChange({ isOpen, onRequestClose, id_users, link_update_senha }: DeleteProps) {
 
     const customStyles = {
         content: {
@@ -65,16 +66,16 @@ export function ModalPasswordChange({ isOpen, onRequestClose, change_password }:
     const handleGeneratePassword = () => {
         const newPassword = generateComplexPassword(22);
         setValue("password", newPassword);
-        setValue("confirmPassword", newPassword); // Adicione esta linha
+        setValue("confirmPassword", newPassword);
     };
 
     async function onSubmit(data: PasswordFormValues) {
         try {
             const apiClient = setupAPIClient();
 
-            await apiClient.put(`/user/update`, {
-                user_id: change_password,
-                password: data.password // Altere para 'data.password'
+            await apiClient.put(`${link_update_senha}`, {
+                user_id: id_users,
+                password: data.password
             });
 
             toast.success(`Senha alterada com sucesso.`);

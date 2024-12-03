@@ -314,7 +314,9 @@ function DataTable<T extends {
                                         onChange={handleSelectAll}
                                         checked={selectdData.length === data.length}
                                     />
-                                ) : null}
+                                ) : 
+                                    null
+                                }
                             </th>
                             {columns.map((column) => (
                                 <th key={String(column.key)} className="p-3 text-left">
@@ -334,7 +336,9 @@ function DataTable<T extends {
                                             onChange={() => handleSelectContact(item.id)}
                                         />
                                     </td>
-                                ) : null}
+                                ) : 
+                                    <td></td>
+                                }
                                 {columns.map((column) => (
                                     <td
                                         onClick={
