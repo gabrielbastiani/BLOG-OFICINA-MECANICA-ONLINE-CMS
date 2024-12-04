@@ -18,6 +18,7 @@ interface PostsProps {
     title: string;
     image_post?: string;
     post_like?: number;
+    post_dislike?: number;
     status: string;
     publish_at?: string | number | Date;
     comment?: string[];
@@ -55,7 +56,7 @@ export default function All_posts() {
             setAll_posts(response.data.posts);
             setTotalPages(response.data.totalPages);
         } catch (error) {
-            console.log(error);
+            console.error(error);
         }
     }
 
@@ -100,8 +101,8 @@ export default function All_posts() {
         "id",
         "author",
         "title",
-        "text_post",
         "post_like",
+        "post_dislike",
         "status",
         "publish_at",
         "tags",
@@ -113,8 +114,8 @@ export default function All_posts() {
         id: "ID do Post",
         author: "Autor do post",
         title: "Titulo do Post",
-        text_post: "Texto do post",
-        post_like: "Número de likes",
+        post_like: "Likes",
+        post_dislike: "Dislikes",
         status: "Status",
         publish_at: "Publicação programada",
         tags: "Tags do post",
@@ -256,7 +257,12 @@ export default function All_posts() {
                         },
                         {
                             key: "post_like",
-                            label: "Likes no Post"
+                            label: "Likes"
+                        },
+                        {
+                            key: "post_dislike",
+                            label: "Deslikes",
+
                         },
                         {
                             key: "comment",

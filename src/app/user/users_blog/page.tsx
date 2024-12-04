@@ -23,6 +23,7 @@ interface UsersProps {
     email: string;
     created_at: string | number | Date;
     mudar_senha: string;
+    last_access: string | number | Date;
 }
 
 const statusOptions = ["Disponivel", "Indisponivel"];
@@ -221,7 +222,20 @@ export default function Users_blog() {
                                     Mudar senha
                                 </button>
                             ),
-                        }
+                        },
+                        {
+                            key: "last_access",
+                            label: "Último acesso",
+                            render: (item) => (
+                                <>
+                                    {!item.last_access ? (
+                                        <td>Sem acesso</td>
+                                    ) :
+                                        <td>{moment(item.last_access).format('DD/MM/YYYY HH:mm')}</td>
+                                    }
+                                </>
+                            ),
+                        },
                     ]}
                     totalPages={totalPages}
                     onFetchData={fetchUsersBlog}

@@ -11,6 +11,7 @@ import Modal from 'react-modal';
 import { ModalPasswordChange } from "@/app/components/popups/ModalPasswordChange";
 import { MdNotInterested } from "react-icons/md";
 import { toast } from "react-toastify";
+import moment from "moment";
 
 interface UsersProps {
     name: string;
@@ -22,6 +23,7 @@ interface UsersProps {
     email: string;
     created_at: string | number | Date;
     mudar_senha: string;
+    last_access: string | number | Date;
 }
 
 const statusOptions = ["Disponivel", "Indisponivel"];
@@ -186,7 +188,7 @@ export default function All_users() {
                                                 if (e.key === "Enter") {
                                                     handleSave(item.id);
                                                 }
-                                            } }
+                                            }}
                                             className="appearance-auto text-black border-gray-300 rounded-md p-1"
                                         >
                                             {statusOptions.map((status) => (
@@ -254,7 +256,20 @@ export default function All_users() {
                                     Mudar senha
                                 </button>
                             ),
-                        }
+                        },
+                        {
+                            key: "last_access",
+                            label: "Último acesso",
+                            render: (item) => (
+                                <>
+                                    {!item.last_access ? (
+                                        <td>Sem acesso</td>
+                                    ) :
+                                        <td>{moment(item.last_access).format('DD/MM/YYYY HH:mm')}</td>
+                                    }
+                                </>
+                            ),
+                        },
                     ]}
                     totalPages={totalPages}
                     onFetchData={fetchUsers}

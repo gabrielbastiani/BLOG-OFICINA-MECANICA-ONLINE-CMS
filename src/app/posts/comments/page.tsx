@@ -31,6 +31,7 @@ interface CommentProps {
     created_at: string | number | Date;
     replies: string[];
     comment_like: number;
+    comment_dislike: number;
     commentLikes?: {
         isLike: boolean;
     };
@@ -104,6 +105,7 @@ export default function Comments() {
         "parent",
         "replies",
         "comment_like",
+        'comment_dislike',
         "status",
         "created_at"
     ];
@@ -116,7 +118,8 @@ export default function Comments() {
         parent: "Número de likes",
         replies: "Respostas",
         status: "Status",
-        comment_like: "Publicação programada",
+        comment_like: "Likes",
+        comment_dislike: "Dislikes",
         created_at: "Data de criação"
     };
 
@@ -230,6 +233,16 @@ export default function Comments() {
                         {
                             key: "replyCount",
                             label: "Total de respostas",
+
+                        },
+                        {
+                            key: "comment_like",
+                            label: "Likes",
+
+                        },
+                        {
+                            key: "comment_dislike",
+                            label: "Deslikes",
 
                         },
                         {
