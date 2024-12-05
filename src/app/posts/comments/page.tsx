@@ -168,11 +168,11 @@ export default function Comments() {
                             label: 'Foto do usúario',
                             render: (item) => (
                                 <>
-                                    {item.userBlog.image_user ? (
+                                    {item.userBlog?.image_user ? (
                                         <Image
                                             key={item.id}
                                             src={`http://localhost:3333/files/${item.userBlog.image_user}`}
-                                            alt={item.userBlog.name}
+                                            alt={item.userBlog?.name}
                                             width={80}
                                             height={80}
                                             className="w-8 h-8 rounded-full object-cover"
@@ -189,7 +189,13 @@ export default function Comments() {
                             key: "userBlog",
                             label: "Nome",
                             render: (item) => (
-                                <td key={item.id}>{item.userBlog.name}</td>
+                                <>
+                                    {item.userBlog?.name ? (
+                                        <td key={item.id}>{item.userBlog?.name}</td>
+                                    ) :
+                                        <td>usuario excluido</td>
+                                    }
+                                </>
                             )
                         },
                         {
