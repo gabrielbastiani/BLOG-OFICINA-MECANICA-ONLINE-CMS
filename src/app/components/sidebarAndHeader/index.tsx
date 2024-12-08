@@ -348,6 +348,38 @@ export function SidebarAndHeader({ children }: Content) {
                                             </div>
                                         )}
                                     </div>
+
+                                    <div>
+                                        <button
+                                            onClick={() => handleMenuToggle('marketing_content')}
+                                            className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                'bg-activeLink rounded': openMenu === 'marketing_content' || currentRoute?.includes("/marketing_content"),
+                                                'text-white': openMenu !== 'marketing_content' && !currentRoute?.includes("/marketing_content")
+                                            })}
+                                        >
+                                            Marketing
+                                            <CaretRight className={clsx('transition-transform duration-200', {
+                                                'rotate-90': openMenu === 'marketing_content',
+                                                'rotate-0': openMenu !== 'marketing_content'
+                                            })} />
+                                        </button>
+                                        {openMenu === 'marketing_content' && (
+                                            <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/marketing_content/all_marketing_contents" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/marketing_content/all_marketing_contents",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/marketing_content/all_marketing_contents"
+                                                })}>
+                                                    Todos os conteudos de marketing
+                                                </Link>
+                                                <Link href="/marketing_content/add_content_marketing" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/marketing_content/add_content_marketing",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/marketing_content/add_content_marketing"
+                                                })}>
+                                                    Adicionar novo conteudo de marketing
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                                 : user?.role === 'ADMIN' ?
                                     <>
@@ -510,6 +542,38 @@ export function SidebarAndHeader({ children }: Content) {
                                                         'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/add_tag"
                                                     })}>
                                                         Adicionar nova tag
+                                                    </Link>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            <button
+                                                onClick={() => handleMenuToggle('marketing_content')}
+                                                className={clsx('p-2 text-left mb-2 flex justify-between items-center w-full', {
+                                                    'bg-activeLink rounded': openMenu === 'marketing_content' || currentRoute?.includes("/marketing_content"),
+                                                    'text-white': openMenu !== 'marketing_content' && !currentRoute?.includes("/marketing_content")
+                                                })}
+                                            >
+                                                Marketing
+                                                <CaretRight className={clsx('transition-transform duration-200', {
+                                                    'rotate-90': openMenu === 'marketing_content',
+                                                    'rotate-0': openMenu !== 'marketing_content'
+                                                })} />
+                                            </button>
+                                            {openMenu === 'marketing_content' && (
+                                                <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                    <Link href="/marketing_content/all_marketing_contents" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/marketing_content/all_marketing_contents",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/marketing_content/all_marketing_contents"
+                                                    })}>
+                                                        Todos os conteudos de marketing
+                                                    </Link>
+                                                    <Link href="/marketing_content/add_content_marketing" className={clsx({
+                                                        'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/marketing_content/add_content_marketing",
+                                                        'text-white p-2 mb-2 text-sm': currentRoute !== "/marketing_content/add_content_marketing"
+                                                    })}>
+                                                        Adicionar novo conteudo de marketing
                                                     </Link>
                                                 </div>
                                             )}
