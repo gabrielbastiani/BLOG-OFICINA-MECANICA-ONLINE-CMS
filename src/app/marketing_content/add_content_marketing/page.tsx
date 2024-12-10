@@ -21,9 +21,9 @@ interface FormDataProps {
     publish_at_start?: string;
     publish_at_end?: string;
     redirect_url?: string;
-    local_site?: string;
-    popup_position?: string;
-    popup_behavior?: string;
+    local_site?: string[];
+    popup_position?: string[];
+    popup_behavior?: string[];
     popup_conditions?: string[];
 }
 
@@ -37,9 +37,9 @@ const schema = z.object({
     publish_at_start: z.string().optional(),
     publish_at_end: z.string().optional(),
     redirect_url: z.string().optional(),
-    local_site: z.string().optional(),
-    popup_position: z.string().optional(),
-    popup_behavior: z.string().optional(),
+    local_site: z.string().array().optional(),
+    popup_position: z.string().array().optional(),
+    popup_behavior: z.string().array().optional(),
     popup_conditions: z.string().array().optional(),
 });
 
@@ -48,7 +48,22 @@ type FormData = z.infer<typeof schema>;
 const routes_pages = [
     { page: "Página inicial", value: '/' },
     { page: "Página do post", value: '/postPage' },
-]
+];
+
+const popup_behaviors = [
+    { behaviors: "Em quanto carrega uma página", value: 'on_load' },
+    { behaviors: "Em quanto rola a página", value: 'on_scroll' },
+];
+
+const popup_positions = [
+    { position: "Parte superior direita", value: 'top-right' },
+    { position: "Parte central", value: 'center' },
+];
+
+const locals_site = [
+    { locals: "Home parte superior", value: 'top_home' },
+    { locals: "Página de post", value: 'inside-post' },
+];
 
 export default function Add_content_marketing() {
 
@@ -57,6 +72,9 @@ export default function Add_content_marketing() {
     const [image_url, setImage_post] = useState<File | null>(null);
     const [isChecked, setIsChecked] = useState(false);
     const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+    const [selectedPopupBehaviors, setSelectedPopupBehaviors] = useState<string[]>([]);
+    const [selectedPopupPosition, setSelectedPopupPosition] = useState<string[]>([]);
+    const [selectedLocalSite, setSelectedLocalSite] = useState<string[]>([]);
 
     const {
         register,
@@ -89,25 +107,36 @@ export default function Add_content_marketing() {
     const onSubmit = async (data: FormDataProps) => {
         setLoading(true);
 
-        if (isChecked === false) {
-            setSelectedConditions([]);
+        if (
+            (data.publish_at_start && !data.publish_at_end) ||
+            (!data.publish_at_start && data.publish_at_end)
+        ) {
+            toast.error("Preencha ambas as datas ou deixe as duas em branco.");
+            setLoading(false);
+            return;
         }
 
-        console.log(JSON.stringify(selectedConditions))
+        if (!isChecked) {
+            setSelectedConditions([]);
+            setSelectedPopupBehaviors([]);
+            setSelectedPopupPosition([]);
+        }
+
+        const status = data.publish_at_start || data.publish_at_end ? "Indisponivel" : data.status || "";
 
         try {
             const formData = new FormData();
 
             formData.append("title", data.title);
             formData.append("description", data.description || "");
-            formData.append("status", data.status || "");
+            formData.append("status", status);
             formData.append("publish_at_start", data.publish_at_start || "");
             formData.append("publish_at_end", data.publish_at_end || "");
             formData.append("redirect_url", data.redirect_url || "");
-            formData.append("local_site", data.local_site || "");
             formData.append("is_popup", isChecked ? "true" : "false");
-            formData.append("popup_position", data.popup_position || "");
-            formData.append("popup_behavior", data.popup_behavior || "");
+            formData.append("local_site", JSON.stringify(selectedLocalSite || null));
+            formData.append("popup_position", JSON.stringify(isChecked ? selectedPopupPosition : null));
+            formData.append("popup_behavior", JSON.stringify(isChecked ? selectedPopupBehaviors : null));
             formData.append("popup_conditions", JSON.stringify(isChecked ? selectedConditions : null));
 
             if (image_url) {
@@ -122,14 +151,24 @@ export default function Add_content_marketing() {
             reset();
             setAvatarUrl(null);
             setImage_post(null);
-            setSelectedConditions([]);
+            setIsChecked(false);
         } catch (error) {
-            console.log(error)
+            console.error("Erro ao cadastrar:", error);
             toast.error("Erro ao cadastrar a publicidade.");
+            setSelectedConditions([]);
+            setSelectedPopupBehaviors([]);
+            setSelectedPopupPosition([]);
+            setIsChecked(false);
         } finally {
             setLoading(false);
+            setSelectedConditions([]);
+            setSelectedPopupBehaviors([]);
+            setSelectedPopupPosition([]);
+            setSelectedLocalSite([]);
+            setIsChecked(false);
         }
     };
+
 
     return (
         <SidebarAndHeader>
@@ -159,19 +198,27 @@ export default function Add_content_marketing() {
                     {isChecked ? (
                         <div className="grid grid-cols-2 gap-4">
                             {/* Select referente ao comportamento para o popup */}
-                            <select {...register("popup_behavior")} className="border-2 rounded-md px-3 py-2 text-black">
-                                <option value="">Selecione o comportamento para o popup</option>
-                                <option value="on_load">Em quanto carrega uma página</option>
-                                <option value="on_scroll">Em quanto rola a página</option>
-                            </select>
-
+                            <Select
+                                options={popup_behaviors.map((beh, index) => ({ key: index, value: beh.value, label: beh.behaviors }))}
+                                isMulti
+                                placeholder="Selecione comportamento(s)"
+                                className="basic-multi-select text-black"
+                                classNamePrefix="select"
+                                onChange={(selected) =>
+                                    setSelectedPopupBehaviors(selected.map((item: any) => item.value))
+                                }
+                            />
                             {/* Select referente a posição do popup no site */}
-                            <select {...register("popup_position")} className="border-2 rounded-md px-3 py-2 text-black">
-                                <option value="">Selecione o local do popup</option>
-                                <option value="top-right">Parte superior direita</option>
-                                <option value="center">Parte central</option>
-                            </select>
-
+                            <Select
+                                options={popup_positions.map((pos, index) => ({ key: index, value: pos.value, label: pos.position }))}
+                                isMulti
+                                placeholder="Selecione posições"
+                                className="basic-multi-select text-black"
+                                classNamePrefix="select"
+                                onChange={(selected) =>
+                                    setSelectedPopupPosition(selected.map((item: any) => item.value))
+                                }
+                            />
                             {/* Select referente a condição para esse popup */}
                             <Select
                                 options={routes_pages.map((rout, index) => ({ key: index, value: rout.value, label: rout.page }))}
@@ -220,14 +267,18 @@ export default function Add_content_marketing() {
                         ) :
                             <>
                                 {/* Select referente ao local a ser publicado no blog */}
-                                <select {...register("local_site")} className="border-2 rounded-md px-3 py-2 text-black">
-                                    <option value="">Selecione o local no site</option>
-                                    <option value="top_home">Home parte superior</option>
-                                    <option value="inside-post">Página de post</option>
-                                </select>
+                                <Select
+                                    options={locals_site.map((loc, index) => ({ key: index, value: loc.value, label: loc.locals }))}
+                                    isMulti
+                                    placeholder="Selecione as partes do site"
+                                    className="basic-multi-select text-black"
+                                    classNamePrefix="select"
+                                    onChange={(selected) =>
+                                        setSelectedLocalSite(selected.map((item: any) => item.value))
+                                    }
+                                />
                             </>
                         }
-
                         {/* Select referente ao status */}
                         <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
                             <option value="">Selecione o status</option>
