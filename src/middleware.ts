@@ -9,9 +9,9 @@ const PUBLIC_ROUTES = [
   "/"
 ];
 const PROTECTED_ROUTES = [
-  '/marketing_content/add_content_marketing',
-  '/marketing_content/all_marketing_contents',
-  '/marketing_content',
+  '/marketing_contents/add_content_marketing',
+  '/marketing_contents/all_marketing_contents',
+  '/marketing_contents',
   '/user/users_blog',
   '/posts/comments',
   '/posts/all_posts/post',
@@ -33,9 +33,9 @@ const PROTECTED_ROUTES = [
 ]; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
   SUPER_ADMIN: [
-    '/marketing_content/add_content_marketing',
-    '/marketing_content/all_marketing_contents',
-    '/marketing_content',
+    '/marketing_contents/add_content_marketing',
+    '/marketing_contents/all_marketing_contents',
+    '/marketing_contents',
     '/user/users_blog',
     '/posts/comments',
     '/posts/all_posts/post',
@@ -56,9 +56,9 @@ const ROLE_BASED_ROUTES = {
     '/central_notifications'
   ], // Exemplo de rotas restritas para SUPER_ADMIN
   ADMIN: [
-    '/marketing_content/add_content_marketing',
-    '/marketing_content/all_marketing_contents',
-    '/marketing_content',
+    '/marketing_contents/add_content_marketing',
+    '/marketing_contents/all_marketing_contents',
+    '/marketing_contents',
     '/user/users_blog',
     '/posts/comments',
     '/posts/all_posts/post',
@@ -137,9 +137,9 @@ function hasAccessToRoute(userRole: string, pathname: string): boolean {/* @ts-i
 export const config = {
   matcher: [
     '/',
-    '/marketing_content/add_content_marketing',
-    '/marketing_content/all_marketing_contents',
-    '/marketing_content',
+    '/marketing_contents/add_content_marketing',
+    '/marketing_contents/all_marketing_contents',
+    '/marketing_contents',
     '/user/users_blog',
     '/posts/comments',
     '/posts/all_posts/post',
