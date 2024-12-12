@@ -12,14 +12,18 @@ import { toast } from 'react-toastify'
 import Link from 'next/link'
 import Image from 'next/image'
 import ReCAPTCHA from "react-google-recaptcha";
-import { useEffect, useRef, useState } from 'react'
+import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { LoadingRequest } from '../components/loadingRequest'
 import Login from '../login/page'
+import { FiUpload } from 'react-icons/fi'
 
 const schema = z.object({
     name: z.string().nonempty("O campo nome é obrigatório"),
     email: z.string().email("Insira um email válido").nonempty("O campo email é obrigatório"),
-    password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres").nonempty("O campo senha é obrigatório")
+    password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres").nonempty("O campo senha é obrigatório"),
+    logo: z.string().optional(),
+    name_blog: z.string().optional(),
+    email_blog: z.string().optional()
 });
 
 type FormData = z.infer<typeof schema>
@@ -32,6 +36,8 @@ export default function Register() {
     const [loading, setLoading] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
     const captchaRef = useRef<ReCAPTCHA | null>(null);
+    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+    const [logo, setLogo] = useState<File | null>(null);
 
     useEffect(() => {
         const apiClient = setupAPIClient();
@@ -58,9 +64,44 @@ export default function Register() {
         setCaptchaToken(token);
     };
 
+    function handleFile(e: ChangeEvent<HTMLInputElement>) {
+        if (!e.target.files) return;
+
+        const image = e.target.files[0];
+        if (!image) return;
+
+        if (image.type === "image/jpeg" || image.type === "image/png") {
+            setLogo(image);
+            setAvatarUrl(URL.createObjectURL(image));
+        } else {
+            toast.error("Formato de imagem inválido. Selecione uma imagem JPEG ou PNG.");
+        }
+    }
+
     async function onSubmit(data: FormData) {
 
+        console.log(data)
+
         setLoading(true);
+        const apiClient = setupAPIClient();
+        try {
+            const formData = new FormData();
+
+            formData.append("name", data.name_blog || "");
+            formData.append("email", data.email_blog || "");
+
+            if (logo) {
+                console.log(logo)
+                formData.append("file", logo);
+            }
+            
+            await apiClient.post('/configuration_blog/create', formData);
+
+            toast.success('Cadastro do blog feito com sucesso!');
+
+        } catch (error) {
+            toast.error("Erro ao cadstrar dados do blog.");
+        }
 
         if (!captchaToken) {
             toast.error("Por favor, verifique o reCAPTCHA.");
@@ -99,19 +140,46 @@ export default function Register() {
                         :
                         <Container>
                             <div className='w-full min-h-screen flex justify-center items-center flex-col gap-4'>
-                                <div className='mb-6 max-w-sm w-full'>
-                                    <Image
-                                        src={logoImg}
-                                        alt='logo-do-site'
-                                        width={500}
-                                        height={500}
-                                    />
-                                </div>
-
                                 <form
                                     className='bg-white max-w-xl w-full rounded-lg p-4'
                                     onSubmit={handleSubmit(onSubmit)}
                                 >
+                                    <div className='mb-3'>
+                                        <Input
+                                            styles='w-full border-2 rounded-md h-11 px-2'
+                                            type="text"
+                                            placeholder="Digite o nome do blog..."
+                                            name="name_blog"
+                                            error={errors.name?.message}
+                                            register={register}
+                                        />
+                                    </div>
+
+                                    <div className='mb-3'>
+                                        <Input
+                                            styles='w-full border-2 rounded-md h-11 px-2'
+                                            type="email"
+                                            placeholder="Digite o email do blog..."
+                                            name="email_blog"
+                                            error={errors.email?.message}
+                                            register={register}
+                                        />
+                                    </div>
+
+                                    <div className='mb-3'>
+                                        {/* Input para Imagem */}
+                                        <label className="relative w-full h-[450px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden">
+                                            <input type="file" accept="image/png, image/jpeg" onChange={handleFile} className="hidden" />
+                                            {avatarUrl ? (
+                                                <Image src={avatarUrl} alt="Preview da imagem" width={250} height={200} className="object-cover w-full h-full" />
+                                            ) : (
+                                                <div className="flex items-center justify-center w-full h-full bg-gray-300">
+                                                    <FiUpload size={30} color="#ff6700" />
+                                                </div>
+                                            )}
+                                        </label>
+                                    </div>
+
                                     <div className='mb-3'>
                                         <Input
                                             styles='w-full border-2 rounded-md h-11 px-2'

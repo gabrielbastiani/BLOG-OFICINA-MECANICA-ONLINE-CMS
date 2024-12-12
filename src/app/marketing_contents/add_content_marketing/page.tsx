@@ -38,32 +38,12 @@ const schema = z.object({
     publish_at_end: z.string().optional(),
     redirect_url: z.string().optional(),
     local_site: z.string().array().optional(),
-    popup_position: z.string().array().optional(),
+    /* popup_position: z.string().array().optional(),
     popup_behavior: z.string().array().optional(),
-    popup_conditions: z.string().array().optional(),
+    popup_conditions: z.string().array().optional(), */
 });
 
 type FormData = z.infer<typeof schema>;
-
-const routes_pages = [
-    { page: "Página inicial", value: '/' },
-    { page: "Página do post", value: '/postPage' },
-];
-
-const popup_behaviors = [
-    { behaviors: "Em quanto carrega uma página", value: 'on_load' },
-    { behaviors: "Em quanto rola a página", value: 'on_scroll' },
-];
-
-const popup_positions = [
-    { position: "Parte superior direita", value: 'top-right' },
-    { position: "Parte central", value: 'center' },
-];
-
-const locals_site = [
-    { locals: "Home parte superior", value: 'top_home' },
-    { locals: "Página de post", value: 'inside-post' },
-];
 
 export default function Add_content_marketing() {
 
@@ -106,6 +86,12 @@ export default function Add_content_marketing() {
 
     const onSubmit = async (data: FormDataProps) => {
         setLoading(true);
+
+        console.log(data);
+        console.log("selectedConditions:", selectedConditions);
+        console.log("selectedPopupBehaviors:", selectedPopupBehaviors);
+        console.log("selectedPopupPosition:", selectedPopupPosition);
+        console.log("selectedLocalSite:", selectedLocalSite);
 
         if (
             (data.publish_at_start && !data.publish_at_end) ||
@@ -284,6 +270,7 @@ export default function Add_content_marketing() {
                             <option value="">Selecione o status</option>
                             <option value="Disponivel">Disponível</option>
                             <option value="Indisponivel">Indisponível</option>
+                            <option value="Programado">Programado</option>
                         </select>
 
                     </div>

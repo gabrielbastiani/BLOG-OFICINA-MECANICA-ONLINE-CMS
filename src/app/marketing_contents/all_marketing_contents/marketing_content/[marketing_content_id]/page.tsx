@@ -26,12 +26,6 @@ interface FormDataProps {
     popup_position: any;
     popup_behavior: any;
     popup_conditions: any;
-    marketingPublicationView: {
-        id: string;
-        marketingPublication_id: string;
-        local_site: string
-        length: number;
-    }
     created_at: string | number | Date;
 }
 
@@ -45,6 +39,10 @@ const schema = z.object({
     }),
     publish_at_start: z.string().optional(),
     publish_at_end: z.string().optional(),
+    local_site: z.array(z.string()).optional(),
+    popup_position: z.array(z.string()).optional(),
+    popup_behavior: z.array(z.string()).optional(),
+    popup_conditions: z.array(z.string()).optional()
 });
 
 type FormData = z.infer<typeof schema>;
@@ -382,6 +380,7 @@ export default function Marketing_content({ params }: { params: { marketing_cont
                                 <option value="">Selecione o status</option>
                                 <option value="Disponivel">Disponível</option>
                                 <option value="Indisponivel">Indisponível</option>
+                                <option value="Programado">Programado</option>
                             </select>
                         </label>
                         &nbsp;&nbsp;
