@@ -198,7 +198,7 @@ export default function Add_content_marketing() {
                             />
                             {/* Select referente a posição do popup no site */}
                             <Select
-                                options={config_publication.map((pos, index) => ({ key: index, value: pos.id, label: pos.popup_position }))}
+                                options={config_publication.map((pos, index) => ({ key: index, value: pos.id, label: pos }))}
                                 isMulti
                                 placeholder="Selecione posições"
                                 className="basic-multi-select text-black"
