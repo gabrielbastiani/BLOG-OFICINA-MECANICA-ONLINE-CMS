@@ -13,6 +13,7 @@ type AuthContextData = {
     signIn: (credentials: SignInProps) => Promise<boolean>;
     signOut: () => void;
     updateUser: (newUserData: Partial<UserProps>) => void;
+    configs?: ConfigProps;
 }
 
 type UserProps = {
@@ -32,17 +33,33 @@ type AuthProviderProps = {
     children: ReactNode;
 }
 
+interface ConfigProps {
+    name_blog: string;
+    logo: string;
+    email_blog: string;
+    phone: string;
+}
+
 export const AuthContext = createContext({} as AuthContextData);
 
 export function AuthProvider({ children }: AuthProviderProps) {
 
     const router = useRouter();
 
+    const [configs, setConfigs] = useState<ConfigProps>();
     const [cookies, setCookie, removeCookie] = useCookies(['@cmsblog.token']);
     const [cookiesId, setCookieId, removeCookieId] = useCookies(['@idUser']);
     const [user, setUser] = useState<UserProps>();
     const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
     const isAuthenticated = !!user;
+
+    useEffect(() => {
+        async function loadConfigs() {
+            const { data } = await api.get(`/configuration_blog/get_configs`);
+            setConfigs(data);
+        }
+        loadConfigs();
+    },[]);
 
     async function signIn({ email, password }: SignInProps): Promise<boolean> {
         setLoadingAuth(true);
@@ -138,7 +155,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, loadingAuth, signIn, signOut, updateUser }}>
+        <AuthContext.Provider value={{ configs, user, isAuthenticated, loadingAuth, signIn, signOut, updateUser }}>
             {children}
         </AuthContext.Provider>
     )

@@ -5,7 +5,7 @@ import { SidebarAndHeader } from "@/app/components/sidebarAndHeader";
 import { TitlePage } from "@/app/components/titlePage";
 import { setupAPIClient } from "@/services/api";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { FiUpload } from "react-icons/fi";
 import { toast } from "react-toastify";
@@ -21,26 +21,28 @@ interface FormDataProps {
     publish_at_start?: string;
     publish_at_end?: string;
     redirect_url?: string;
-    local_site?: string[];
-    popup_position?: string[];
-    popup_behavior?: string[];
-    popup_conditions?: string[];
+    config_publication?: string[];
+}
+
+interface ConfigsPublicationProps {
+    id: string;
+    local_site: string;
+    popup_position: string;
+    popup_behavior: string;
+    popup_conditions: string;
 }
 
 const schema = z.object({
     title: z.string().nonempty("O título é obrigatório"),
     image_url: z.string().optional(),
     description: z.string().optional(),
-    status: z.enum(["Disponivel", "Indisponivel"], {
+    status: z.enum(["Disponivel", "Indisponivel", "Programado"], {
         errorMap: () => ({ message: "Selecione um status válido" }),
     }),
     publish_at_start: z.string().optional(),
     publish_at_end: z.string().optional(),
     redirect_url: z.string().optional(),
-    local_site: z.string().array().optional(),
-    /* popup_position: z.string().array().optional(),
-    popup_behavior: z.string().array().optional(),
-    popup_conditions: z.string().array().optional(), */
+    config_publication: z.string().array().optional()
 });
 
 type FormData = z.infer<typeof schema>;
@@ -51,10 +53,10 @@ export default function Add_content_marketing() {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [image_url, setImage_post] = useState<File | null>(null);
     const [isChecked, setIsChecked] = useState(false);
-    const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-    const [selectedPopupBehaviors, setSelectedPopupBehaviors] = useState<string[]>([]);
-    const [selectedPopupPosition, setSelectedPopupPosition] = useState<string[]>([]);
-    const [selectedLocalSite, setSelectedLocalSite] = useState<string[]>([]);
+    const [config_publication, setConfig_publication] = useState<ConfigsPublicationProps[]>([]);
+    const [selectedConfig_publication, setSelectedConfig_publication] = useState<string[]>([]);
+
+    console.log(config_publication)
 
     const {
         register,
@@ -65,6 +67,19 @@ export default function Add_content_marketing() {
         resolver: zodResolver(schema),
         mode: "onChange",
     });
+
+    useEffect(() => {
+        async function fetchData() {
+            try {
+                const apiClient = setupAPIClient();
+                const response = await apiClient.get(`/marketing_publication/all_publications`);
+                setConfig_publication(response.data.total_marketing_configs.filter((item: { local_site: any; }) => item.local_site));
+            } catch (error) {
+                toast.error("Erro ao carregar configuraçõs de publicidade.");
+            }
+        }
+        fetchData();
+    }, []);
 
     const onChangeCheckbox = () => {
         setIsChecked((prev) => !prev);
@@ -88,10 +103,7 @@ export default function Add_content_marketing() {
         setLoading(true);
 
         console.log(data);
-        console.log("selectedConditions:", selectedConditions);
-        console.log("selectedPopupBehaviors:", selectedPopupBehaviors);
-        console.log("selectedPopupPosition:", selectedPopupPosition);
-        console.log("selectedLocalSite:", selectedLocalSite);
+        console.log("config_publication:", config_publication);
 
         if (
             (data.publish_at_start && !data.publish_at_end) ||
@@ -103,9 +115,7 @@ export default function Add_content_marketing() {
         }
 
         if (!isChecked) {
-            setSelectedConditions([]);
-            setSelectedPopupBehaviors([]);
-            setSelectedPopupPosition([]);
+            setConfig_publication([]);
         }
 
         const status = data.publish_at_start || data.publish_at_end ? "Indisponivel" : data.status || "";
@@ -120,10 +130,7 @@ export default function Add_content_marketing() {
             formData.append("publish_at_end", data.publish_at_end || "");
             formData.append("redirect_url", data.redirect_url || "");
             formData.append("is_popup", isChecked ? "true" : "false");
-            formData.append("local_site", JSON.stringify(selectedLocalSite || null));
-            formData.append("popup_position", JSON.stringify(isChecked ? selectedPopupPosition : null));
-            formData.append("popup_behavior", JSON.stringify(isChecked ? selectedPopupBehaviors : null));
-            formData.append("popup_conditions", JSON.stringify(isChecked ? selectedConditions : null));
+            formData.append("configurationMarketingPublication", JSON.stringify(selectedConfig_publication));
 
             if (image_url) {
                 formData.append("file", image_url);
@@ -141,16 +148,11 @@ export default function Add_content_marketing() {
         } catch (error) {
             console.error("Erro ao cadastrar:", error);
             toast.error("Erro ao cadastrar a publicidade.");
-            setSelectedConditions([]);
-            setSelectedPopupBehaviors([]);
-            setSelectedPopupPosition([]);
+            setConfig_publication([]);
             setIsChecked(false);
         } finally {
             setLoading(false);
-            setSelectedConditions([]);
-            setSelectedPopupBehaviors([]);
-            setSelectedPopupPosition([]);
-            setSelectedLocalSite([]);
+            setConfig_publication([]);
             setIsChecked(false);
         }
     };
@@ -185,37 +187,37 @@ export default function Add_content_marketing() {
                         <div className="grid grid-cols-2 gap-4">
                             {/* Select referente ao comportamento para o popup */}
                             <Select
-                                options={popup_behaviors.map((beh, index) => ({ key: index, value: beh.value, label: beh.behaviors }))}
+                                options={config_publication.map((pos, index) => ({ key: index, value: pos.id, label: pos.local_site }))}
                                 isMulti
                                 placeholder="Selecione comportamento(s)"
                                 className="basic-multi-select text-black"
                                 classNamePrefix="select"
                                 onChange={(selected) =>
-                                    setSelectedPopupBehaviors(selected.map((item: any) => item.value))
+                                    setSelectedConfig_publication(selected.map((item: any) => item.value))
                                 }
                             />
                             {/* Select referente a posição do popup no site */}
                             <Select
-                                options={popup_positions.map((pos, index) => ({ key: index, value: pos.value, label: pos.position }))}
+                                options={config_publication.map((pos, index) => ({ key: index, value: pos.id, label: pos.popup_position }))}
                                 isMulti
                                 placeholder="Selecione posições"
                                 className="basic-multi-select text-black"
                                 classNamePrefix="select"
                                 onChange={(selected) =>
-                                    setSelectedPopupPosition(selected.map((item: any) => item.value))
+                                    setSelectedConfig_publication(selected.map((item: any) => item.value))
                                 }
                             />
                             {/* Select referente a condição para esse popup */}
-                            <Select
-                                options={routes_pages.map((rout, index) => ({ key: index, value: rout.value, label: rout.page }))}
+                            {/* <Select
+                                options={config_publication.map((rout, index) => ({ key: index, value: rout.id, label: rout.popup_conditions }))}
                                 isMulti
                                 placeholder="Selecione página(s)"
                                 className="basic-multi-select text-black"
                                 classNamePrefix="select"
                                 onChange={(selected) =>
-                                    setSelectedConditions(selected.map((item: any) => item.value))
+                                    setSelectedConfig_publication(selected.map((item: any) => item.value))
                                 }
-                            />
+                            /> */}
                         </div>
                     ) : null}
 
@@ -253,16 +255,16 @@ export default function Add_content_marketing() {
                         ) :
                             <>
                                 {/* Select referente ao local a ser publicado no blog */}
-                                <Select
-                                    options={locals_site.map((loc, index) => ({ key: index, value: loc.value, label: loc.locals }))}
+                                {/* <Select
+                                    options={config_publication.map((loc, index) => ({ key: index, value: loc.value, label: loc.local_site }))}
                                     isMulti
                                     placeholder="Selecione as partes do site"
                                     className="basic-multi-select text-black"
                                     classNamePrefix="select"
                                     onChange={(selected) =>
-                                        setSelectedLocalSite(selected.map((item: any) => item.value))
+                                        setSelectedConfig_publication(selected.map((item: any) => item.value))
                                     }
-                                />
+                                /> */}
                             </>
                         }
                         {/* Select referente ao status */}

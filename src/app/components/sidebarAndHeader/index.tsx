@@ -27,7 +27,7 @@ interface Notification {
 
 export function SidebarAndHeader({ children }: Content) {
 
-    const { isAuthenticated, loadingAuth, user } = useContext(AuthContext);
+    const { isAuthenticated, loadingAuth, user, configs } = useContext(AuthContext);
     const [isSideBarOpen, setIsSideBarOpen] = useState(true);
     const [currentRoute, setCurrentRoute] = useState<string | null>(null);
     const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -165,7 +165,12 @@ export function SidebarAndHeader({ children }: Content) {
                         <div className="flex flex-col gap-2 ml-2">
                             <div className="text-white font-semibold uppercase mb-2 ml-2 mt-3">
                                 <Link href="/dashboard">
-                                    <Image src={logo} width={120} alt="logo" />
+                                    <Image
+                                        src={`http://localhost:3333/files/${configs?.logo}`}
+                                        width={120}
+                                        height={120}
+                                        alt="logo"
+                                    />
                                 </Link>
                             </div>
                         </div>
@@ -687,7 +692,7 @@ export function SidebarAndHeader({ children }: Content) {
                         <CaretRight className="w-5 h-5" />
                     </Collapsible.Trigger>
 
-                    <h1 className="text-white font-bold">CMS Blog - Builder Seu Negócio Online</h1>
+                    <h1 className="text-white font-bold">CMS Blog - {configs?.name_blog}</h1>
 
                     {/* Novo container para o sino e o avatar */}
                     <div className="flex items-center gap-4">

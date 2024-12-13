@@ -7,27 +7,29 @@ import { Input } from '../../components/input'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { LoadingRequest } from '../../components/loadingRequest'
 import ReCAPTCHA from "react-google-recaptcha";
 import { toast } from 'react-toastify'
 import { setupAPIClient } from '@/services/api'
+import { AuthContext } from '@/contexts/AuthContext'
 
 const passwordSchema = z.object({
     password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
     confirmPassword: z.string().min(6, 'Confirmação de senha deve ter pelo menos 6 caracteres'),
 }).refine(data => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',
-    path: ['confirmPassword'], // Indica onde a mensagem de erro deve ser exibida
+    path: ['confirmPassword'],
 });
 
 type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 export default function RecoverPassword({ params }: { params: { recover_password: string } }) {
 
-    const router = useRouter()
+    const router = useRouter();
+    const { configs } = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -76,12 +78,16 @@ export default function RecoverPassword({ params }: { params: { recover_password
                 <Container>
                     <div className='w-full min-h-screen flex justify-center items-center flex-col gap-4'>
                         <div className='mb-6 max-w-sm w-full'>
-                            <Image
-                                src={logoImg}
-                                alt='logo-do-site'
-                                width={500}
-                                height={500}
-                            />
+                            {configs?.logo ?
+                                <Image
+                                    src={`http://localhost:3333/files/${configs?.logo}`}
+                                    alt='logo-do-site'
+                                    width={500}
+                                    height={500}
+                                />
+                                :
+                                null
+                            }
                         </div>
 
                         <form

@@ -40,7 +40,7 @@ const schema = z.object({
     title: z.string().nonempty("O título é obrigatório"),
     image_post: z.string().optional(),
     text_post: z.string().optional(),
-    status: z.enum(["Disponivel", "Indisponivel"], {
+    status: z.enum(["Disponivel", "Indisponivel", "Programado"], {
         errorMap: () => ({ message: "Selecione um status válido" }),
     }),
     publish_at: z.string().optional(),
@@ -196,6 +196,7 @@ export default function AddPost() {
                         />
                         <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
                             <option value="">Selecione o status</option>
+                            <option value="Programado">Programado</option>
                             <option value="Disponivel">Disponível</option>
                             <option value="Indisponivel">Indisponível</option>
                         </select>

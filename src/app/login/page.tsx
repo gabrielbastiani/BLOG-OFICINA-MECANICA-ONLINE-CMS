@@ -25,7 +25,7 @@ type FormData = z.infer<typeof schema>
 export default function Login() {
 
     const router = useRouter();
-    const { signIn } = useContext(AuthContext);
+    const { signIn, configs } = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
@@ -82,12 +82,16 @@ export default function Login() {
                 <Container>
                     <div className='w-full min-h-screen flex justify-center items-center flex-col gap-4'>
                         <div className='mb-6 max-w-sm w-full'>
-                            <Image
-                                src={logoImg}
-                                alt='logo-do-site'
+                            {configs?.logo ?
+                                <Image
+                                src={`http://localhost:3333/files/${configs?.logo}`}
+                                alt='logo-do-blog'
                                 width={500}
                                 height={500}
                             />
+                                :
+                                null
+                            }
                         </div>
 
                         <form

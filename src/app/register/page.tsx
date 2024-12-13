@@ -79,19 +79,30 @@ export default function Register() {
     }
 
     async function onSubmit(data: FormData) {
-
-        console.log(data)
-
         setLoading(true);
         const apiClient = setupAPIClient();
         try {
+            if (logo === null) {
+                toast.error("A imagem da logo do seu blog é obrigatória para o cadastro");
+                return;
+            }
+
+            if (data.name_blog === null) {
+                toast.error("O nome do seu blog é obrigatório para o cadastro");
+                return;
+            }
+
+            if (data.email_blog === null) {
+                toast.error("O email do seu blog é obrigatório para o cadastro");
+                return;
+            }
+
             const formData = new FormData();
 
-            formData.append("name", data.name_blog || "");
-            formData.append("email", data.email_blog || "");
+            formData.append("name_blog", data.name_blog || "");
+            formData.append("email_blog", data.email_blog || "");
 
             if (logo) {
-                console.log(logo)
                 formData.append("file", logo);
             }
             
@@ -110,7 +121,10 @@ export default function Register() {
 
         try {
             const apiClient = setupAPIClient();
-            await apiClient.post('/user/create', { name: data?.name, email: data?.email, password: data?.password });
+
+            setTimeout(async () => {
+                await apiClient.post('/user/create', { name: data?.name, email: data?.email, password: data?.password });
+            }, 3000);
 
             toast.success('Cadastro feito com sucesso!');
 
@@ -150,7 +164,7 @@ export default function Register() {
                                             type="text"
                                             placeholder="Digite o nome do blog..."
                                             name="name_blog"
-                                            error={errors.name?.message}
+                                            error={errors.name_blog?.message}
                                             register={register}
                                         />
                                     </div>
@@ -161,7 +175,7 @@ export default function Register() {
                                             type="email"
                                             placeholder="Digite o email do blog..."
                                             name="email_blog"
-                                            error={errors.email?.message}
+                                            error={errors.email_blog?.message}
                                             register={register}
                                         />
                                     </div>

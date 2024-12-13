@@ -35,7 +35,7 @@ interface PostsProps {
     }>;
 }
 
-const statusOptions = ["Disponivel", "Indisponivel"];
+const statusOptions = ["Disponivel", "Indisponivel", "Programado"];
 
 export default function All_posts() {
 
