@@ -46,7 +46,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const router = useRouter();
 
-    const [configs, setConfigs] = useState<ConfigProps>();
+    const [configs, setConfigs] = useState<ConfigProps>({
+        name_blog: "",
+        logo: "",
+        email_blog: "",
+        phone: ""
+    });    
     const [cookies, setCookie, removeCookie] = useCookies(['@cmsblog.token']);
     const [cookiesId, setCookieId, removeCookieId] = useCookies(['@idUser']);
     const [user, setUser] = useState<UserProps>();
@@ -55,11 +60,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     useEffect(() => {
         async function loadConfigs() {
-            const { data } = await api.get(`/configuration_blog/get_configs`);
-            setConfigs(data);
+            try {
+                const { data } = await api.get(`/configuration_blog/get_configs`);
+                
+                if (data) {
+                    setConfigs(data);
+                } else {
+                    console.warn("Nenhuma configuração foi retornada pela API.");                    
+                }
+            } catch (error) {
+                console.error("Erro ao carregar configurações:", error);
+            }
         }
         loadConfigs();
-    },[]);
+    }, []);    
 
     async function signIn({ email, password }: SignInProps): Promise<boolean> {
         setLoadingAuth(true);

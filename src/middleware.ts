@@ -9,6 +9,7 @@ const PUBLIC_ROUTES = [
   "/"
 ];
 const PROTECTED_ROUTES = [
+  '/marketing_contents/configurations_marketing',
   '/marketing_contents/add_content_marketing',
   '/marketing_contents/all_marketing_contents',
   '/marketing_contents',
@@ -33,6 +34,7 @@ const PROTECTED_ROUTES = [
 ]; // Rotas que requerem autenticação
 const ROLE_BASED_ROUTES = {
   SUPER_ADMIN: [
+    '/marketing_contents/configurations_marketing',
     '/marketing_contents/add_content_marketing',
     '/marketing_contents/all_marketing_contents',
     '/marketing_contents',
@@ -137,6 +139,7 @@ function hasAccessToRoute(userRole: string, pathname: string): boolean {/* @ts-i
 export const config = {
   matcher: [
     '/',
+    '/marketing_contents/configurations_marketing',
     '/marketing_contents/add_content_marketing',
     '/marketing_contents/all_marketing_contents',
     '/marketing_contents',

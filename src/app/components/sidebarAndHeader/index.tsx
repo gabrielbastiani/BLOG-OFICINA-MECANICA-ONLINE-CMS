@@ -370,6 +370,12 @@ export function SidebarAndHeader({ children }: Content) {
                                         </button>
                                         {openMenu === 'marketing_contents' && (
                                             <div className="ml-4 overflow-hidden transition-all duration-300 ease-in-out flex flex-col">
+                                                <Link href="/marketing_contents/configurations_marketing" className={clsx({
+                                                    'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/marketing_contents/configurations_marketing",
+                                                    'text-white p-2 mb-2 text-sm': currentRoute !== "/marketing_contents/configurations_marketing"
+                                                })}>
+                                                    Configurações de marketing
+                                                </Link>
                                                 <Link href="/marketing_contents/all_marketing_contents" className={clsx({
                                                     'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/marketing_contents/all_marketing_contents",
                                                     'text-white p-2 mb-2 text-sm': currentRoute !== "/marketing_contents/all_marketing_contents"
