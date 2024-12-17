@@ -68,6 +68,7 @@ export default function Newsletter() {
                 <TitlePage title="NEWSLETTER" />
 
                 <DataTable
+                    timeFilterButton={true}
                     checkbox_delete={true}
                     active_buttons_searchInput_comments={false}
                     name_file_export="newslatter"

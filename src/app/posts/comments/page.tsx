@@ -144,6 +144,7 @@ export default function Comments() {
                 <TitlePage title="COMENTARIOS" />
 
                 <DataTable
+                    timeFilterButton={true}
                     checkbox_delete={false}
                     generate_excel_delete=""
                     delete_bulk_data=""

@@ -18,6 +18,7 @@ interface Column<T> {
 }
 
 interface DataTableProps<T extends { id: string }> {
+    timeFilterButton: boolean;
     generate_excel_delete: string;
     delete_bulk_data: string;
     modal_delete_bulk: boolean;
@@ -56,6 +57,7 @@ function DataTable<T extends {
     role?: string;
     created_at?: string | number | Date; id: string
 }>({
+    timeFilterButton,
     generate_excel_delete,
     delete_bulk_data,
     modal_delete_bulk,
@@ -178,7 +180,7 @@ function DataTable<T extends {
                 }
             });
 
-            toast.success(`Contato(s) deletados com sucesso`);
+            toast.success(`Dado(s) deletados com sucesso`);
             setSelectdData([]);
             onFetchData({ page: currentPage, limit, search, orderBy, orderDirection });
 
@@ -187,7 +189,7 @@ function DataTable<T extends {
         } catch (error) {
             if (error instanceof Error && 'response' in error && error.response) {
                 console.log((error as any).response.data);
-                toast.error('Ops, erro ao deletar o usuário.');
+                toast.error('Ops, erro ao deletar o(s) dado(s).');
             } else {
                 console.error(error);
                 toast.error('Erro desconhecido.');
@@ -238,12 +240,16 @@ function DataTable<T extends {
                         availableColumns={availableColumnsOrder}
                         customNames={customNamesOrder}
                     />
-                    <button
+                    {timeFilterButton ?
+                        <button
                         onClick={handleOpenTimeData}
                         className="mt-2 md:mt-0 md:ml-2 p-2 bg-gray-500 text-white rounded w-full md:w-auto"
                     >
                         Por data
                     </button>
+                    :
+                        null
+                    }
                     <TimeFilterModal
                         isOpen={isModalOpenTimeData}
                         onClose={handleCloseModalTimeData}

@@ -177,6 +177,7 @@ export default function All_categories() {
                 <TitlePage title="TODAS AS CATEGORIAS" />
 
                 <DataTable
+                    timeFilterButton={true}
                     active_buttons_searchInput_comments={false}
                     checkbox_delete={true}
                     generate_excel_delete="/category/download_excel_delete_category?user_id"

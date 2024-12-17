@@ -26,10 +26,7 @@ interface FormDataProps {
 
 interface ConfigsPublicationProps {
     id: string;
-    local_site: string;
-    popup_position: string;
-    popup_behavior: string;
-    popup_conditions: string;
+    name: string;
 }
 
 const schema = z.object({
@@ -56,7 +53,7 @@ export default function Add_content_marketing() {
     const [config_publication, setConfig_publication] = useState<ConfigsPublicationProps[]>([]);
     const [selectedConfig_publication, setSelectedConfig_publication] = useState<string[]>([]);
 
-    console.log(config_publication)
+    console.log(selectedConfig_publication)
 
     const {
         register,
@@ -72,7 +69,7 @@ export default function Add_content_marketing() {
         async function fetchData() {
             try {
                 const apiClient = setupAPIClient();
-                const response = await apiClient.get(`/marketing_publication/all_publications`);
+                const response = await apiClient.get(`/all_marketing_configurations/type`);
                 setConfig_publication(response.data.total_marketing_configs);
             } catch (error) {
                 toast.error("Erro ao carregar configuraçõs de publicidade.");
@@ -101,10 +98,6 @@ export default function Add_content_marketing() {
 
     const onSubmit = async (data: FormDataProps) => {
         setLoading(true);
-
-        console.log(data);
-        console.log("config_publication:", config_publication);
-
         if (
             (data.publish_at_start && !data.publish_at_end) ||
             (!data.publish_at_start && data.publish_at_end)
@@ -183,44 +176,6 @@ export default function Add_content_marketing() {
                         A publicidade estará em um popup?
                     </label>
 
-                    {isChecked ? (
-                        <div className="grid grid-cols-2 gap-4">
-                            {/* Select referente ao comportamento para o popup */}
-                            <Select
-                                options={config_publication.map((pos, index) => ({ key: index, value: pos.id, label: pos.local_site }))}
-                                isMulti
-                                placeholder="Selecione comportamento(s)"
-                                className="basic-multi-select text-black"
-                                classNamePrefix="select"
-                                onChange={(selected) =>
-                                    setSelectedConfig_publication(selected.map((item: any) => item.value))
-                                }
-                            />
-                            {/* Select referente a posição do popup no site */}
-                            <Select
-                                options={config_publication.map((pos, index) => ({ key: index, value: pos.id, label: pos }))}
-                                isMulti
-                                placeholder="Selecione posições"
-                                className="basic-multi-select text-black"
-                                classNamePrefix="select"
-                                onChange={(selected) =>
-                                    setSelectedConfig_publication(selected.map((item: any) => item.value))
-                                }
-                            />
-                            {/* Select referente a condição para esse popup */}
-                            {/* <Select
-                                options={config_publication.map((rout, index) => ({ key: index, value: rout.id, label: rout.popup_conditions }))}
-                                isMulti
-                                placeholder="Selecione página(s)"
-                                className="basic-multi-select text-black"
-                                classNamePrefix="select"
-                                onChange={(selected) =>
-                                    setSelectedConfig_publication(selected.map((item: any) => item.value))
-                                }
-                            /> */}
-                        </div>
-                    ) : null}
-
                     {/* Input para Imagem */}
                     <label className="relative w-full h-[450px] rounded-lg cursor-pointer flex justify-center bg-gray-200 overflow-hidden">
                         <input type="file" accept="image/png, image/jpeg" onChange={handleFile} className="hidden" />
@@ -250,23 +205,17 @@ export default function Add_content_marketing() {
 
                     {/* Seletores em linha */}
                     <div className="grid grid-cols-2 gap-4">
-                        {isChecked ? (
-                            null
-                        ) :
-                            <>
-                                {/* Select referente ao local a ser publicado no blog */}
-                                {/* <Select
-                                    options={config_publication.map((loc, index) => ({ key: index, value: loc.value, label: loc.local_site }))}
-                                    isMulti
-                                    placeholder="Selecione as partes do site"
-                                    className="basic-multi-select text-black"
-                                    classNamePrefix="select"
-                                    onChange={(selected) =>
-                                        setSelectedConfig_publication(selected.map((item: any) => item.value))
-                                    }
-                                /> */}
-                            </>
-                        }
+                        {/* Select referente ao local a ser publicado no blog */}
+                        <Select
+                            options={config_publication.map((loc, index) => ({ key: index, value: loc.id, label: loc.name }))}
+                            isMulti
+                            placeholder="Selecione configurações"
+                            className="basic-multi-select text-black"
+                            classNamePrefix="select"
+                            onChange={(selected) =>
+                                setSelectedConfig_publication(selected.map((item: any) => item.value))
+                            }
+                        />
                         {/* Select referente ao status */}
                         <select {...register("status")} className="border-2 rounded-md px-3 py-2 text-black">
                             <option value="">Selecione o status</option>

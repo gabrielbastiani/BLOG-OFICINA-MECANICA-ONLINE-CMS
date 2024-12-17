@@ -22,10 +22,7 @@ interface FormDataProps {
     publish_at_start: string | number | Date;
     publish_at_end: string | number | Date;
     is_popup: boolean;
-    local_site: any;
-    popup_position: any;
-    popup_behavior: any;
-    popup_conditions: any;
+    configurationMarketingType: any;
     created_at: string | number | Date;
 }
 
@@ -39,41 +36,15 @@ const schema = z.object({
     }),
     publish_at_start: z.string().optional(),
     publish_at_end: z.string().optional(),
-    local_site: z.array(z.string()).optional(),
-    popup_position: z.array(z.string()).optional(),
-    popup_behavior: z.array(z.string()).optional(),
-    popup_conditions: z.array(z.string()).optional()
+    configurationMarketingType: z.array(z.string()).optional()
 });
 
 type FormData = z.infer<typeof schema>;
 
-const routes_pages = [
-    { page: "Página inicial", value: '/' },
-    { page: "Página do post", value: '/postPage' },
-];
-
-const popup_behaviors = [
-    { behaviors: "Em quanto carrega uma página", value: 'on_load' },
-    { behaviors: "Em quanto rola a página", value: 'on_scroll' },
-];
-
-const popup_positions = [
-    { position: "Parte superior direita", value: 'top-right' },
-    { position: "Parte central", value: 'center' },
-];
-
-const locals_site = [
-    { locals: "Home parte superior", value: 'top_home' },
-    { locals: "Página de post", value: 'inside-post' },
-];
-
 export default function Marketing_content({ params }: { params: { marketing_content_id: string } }) {
 
     const [marketingPublicationData, setMarketingPublicationData] = useState<FormDataProps | null>(null);
-    const [selectedLocalSite, setSelectedLocalSite] = useState<string | null>(null);
-    const [selectedRoutesPages, setSelectedRoutesPages] = useState<string | null>(null);
-    const [selectedPopupBehaviors, setSelectedPopupBehaviors] = useState<string | null>(null);
-    const [selectedPopupPositions, setSelectedPopupPositions] = useState<string | null>(null);
+    const [selectedConfigsMarketing, setSelectedConfigsMarketing] = useState<string | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [imageMarketing, setImagePost] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
@@ -97,15 +68,11 @@ export default function Marketing_content({ params }: { params: { marketing_cont
                 const marketingData = marketingResponse.data.unique_marketing_content;
                 setMarketingPublicationData(marketingData);
 
-                setSelectedLocalSite(
-                    marketingData.local_site?.map((loc: any) => loc) || []
+                setSelectedConfigsMarketing(
+                    marketingData.configurationMarketingOnPublication?.map((item: { configurationMarketingType: { id: any } }) => item.configurationMarketingType.id) || []
                 );
 
                 setAvatarUrl(marketingData.image_url || null);
-                setSelectedLocalSite(marketingData.local_site || null);
-                setSelectedPopupBehaviors(marketingData.popup_behavior || null);
-                setSelectedPopupPositions(marketingData.popup_position || null);
-                setSelectedRoutesPages(marketingData.popup_conditions || null);
 
                 reset({
                     title: marketingData.title,
@@ -153,10 +120,7 @@ export default function Marketing_content({ params }: { params: { marketing_cont
             formData.append("status", data.status || "");
             formData.append("publish_at_start", data.publish_at_start ? new Date(data.publish_at_start).toISOString() : "");
             formData.append("publish_at_end", data.publish_at_end ? new Date(data.publish_at_end).toISOString() : "");
-            formData.append("local_site", JSON.stringify(selectedLocalSite));
-            formData.append("popup_position", JSON.stringify(selectedPopupPositions));
-            formData.append("popup_behavior", JSON.stringify(selectedPopupBehaviors));
-            formData.append("popup_conditions", JSON.stringify(selectedRoutesPages));
+            formData.append("configurationMarketingPublication", JSON.stringify(selectedConfigsMarketing));
 
             if (imageMarketing) {
                 formData.append("file", imageMarketing);
@@ -223,154 +187,40 @@ export default function Marketing_content({ params }: { params: { marketing_cont
                         </label>
 
                         <label>
-                            Locais no site:
+                            Configurações da publicidade:
                             <Select
                                 className="text-black z-40"
-                                options={locals_site.map((loc) => ({
-                                    value: loc.value,
-                                    label: loc.locals,
+                                options={configurationMarketingType.map((item) => ({
+                                    value: item.id,
+                                    label: item.name,
                                 }))}
                                 isMulti
-                                placeholder="Selecione os locais do site"
+                                placeholder="Selecione as configurações"
                                 value={
-                                    marketingPublicationData?.local_site
-                                        ? marketingPublicationData.local_site.map((loc: any) => ({
-                                            loc,
+                                    marketingPublicationData?.configurationMarketingOnPublication
+                                        ? marketingPublicationData?.configurationMarketingType.map((item) => ({
+                                            value: item.configurationMarketingType.id,
+                                            label: item.configurationMarketingType.name,
                                         }))
                                         : []
                                 }
-                                onChange={(selected) => {
-                                    const updatedLocalSite = selected.map((item) => ({
-                                        local: { local_site: item },
+                                    onChange={(selected) => {
+                                    const updateConfigs = selected.map((item) => ({
+                                        configurationMarketingType: { id: item.id, name: item.name },
                                     }));
-                                    const localsData = updatedLocalSite.map(item => item);
-                                    setSelectedLocalSite(localsData)
+                                    const configsIds = updateConfigs.map(item => item.configurationMarketingType.id);
+                                    setSelectedCategories(configsIds)
                                     setMarketingPublicationData((prev) =>
                                         prev
                                             ? {
                                                 ...prev,
-                                                locals_site: updatedLocalSite,
+                                                configurationMarketingType: updateConfigs,
                                             }
                                             : null
                                     );
                                 }}
                             />
                         </label>
-
-                        {marketingPublicationData?.is_popup ? (
-                            <>
-                                <label>
-                                    Rotas no site para o popup:
-                                    <Select
-                                        className="text-black z-40"
-                                        options={routes_pages.map((loc) => ({
-                                            value: loc.value,
-                                            label: loc.page,
-                                        }))}
-                                        isMulti
-                                        placeholder="Selecione páginas do site"
-                                        value={
-                                            marketingPublicationData?.local_site
-                                                ? marketingPublicationData.local_site.map((loc: any) => ({
-                                                    value: loc,
-                                                    label: loc,
-                                                }))
-                                                : []
-                                        }
-                                        onChange={(selected) => {
-                                            const updatedLocalSite = selected.map((item) => ({
-                                                local: { local_site: item },
-                                            }));
-                                            const localsData = updatedLocalSite.map(item => item);
-                                            setSelectedRoutesPages(localsData)
-                                            setMarketingPublicationData((prev) =>
-                                                prev
-                                                    ? {
-                                                        ...prev,
-                                                        routes_pages: updatedLocalSite,
-                                                    }
-                                                    : null
-                                            );
-                                        }}
-                                    />
-                                </label>
-
-                                <label>
-                                    Comportamento do popup:
-                                    <Select
-                                        className="text-black z-40"
-                                        options={popup_behaviors.map((loc) => ({
-                                            value: loc.value,
-                                            label: loc.locals,
-                                        }))}
-                                        isMulti
-                                        placeholder="Selecione os comportamentos do popup"
-                                        value={
-                                            marketingPublicationData?.local_site
-                                                ? marketingPublicationData.local_site.map((loc: any) => ({
-                                                    value: loc,
-                                                    label: loc,
-                                                }))
-                                                : []
-                                        }
-                                        onChange={(selected) => {
-                                            const updatedLocalSite = selected.map((item) => ({
-                                                local: { local_site: item },
-                                            }));
-                                            const localsData = updatedLocalSite.map(item => item);
-                                            setSelectedPopupBehaviors(localsData)
-                                            setMarketingPublicationData((prev) =>
-                                                prev
-                                                    ? {
-                                                        ...prev,
-                                                        popup_behaviors: updatedLocalSite,
-                                                    }
-                                                    : null
-                                            );
-                                        }}
-                                    />
-                                </label>
-
-                                <label>
-                                    Posições do popup:
-                                    <Select
-                                        className="text-black z-40"
-                                        options={popup_positions.map((loc) => ({
-                                            value: loc.value,
-                                            label: loc.locals,
-                                        }))}
-                                        isMulti
-                                        placeholder="Selecione as posições do popup"
-                                        value={
-                                            marketingPublicationData?.local_site
-                                                ? marketingPublicationData.local_site.map((loc: any) => ({
-                                                    value: loc,
-                                                    label: loc,
-                                                }))
-                                                : []
-                                        }
-                                        onChange={(selected) => {
-                                            const updatedLocalSite = selected.map((item) => ({
-                                                local: { local_site: item },
-                                            }));
-                                            const localsData = updatedLocalSite.map(item => item);
-                                            setSelectedPopupPositions(localsData)
-                                            setMarketingPublicationData((prev) =>
-                                                prev
-                                                    ? {
-                                                        ...prev,
-                                                        popup_positions: updatedLocalSite,
-                                                    }
-                                                    : null
-                                            );
-                                        }}
-                                    />
-                                </label>
-                            </>
-                        ) :
-                            null
-                        }
-
                     </div>
 
                     <div className="mt-8">

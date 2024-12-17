@@ -137,6 +137,7 @@ export default function Users_blog() {
             <Section>
                 <TitlePage title="TODOS OS USUÁRIOS DO BLOG" />
                 <DataTable
+                    timeFilterButton={true}
                     checkbox_delete={true}
                     active_buttons_searchInput_comments={false}
                     generate_excel_delete="/user/user_blog/download_excel_delete_users_blog?user_id"

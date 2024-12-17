@@ -118,6 +118,7 @@ export default function All_marketing_contents() {
                 <TitlePage title="TODAS PUBLICIDADES" />
 
                 <DataTable
+                    timeFilterButton={true}
                     active_buttons_searchInput_comments={false}
                     checkbox_delete={true}
                     generate_excel_delete="/marketing_publication/download_excel_delete_marketing?user_id"

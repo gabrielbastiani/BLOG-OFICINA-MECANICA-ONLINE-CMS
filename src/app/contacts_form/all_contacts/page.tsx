@@ -69,6 +69,7 @@ export default function All_contacts() {
             <Section>
                 <TitlePage title="TODOS OS CONTATOS" />
                 <DataTable
+                    timeFilterButton={true}
                     data={contacts}
                     columns={[
                         { key: "name_user", label: "Nome" },

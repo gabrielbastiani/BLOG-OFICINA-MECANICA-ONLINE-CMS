@@ -102,6 +102,7 @@ export default function Central_notifications() {
                 </button>
 
                 <DataTable
+                    timeFilterButton={true}
                     data={notification}
                     columns={[
                         {
@@ -155,6 +156,8 @@ export default function Central_notifications() {
                     availableColumns={[]}
                     generate_excel_delete=""
                     delete_bulk_data=""
+                    active_buttons_searchInput_comments={false}
+                    checkbox_delete={false}
                 />
             </Section>
         } />

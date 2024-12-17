@@ -139,6 +139,7 @@ export default function All_users() {
             <Section>
                 <TitlePage title="TODOS OS USUÁRIOS" />
                 <DataTable
+                    timeFilterButton={true}
                     checkbox_delete={true}
                     active_buttons_searchInput_comments={false}
                     generate_excel_delete="/user/download_excel_delete_users?user_id"

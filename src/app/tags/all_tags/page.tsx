@@ -93,6 +93,7 @@ export default function All_tags() {
                 <TitlePage title="TODAS AS TAGS" />
 
                 <DataTable
+                    timeFilterButton={true}
                     checkbox_delete={true}
                     active_buttons_searchInput_comments={false}
                     generate_excel_delete="/tag/download_excel_delete_tags?user_id"

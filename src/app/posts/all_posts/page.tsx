@@ -150,6 +150,7 @@ export default function All_posts() {
                 <TitlePage title="TODOS POSTS" />
 
                 <DataTable
+                    timeFilterButton={true}
                     checkbox_delete={true}
                     active_buttons_searchInput_comments={false}
                     generate_excel_delete="/post/download_excel_delete_post?user_id"

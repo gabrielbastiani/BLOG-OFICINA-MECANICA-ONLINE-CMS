@@ -18,16 +18,16 @@ const schemaType = z.object({
 
 const schemaConfiguration = z.object({
     value: z.string().nonempty("O campo valor é obrigatório"),
-    description: z.string().optional()
+    description_value: z.string().optional(),
 });
 
 type FormTypeData = z.infer<typeof schemaType>;
 type FormConfigurationData = z.infer<typeof schemaConfiguration>;
 
 export default function AddConfiguration() {
-    
+
+    const [currentTab, setCurrentTab] = useState<"type" | "configuration">("type");
     const [dataConfigurationType, setDataConfigurationType] = useState<any>(null);
-    const [showConfigurationForm, setShowConfigurationForm] = useState(false);
 
     const {
         register: registerType,
@@ -49,7 +49,6 @@ export default function AddConfiguration() {
         mode: "onChange",
     });
 
-    // Função para cadastro de ConfigurationMarketingType
     async function onSubmitType(data: FormTypeData) {
         try {
             const apiClient = setupAPIClient();
@@ -58,26 +57,25 @@ export default function AddConfiguration() {
                 description: data?.description,
             });
             setDataConfigurationType(response.data);
-            setShowConfigurationForm(true);
             toast.success("Tipo cadastrado com sucesso!");
             resetType();
+            setCurrentTab("configuration");
         } catch (error) {
             console.error(error);
             toast.error("Erro ao cadastrar tipo.");
         }
     }
 
-    // Função para cadastro de ConfigurationMarketingConfiguration
     async function onSubmitConfiguration(data: FormConfigurationData) {
         try {
             const apiClient = setupAPIClient();
             await apiClient.post("/marketing_configurations/configuration", {
                 ...data,
-                configurationMarketingType_id: dataConfigurationType?.id, // Associa ao tipo criado
+                configurationMarketingType_id: dataConfigurationType?.id,
             });
             toast.success("Configuração cadastrada com sucesso!");
             resetConfiguration();
-            setShowConfigurationForm(false); // Fecha o formulário se necessário
+            setCurrentTab("type");
         } catch (error) {
             console.error(error);
             toast.error("Erro ao cadastrar configuração.");
@@ -89,39 +87,54 @@ export default function AddConfiguration() {
             <Section>
                 <TitlePage title="ADICIONAR CONFIGURAÇÃO" />
 
-                {/* Formulário de ConfigurationMarketingType */}
-                <div className="flex flex-col space-y-6 w-full max-w-md md:max-w-none">
-                    <Input
-                        styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
-                        type="text"
-                        placeholder="Digite um nome..."
-                        name="name"
-                        error={errorsType.name?.message}
-                        register={registerType}
-                    />
-
-                    <Input
-                        styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
-                        type="text"
-                        placeholder="Digite uma descrição..."
-                        name="description"
-                        error={errorsType.description?.message}
-                        register={registerType}
-                    />
-
+                {/* Abas de navegação */}
+                <div className="flex space-x-4 mb-6">
                     <button
-                        onClick={handleSubmitType(onSubmitType)}
-                        className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
+                        className={`px-4 py-2 rounded ${currentTab === "type" ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800"}`}
+                        onClick={() => setCurrentTab("type")}
                     >
-                        Cadastrar Tipo
+                        Tipo
+                    </button>
+                    <button
+                        className={`px-4 py-2 rounded ${currentTab === "configuration" ? "bg-red-500 text-white" : "bg-gray-200 text-gray-800"}`}
+                        onClick={() => setCurrentTab("configuration")}
+                        disabled={!dataConfigurationType}
+                    >
+                        Configuração
                     </button>
                 </div>
 
-                {/* Formulário de ConfigurationMarketingConfiguration */}
-                {showConfigurationForm && (
-                    <div className="mt-10 flex flex-col space-y-6 w-full max-w-md md:max-w-none">
-                        <h2 className="text-lg font-bold">Adicionar Configuração</h2>
+                {/* Conteúdo das abas */}
+                {currentTab === "type" && (
+                    <div className="flex flex-col space-y-6 w-full max-w-md md:max-w-none">
+                        <Input
+                            styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
+                            type="text"
+                            placeholder="Digite um nome..."
+                            name="name"
+                            error={errorsType.name?.message}
+                            register={registerType}
+                        />
+                        <div>
+                            <textarea
+                                {...registerType("description")}
+                                className="border-2 rounded-md h-56 p-3 w-96 resize-none text-black"
+                                placeholder="Digite uma descrição..."
+                            />
+                            {errorsType.description && <p className="text-red-500 text-xs">{errorsType.description.message}</p>}
+                        </div>
+                        <button
+                            onClick={handleSubmitType(onSubmitType)}
+                            className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
+                        >
+                            Cadastrar Tipo
+                        </button>
+                    </div>
+                )}
 
+                {currentTab === "configuration" && (
+                    <div className="flex flex-col space-y-6 w-full max-w-md md:max-w-none">
+                        <h2 className="text-lg font-bold">Adicionar Configuração</h2>
                         <Input
                             styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
                             type="text"
@@ -130,16 +143,14 @@ export default function AddConfiguration() {
                             error={errorsConfiguration.value?.message}
                             register={registerConfiguration}
                         />
-
-                        <Input
-                            styles="border-2 rounded-md h-12 px-3 w-full max-w-sm"
-                            type="text"
-                            placeholder="Descrição"
-                            name="description"
-                            error={errorsConfiguration.description?.message}
-                            register={registerConfiguration}
-                        />
-
+                        <div>
+                            <textarea
+                                {...registerConfiguration("description_value")}
+                                className="border-2 rounded-md h-56 p-3 w-96 resize-none text-black"
+                                placeholder="Digite uma descrição..."
+                            />
+                            {errorsConfiguration.description_value && <p className="text-red-500 text-xs">{errorsConfiguration.description_value.message}</p>}
+                        </div>
                         <button
                             onClick={handleSubmitConfiguration(onSubmitConfiguration)}
                             className="w-full md:w-80 px-6 py-3 bg-backgroundButton text-white rounded hover:bg-hoverButtonBackground transition duration-300"
