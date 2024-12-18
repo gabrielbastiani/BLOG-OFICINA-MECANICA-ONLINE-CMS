@@ -22,13 +22,15 @@ interface PublicationProps {
     description: string;
     clicks: number;
     redirect_url: string;
-    local_site: any;
     publish_at_start: string | number | Date;
     publish_at_end: string | number | Date;
     is_popup: boolean;
-    popup_position: any;
-    popup_behavior: any;
-    popup_conditions: any;
+    configurationMarketingOnPublication: {
+        map: any;
+        length: any;
+        id: string;
+        configurationMarketingType: any
+    }
     marketingPublicationView: {
         id: string;
         marketingPublication_id: string;
@@ -49,7 +51,7 @@ export default function All_marketing_contents() {
 
     const [allPublications, setAllPublications] = useState<PublicationProps[]>([]);
     const [totalPages, setTotalPages] = useState(1);
-    const [editingCategory, setEditingPublication] = useState<{ id: string, field: string } | null>(null);
+    const [editingPublication, setEditingPublication] = useState<{ id: string, field: string } | null>(null);
     const [editedValue, setEditedValue] = useState<string>("");
     const [modalImage, setModalImage] = useState<string | null>(null);
     const [showDescriptionPopup, setShowDescriptionPopup] = useState<string | null>(null);
@@ -254,7 +256,7 @@ export default function All_marketing_contents() {
                             label: 'Status',
                             render: (item) => (
                                 <td>
-                                    {editingCategory?.id === item.id && editingCategory?.field === "status" ? (
+                                    {editingPublication?.id === item.id && editingPublication?.field === "status" ? (
                                         <select
                                             value={editedValue || item.status}
                                             onChange={(e) => setEditedValue(e.target.value)}
@@ -288,7 +290,7 @@ export default function All_marketing_contents() {
                             label: 'Link de redirecionamento',
                             render: (item) => (
                                 <td>
-                                    {editingCategory?.id === item.id && editingCategory?.field === "redirect_url" ? (
+                                    {editingPublication?.id === item.id && editingPublication?.field === "redirect_url" ? (
                                         <input
                                             type="text"
                                             value={editedValue}
@@ -331,81 +333,21 @@ export default function All_marketing_contents() {
                             label: "Clicks"
                         },
                         {
-                            key: "local_site",
-                            label: "Locais no site",
+                            key: "configurationMarketingOnPublication",
+                            label: "Configurações",
                             render: (item) => (
                                 <td className="flex flex-wrap space-x-2 max-w-xs">
-                                    {item.local_site?.length ? (
-                                        item.local_site.map((loc: any, index: Key | null | undefined) => (
+                                    {item.configurationMarketingOnPublication?.length ? (
+                                        item.configurationMarketingOnPublication.map((item: any, index: Key | null | undefined) => (
                                             <span
                                                 key={index}
                                                 className="p-1 bg-gray-200 rounded-full text-xs whitespace-nowrap text-black"
                                             >
-                                                {loc || "Sem local"}
+                                                {item.configurationMarketingType?.name || "Sem configurações"}
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-gray-500">Sem local</span>
-                                    )}
-                                </td>
-                            ),
-                        },
-                        {
-                            key: "popup_behavior",
-                            label: "Comportamento popup",
-                            render: (item) => (
-                                <td className="flex flex-wrap space-x-2 max-w-xs">
-                                    {item.popup_behavior?.length ? (
-                                        item.popup_behavior.map((beh: any, index: Key | null | undefined) => (
-                                            <span
-                                                key={index}
-                                                className="p-1 bg-gray-200 rounded-full text-xs whitespace-nowrap text-black"
-                                            >
-                                                {beh || "Sem comportamento"}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-gray-500">Não é popup</span>
-                                    )}
-                                </td>
-                            ),
-                        },
-                        {
-                            key: "popup_conditions",
-                            label: "Rotas do popup",
-                            render: (item) => (
-                                <td className="flex flex-wrap space-x-2 max-w-xs">
-                                    {item.popup_conditions?.length ? (
-                                        item.popup_conditions.map((con: any, index: Key | null | undefined) => (
-                                            <span
-                                                key={index}
-                                                className="p-1 bg-gray-200 rounded-full text-xs whitespace-nowrap text-black"
-                                            >
-                                                {con || "Sem rotas"}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-gray-500">Não é popup</span>
-                                    )}
-                                </td>
-                            ),
-                        },
-                        {
-                            key: "popup_position",
-                            label: "Posição do popup",
-                            render: (item) => (
-                                <td className="flex flex-wrap space-x-2 max-w-xs">
-                                    {item.popup_position?.length ? (
-                                        item.popup_position.map((pos: any, index: Key | null | undefined) => (
-                                            <span
-                                                key={index}
-                                                className="p-1 bg-gray-200 rounded-full text-xs whitespace-nowrap text-black"
-                                            >
-                                                {pos || "Sem posições"}
-                                            </span>
-                                        ))
-                                    ) : (
-                                        <span className="text-gray-500">Não é popup</span>
+                                        <span className="text-gray-500">Sem configurações</span>
                                     )}
                                 </td>
                             ),

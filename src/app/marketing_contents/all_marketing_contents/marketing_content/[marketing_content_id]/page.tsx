@@ -22,8 +22,18 @@ interface FormDataProps {
     publish_at_start: string | number | Date;
     publish_at_end: string | number | Date;
     is_popup: boolean;
-    configurationMarketingType: any;
     created_at: string | number | Date;
+    configurationMarketingOnPublication?: {
+        configurationMarketingType: {
+            id: string;
+            name: string;
+        };
+    }[];
+}
+
+interface ConfigurationMarketingTypeProps {
+    id: string;
+    name: string;
 }
 
 const schema = z.object({
@@ -36,7 +46,7 @@ const schema = z.object({
     }),
     publish_at_start: z.string().optional(),
     publish_at_end: z.string().optional(),
-    configurationMarketingType: z.array(z.string()).optional()
+    configurationMarketingOnPublication: z.array(z.string()).optional()
 });
 
 type FormData = z.infer<typeof schema>;
@@ -44,7 +54,8 @@ type FormData = z.infer<typeof schema>;
 export default function Marketing_content({ params }: { params: { marketing_content_id: string } }) {
 
     const [marketingPublicationData, setMarketingPublicationData] = useState<FormDataProps | null>(null);
-    const [selectedConfigsMarketing, setSelectedConfigsMarketing] = useState<string | null>(null);
+    const [configurationMarketingOnPublication, setConfigurationMarketingOnPublication] = useState<ConfigurationMarketingTypeProps[]>([]);
+    const [selectedConfigsMarketing, setSelectedConfigsMarketing] = useState<string[]>([]);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [imageMarketing, setImagePost] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
@@ -63,14 +74,19 @@ export default function Marketing_content({ params }: { params: { marketing_cont
         async function fetchData() {
             try {
                 const apiClient = setupAPIClient();
-                const marketingResponse = await apiClient.get(`/marketing_publication/all_publications?marketing_content_id=${params.marketing_content_id}`);
+                const [publicationResponse, configsResponse] = await Promise.all([
+                    apiClient.get(`/marketing_publication/all_publications?marketing_content_id=${params.marketing_content_id}`),
+                    apiClient.get(`/marketing_configurations/configuration/all_configs`)
+                ]);
 
-                const marketingData = marketingResponse.data.unique_marketing_content;
+                const marketingData = publicationResponse.data.unique_marketing_content;
                 setMarketingPublicationData(marketingData);
 
                 setSelectedConfigsMarketing(
                     marketingData.configurationMarketingOnPublication?.map((item: { configurationMarketingType: { id: any } }) => item.configurationMarketingType.id) || []
                 );
+
+                setConfigurationMarketingOnPublication(configsResponse.data);
 
                 setAvatarUrl(marketingData.image_url || null);
 
@@ -113,14 +129,14 @@ export default function Marketing_content({ params }: { params: { marketing_cont
         try {
 
             const formData = new FormData();
-            formData.append("marketing_content_id", params.marketing_content_id);
+            formData.append("marketingPublication_id", params.marketing_content_id);
             formData.append("title", data.title || "");
             formData.append("description", data.description || "");
             formData.append("redirect_url", data.redirect_url || "");
             formData.append("status", data.status || "");
             formData.append("publish_at_start", data.publish_at_start ? new Date(data.publish_at_start).toISOString() : "");
             formData.append("publish_at_end", data.publish_at_end ? new Date(data.publish_at_end).toISOString() : "");
-            formData.append("configurationMarketingPublication", JSON.stringify(selectedConfigsMarketing));
+            formData.append("configurationMarketingOnPublication", JSON.stringify(selectedConfigsMarketing));
 
             if (imageMarketing) {
                 formData.append("file", imageMarketing);
@@ -190,35 +206,39 @@ export default function Marketing_content({ params }: { params: { marketing_cont
                             Configurações da publicidade:
                             <Select
                                 className="text-black z-40"
-                                options={configurationMarketingType.map((item) => ({
-                                    value: item.id,
-                                    label: item.name,
+                                options={configurationMarketingOnPublication.map((typ) => ({
+                                    value: typ.id,
+                                    label: typ.name,
                                 }))}
                                 isMulti
                                 placeholder="Selecione as configurações"
                                 value={
                                     marketingPublicationData?.configurationMarketingOnPublication
-                                        ? marketingPublicationData?.configurationMarketingType.map((item) => ({
+                                        ? marketingPublicationData?.configurationMarketingOnPublication.map((item: { configurationMarketingType: { id: any; name: any; }; }) => ({
                                             value: item.configurationMarketingType.id,
                                             label: item.configurationMarketingType.name,
                                         }))
                                         : []
                                 }
-                                    onChange={(selected) => {
-                                    const updateConfigs = selected.map((item) => ({
-                                        configurationMarketingType: { id: item.id, name: item.name },
+                                onChange={(selected) => {
+                                    const updatedConfigs = selected.map((item) => ({
+                                        configurationMarketingType: {
+                                            id: item.value,
+                                            name: item.label,
+                                        },
                                     }));
-                                    const configsIds = updateConfigs.map(item => item.configurationMarketingType.id);
-                                    setSelectedCategories(configsIds)
+                                    const updatedIds = updatedConfigs.map((config) => config.configurationMarketingType.id);
+                                    setSelectedConfigsMarketing(updatedIds);
                                     setMarketingPublicationData((prev) =>
                                         prev
                                             ? {
                                                 ...prev,
-                                                configurationMarketingType: updateConfigs,
+                                                configurationMarketingOnPublication: updatedConfigs,
                                             }
                                             : null
                                     );
                                 }}
+
                             />
                         </label>
                     </div>

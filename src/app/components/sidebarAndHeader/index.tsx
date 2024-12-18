@@ -304,7 +304,7 @@ export function SidebarAndHeader({ children }: Content) {
                                                     'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/all_tags",
                                                     'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/all_tags"
                                                 })}>
-                                                    Todos as tags
+                                                    Todas as tags
                                                 </Link>
                                                 <Link href="/tags/add_tag" className={clsx({
                                                     'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/add_tag",
@@ -546,7 +546,7 @@ export function SidebarAndHeader({ children }: Content) {
                                                         'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/all_tags",
                                                         'text-white p-2 mb-2 text-sm': currentRoute !== "/tags/all_tags"
                                                     })}>
-                                                        Todos as tags
+                                                        Todas as tags
                                                     </Link>
                                                     <Link href="/tags/add_tag" className={clsx({
                                                         'bg-activeLink rounded p-2 mb-2 text-sm': currentRoute === "/tags/add_tag",
